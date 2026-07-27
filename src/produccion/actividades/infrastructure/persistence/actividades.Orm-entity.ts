@@ -1,0 +1,49 @@
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+
+@Entity("actividades")
+    export class actividadesOrmEntity {
+        @PrimaryGeneratedColumn()
+        id: number;
+
+        @Column({ type: "varchar", length: 150 })
+        nombre: string;
+
+        @Column({ type: "varchar", length: 50 })
+        tipo: string;
+
+        @Column({ type: "varchar", length: 50, nullable: true })
+        subtipo: string | null;
+
+        @Column({ name: "lote_id" })
+        loteId: number;
+
+        @Column({ name: "sub_lote_id", nullable: true })
+        subLoteId: number | null;
+
+        @Column({ name: "cultivo_id" })
+        cultivoId: number;
+
+        @Column({ type: "date" })
+        fecha: Date;
+
+        @Column({ name: "horas_actividad", type: "float" })
+        horasActividad: number;
+
+        @Column({ name: "precio_hora_actividad", type: "float" })
+        precioHoraActividad: number;
+
+        @Column({ type: "text", nullable: true })
+        descripcion: string;
+
+        @Column({ name: "creado_por_usuario_id" })
+        creadoPorUsuarioId: number;
+
+        @Column({ name: "cantidad_plantas", nullable: true, type: "int" })
+        cantidadPlantas: number | null;
+
+        @Column({ name: "producto_agro_id", nullable: true })
+        productoAgroId: number | null;
+
+        @Column({ type: "varchar", default: "Pendiente" })
+        estado: string;
+    }
