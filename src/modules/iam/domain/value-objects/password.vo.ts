@@ -5,7 +5,7 @@ export class Password{
         this.hash = hash;
     }
 
-    static fromhash(hash: string): Password{
+    static fromHash(hash: string): Password{
         if (!hash || hash.trim().length === 0){
             throw new Error ('El has de la contraseña no puede estar vacio');
         }
