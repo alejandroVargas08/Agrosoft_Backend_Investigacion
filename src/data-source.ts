@@ -13,5 +13,6 @@ export const AppDataSource = new DataSource({
   schema: 'public',
   entities: ['src/**/*.orm-entity.ts'],
   migrations: ['src/migrations/*.ts'],
-  synchronize: false,
+  synchronize: true, 
+  logging: true,
 });

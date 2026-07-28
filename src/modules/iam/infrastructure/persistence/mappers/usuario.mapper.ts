@@ -1,28 +1,48 @@
-import { UUID } from "typeorm/driver/mongodb/bson.typings.js";
-import { Usuario } from "../../../domain/entities/usuario.entity";
-import { Email } from "../../../domain/value-objects/email.vo";
-import { Password } from "../../../domain/value-objects/password.vo";
-import { UsuarioOrmEntity } from "../entities/usuario.orm-entity";
+import { Usuario } from '../../../domain/entities/usuario.entity';
+import { UsuarioOrmEntity } from '../entities/usuario.orm-entity';
 
-export class UsuarioMapper{
-    static aDominio(ormEntity: UsuarioOrmEntity): Usuario{
-        return Usuario.reconstruir(
-            ormEntity.id,
-            ormEntity.nombre,
-            Email.create(ormEntity.email),
-            Password.fromHash(ormEntity.password),
-            ormEntity.activo,
-        );
-    };
-    
-    static aPersistencia(usuario: Usuario): UsuarioOrmEntity{
-        const ormEntity = new UsuarioOrmEntity();
-        ormEntity.id = usuario.getId();
-        ormEntity.nombre= usuario.getNombre();
-        ormEntity.email = usuario.getEmail().getValue();
-        ormEntity.password= usuario.getPassword().getHash();
-        ormEntity.activo= usuario.getActivo();
+export class UsuarioMapper {
+  static aDominio(orm: UsuarioOrmEntity): Usuario {
+    return Usuario.reconstruir({
+      id: orm.id,
+      nombre: orm.nombre,
+      apellido: orm.apellido,
+      identificacion: orm.identificacion,
+      idFicha: orm.idFicha,
+      programaFormacionId: orm.programaFormacionId,
+      telefono: orm.telefono,
+      correo: orm.correo,
+      contrasenaHash: orm.contrasenaHash,
+      correoVerificadoEn: orm.correoVerificadoEn,
+      estado: orm.estado,
+      lastLoginAt: orm.lastLoginAt,
+      avatarUrl: orm.avatarUrl,
+      rolId: orm.rolId,
+      creadoEn: orm.creadoEn,
+      actualizadoEn: orm.actualizadoEn,
+      eliminadoEn: orm.eliminadoEn,
+    });
+  }
 
-        return ormEntity;
-    }
+  static aPersistencia(dominio: Usuario): UsuarioOrmEntity {
+    const orm = new UsuarioOrmEntity();
+    orm.id = dominio.obtenerId();
+    orm.nombre = dominio.obtenerNombre();
+    orm.apellido = dominio.obtenerApellido();
+    orm.identificacion = dominio.obtenerIdentificacion();
+    orm.idFicha = dominio.obtenerIdFicha();
+    orm.programaFormacionId = dominio.obtenerProgramaFormacionId();
+    orm.telefono = dominio.obtenerTelefono();
+    orm.correo = dominio.obtenerCorreo();
+    orm.contrasenaHash = dominio.obtenerContrasenaHash();
+    orm.correoVerificadoEn = dominio.obtenerCorreoVerificadoEn();
+    orm.estado = dominio.obtenerEstado();
+    orm.lastLoginAt = dominio.obtenerLastLoginAt();
+    orm.avatarUrl = dominio.obtenerAvatarUrl();
+    orm.rolId = dominio.obtenerRolId();
+    orm.creadoEn = dominio.obtenerCreadoEn();
+    orm.actualizadoEn = dominio.obtenerActualizadoEn();
+    orm.eliminadoEn = dominio.obtenerEliminadoEn();
+    return orm;
+  }
 }

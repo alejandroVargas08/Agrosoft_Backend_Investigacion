@@ -15,7 +15,8 @@ import { IamModule } from './modules/iam/iam.module';
       database: process.env.DB_NAME,
       autoLoadEntities: true,
       schema: 'public',
-      synchronize: false
+      synchronize: true, 
+      logging: true,
     }),
     IamModule,
   ],

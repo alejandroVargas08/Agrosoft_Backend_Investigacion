@@ -1,10 +1,9 @@
-import { Usuario } from "../entities/usuario.entity";
+import { Usuario } from '../entities/usuario.entity';
 
-
-export interface UsuarioRepositoryPort{
-    guardar(Usuario:Usuario): Promise<void>;
-    buscarPorId(id:string): Promise<Usuario| null>;
-    buscarPorEmail(Email: string): Promise<Usuario | null>;
-    listar():Promise<Usuario[]>;
-    eliminarId(id: string): Promise<void>;
+export interface UsuarioRepositoryPort {
+  guardar(usuario: Usuario): Promise<Usuario>;
+  actualizar(usuario: Usuario): Promise<Usuario>; 
+  buscarPorId(id: number): Promise<Usuario | null>;
+  buscarPorCorreo(correo: string): Promise<Usuario | null>;
+  eliminar(id: number): Promise<void>;
 }

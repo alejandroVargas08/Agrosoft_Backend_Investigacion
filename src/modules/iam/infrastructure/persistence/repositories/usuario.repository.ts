@@ -1,50 +1,46 @@
-import { Injectable } from "@nestjs/common";
-import { UsuarioRepositoryPort } from "../../../domain/ports/usuario.repository.port";
-import { UsuarioOrmEntity } from "../entities/usuario.orm-entity";
-import { Repository } from "typeorm";
-import { Usuario } from "../../../domain/entities/usuario.entity";
-import { UsuarioMapper } from "../mappers/usuario.mapper";
-import { InjectRepository } from "@nestjs/typeorm";
-
-
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UsuarioRepositoryPort } from '../../../domain/ports/usuario.repository.port';
+import { Usuario } from '../../../domain/entities/usuario.entity';
+import { UsuarioOrmEntity } from '../entities/usuario.orm-entity';
+import { UsuarioMapper } from '../mappers/usuario.mapper';
 
 @Injectable()
 export class UsuarioRepository implements UsuarioRepositoryPort {
   constructor(
     @InjectRepository(UsuarioOrmEntity)
-    private readonly repository: Repository<UsuarioOrmEntity>,
+    private readonly repo: Repository<UsuarioOrmEntity>,
   ) {}
 
+  async guardar(usuario: Usuario): Promise<Usuario> {
+    const orm = UsuarioMapper.aPersistencia(usuario);
+    const guardado = await this.repo.save(orm);
+    return UsuarioMapper.aDominio(guardado);
+  }
 
-    async guardar(usuario: Usuario): Promise<void> {
-        const ormEntity = UsuarioMapper.aPersistencia(usuario);
-        await this.repository.save(ormEntity);
-    }
+  async actualizar(usuario: Usuario): Promise<Usuario> {
+    const orm = UsuarioMapper.aPersistencia(usuario);
+    await this.repo.save(orm);
+    return usuario;
+  }
 
-    async buscarPorId(id: string): Promise<Usuario | null> {
-        const ormEntity = await this.repository.findOne({where: {id}});
+  async buscarPorId(id: number): Promise<Usuario | null> {
+    const orm = await this.repo.findOne({ where: { id } });
+    return orm ? UsuarioMapper.aDominio(orm) : null;
+  }
 
-        if(!ormEntity){
-            return null;
-        }
-        return UsuarioMapper.aDominio(ormEntity);
-    }
+  async buscarPorCorreo(correo: string): Promise<Usuario | null> {
+    const orm = await this.repo.findOne({ where: { correo } });
+    return orm ? UsuarioMapper.aDominio(orm) : null;
+  }
 
-    async buscarPorEmail(email: string): Promise<Usuario | null> {
-        const ormEntity = await this.repository.findOne({where: {email}});
+  async buscarPorIdentificacion(identificacion: string): Promise<Usuario | null> {
+    const orm = await this.repo.findOne({ where: { identificacion } });
+    return orm ? UsuarioMapper.aDominio(orm) : null;
+  }
 
-        if(!ormEntity){
-            return null;
-        }
-        return UsuarioMapper.aDominio(ormEntity);
-    }
-
-    async listar(): Promise<Usuario[]> {
-        const ormEntities = await this.repository.find();
-        return ormEntities.map((ormEntity) => UsuarioMapper.aDominio(ormEntity));
-    }
-    
-    async eliminarId(id: string): Promise<void>{
-        await this.repository.delete(id);
-    }
+  async eliminar(id: number): Promise<void> {
+    await this.repo.delete(id);
+  }
 }
