@@ -8,9 +8,11 @@ import { ActividadInsumosModule } from './actividad-insumos/insfrastructure/acti
 import { ActividadServiciosModule } from './actividad-servicios/infrastructure/actividad-servicios.module';
 import { ActividadEvidenciasModule } from './actividad-evidencias/infrastructure/actividad-evidencias.module';
 import { ActividadResponsablesModule } from './actividad-responsables/insfrastructure/actividad-responsables.module';
-import { ActividadHerramientasModule } from './actividad-herramientas/actividad-herramientas.module';
+import { ActividadHerramientasModule } from './actividad-herramientas/insfrastructure/actividad-herramientas.module';
+import { ActividadInsumosReservaModule } from './actividad-insumos-reserva/actividad-insumos-reserva.module';
+import { UsosHerramientasModule } from './usos-herramientas/infrastructure/usos-herramientas.module';
 
 @Module({
-  imports: [CultivosModule, LotesProduccionModule, ActividadesModule, HistorialCultivoModule, ActividadHistorialModule, ActividadInsumosModule, ActividadServiciosModule, ActividadEvidenciasModule, ActividadResponsablesModule, ActividadHerramientasModule]
+  imports: [CultivosModule, LotesProduccionModule, ActividadesModule, HistorialCultivoModule, ActividadHistorialModule, ActividadInsumosModule, ActividadServiciosModule, ActividadEvidenciasModule, ActividadResponsablesModule, ActividadHerramientasModule, ActividadInsumosReservaModule, UsosHerramientasModule]
 })
 export class ProduccionModule {}
