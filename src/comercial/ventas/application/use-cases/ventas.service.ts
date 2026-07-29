@@ -1,26 +1,50 @@
-import { Injectable } from '@nestjs/common';
-import { CreateVentaDto } from '../dto/create-venta.dto';
-import { UpdateVentaDto } from '../dto/update-venta.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { VentaEntity } from '../../domain/entities/venta.entity';
+import { CreateVentaDto } from '../../application/dto/create-venta.dto';
+import { UpdateVentaDto } from '../../application/dto/update-venta.dto';
 
 @Injectable()
 export class VentasService {
-  create(createVentaDto: CreateVentaDto) {
-    return 'This action adds a new venta';
+  constructor(
+    @InjectRepository(VentaEntity)
+    private readonly ventasRepository: Repository<VentaEntity>,
+  ) {}
+
+  async create(dto: CreateVentaDto): Promise<VentaEntity> {
+    const nuevaVenta = this.ventasRepository.create(dto);
+    return await this.ventasRepository.save(nuevaVenta);
   }
 
-  findAll() {
-    return `This action returns all ventas`;
+  async findAll(): Promise<VentaEntity[]> {
+    return await this.ventasRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} venta`;
+  async findOne(id: number): Promise<VentaEntity> {
+    const venta = await this.ventasRepository.findOneBy({ id });
+    if (!venta) {
+      throw new NotFoundException(`Venta con ID ${id} no encontrada`);
+    }
+    return venta;
   }
 
-  update(id: number, updateVentaDto: UpdateVentaDto) {
-    return `This action updates a #${id} venta`;
+  async update(id: number, dto: UpdateVentaDto): Promise<VentaEntity> {
+    const venta = await this.findOne(id);
+    this.ventasRepository.merge(venta, dto);
+    return await this.ventasRepository.save(venta);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} venta`;
+  async anularVenta(id: number, usuarioId: number): Promise<VentaEntity> {
+    const venta = await this.findOne(id);
+    venta.estado = 'anulada';
+    venta.anuladaPorUsuarioId = usuarioId;
+    venta.fechaAnulacion = new Date();
+    return await this.ventasRepository.save(venta);
+  }
+
+  async remove(id: number): Promise<void> {
+    const venta = await this.findOne(id);
+    await this.ventasRepository.softDelete(venta.id);
   }
 }

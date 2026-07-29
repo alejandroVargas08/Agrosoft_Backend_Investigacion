@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { PagosService } from '../../application/use_cases/pagos.service';
 import { CreatePagoDto } from '../../application/dto/create-pago.dto';
 import { UpdatePagoDto } from '../../application/dto/update-pago.dto';
@@ -8,8 +8,8 @@ export class PagosController {
   constructor(private readonly pagosService: PagosService) {}
 
   @Post()
-  create(@Body() createPagoDto: CreatePagoDto) {
-    return this.pagosService.create(createPagoDto);
+  create(@Body() dto: CreatePagoDto) {
+    return this.pagosService.create(dto);
   }
 
   @Get()
@@ -18,17 +18,22 @@ export class PagosController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.pagosService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.pagosService.findOne(id);
+  }
+
+  @Get('venta/:ventaId')
+  findByVenta(@Param('ventaId', ParseIntPipe) ventaId: number) {
+    return this.pagosService.findByVenta(ventaId);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePagoDto: UpdatePagoDto) {
-    return this.pagosService.update(+id, updatePagoDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdatePagoDto) {
+    return this.pagosService.update(id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.pagosService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.pagosService.remove(id);
   }
 }

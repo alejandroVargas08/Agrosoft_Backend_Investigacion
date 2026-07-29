@@ -1,34 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { TransaccionesFinancierasService } from '../../application/use_cases/transacciones-financieras.service';
-import { CreateTransaccionesFinancieraDto } from '../../application/dto/create-transacciones-financiera.dto';
-import { UpdateTransaccionesFinancieraDto } from '../../application/dto/update-transacciones-financiera.dto';
-
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TransaccionesFinancieraEntity } from '../../domain/entities/transacciones-financiera.entity'; // ajusta la ruta si aplica
+import { Controller } from '@nestjs/common';
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([TransaccionesFinancieraEntity]),
+  ],
+  controllers: [TransaccionesFinancierasController],
+  providers: [],
+  exports: [TypeOrmModule],
+})
 @Controller('transacciones-financieras')
-export class TransaccionesFinancierasController {
-  constructor(private readonly transaccionesFinancierasService: TransaccionesFinancierasService) {}
-
-  @Post()
-  create(@Body() createTransaccionesFinancieraDto: CreateTransaccionesFinancieraDto) {
-    return this.transaccionesFinancierasService.create(createTransaccionesFinancieraDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.transaccionesFinancierasService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.transaccionesFinancierasService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTransaccionesFinancieraDto: UpdateTransaccionesFinancieraDto) {
-    return this.transaccionesFinancierasService.update(+id, updateTransaccionesFinancieraDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.transaccionesFinancierasService.remove(+id);
-  }
-}
+export class TransaccionesFinancierasController {}

@@ -1,26 +1,48 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePagoDto } from '../dto/create-pago.dto';
-import { UpdatePagoDto } from '../dto/update-pago.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { PagoEntity } from '../../domain/entities/pago.entity';
+import { CreatePagoDto } from '../../application/dto/create-pago.dto';
+import { UpdatePagoDto } from '../../application/dto/update-pago.dto';
 
 @Injectable()
 export class PagosService {
-  create(createPagoDto: CreatePagoDto) {
-    return 'This action adds a new pago';
+  constructor(
+    @InjectRepository(PagoEntity)
+    private readonly pagosRepository: Repository<PagoEntity>,
+  ) {}
+
+  async create(dto: CreatePagoDto): Promise<PagoEntity> {
+    const nuevoPago = this.pagosRepository.create(dto);
+    return await this.pagosRepository.save(nuevoPago);
   }
 
-  findAll() {
-    return `This action returns all pagos`;
+  async findAll(): Promise<PagoEntity[]> {
+    return await this.pagosRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} pago`;
+  async findOne(id: number): Promise<PagoEntity> {
+    const pago = await this.pagosRepository.findOneBy({ id });
+    if (!pago) {
+      throw new NotFoundException(`Pago con ID ${id} no encontrado`);
+    }
+    return pago;
   }
 
-  update(id: number, updatePagoDto: UpdatePagoDto) {
-    return `This action updates a #${id} pago`;
+  async findByVenta(ventaId: number): Promise<PagoEntity[]> {
+    return await this.pagosRepository.find({
+      where: { ventaId },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} pago`;
+  async update(id: number, dto: UpdatePagoDto): Promise<PagoEntity> {
+    const pago = await this.findOne(id);
+    this.pagosRepository.merge(pago, dto);
+    return await this.pagosRepository.save(pago);
+  }
+
+  async remove(id: number): Promise<void> {
+    const pago = await this.findOne(id);
+    await this.pagosRepository.softDelete(pago.id);
   }
 }

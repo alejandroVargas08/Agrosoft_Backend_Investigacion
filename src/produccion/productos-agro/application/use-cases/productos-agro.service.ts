@@ -1,26 +1,42 @@
-import { Injectable } from '@nestjs/common';
-import { CreateProductosAgroDto } from '../../application/dto/create-productos-agro.dto';
-import { UpdateProductosAgroDto } from '../../application/dto/update-productos-agro.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ProductoAgroEntity } from '../../domain/entities/productos-agro.entity';
+import { CreateProductoAgroDto } from '../../application/dto/create-productos-agro.dto';
+import { UpdateProductoAgroDto } from '../../application/dto/update-productos-agro.dto';
 
 @Injectable()
 export class ProductosAgroService {
-  create(createProductosAgroDto: CreateProductosAgroDto) {
-    return 'This action adds a new productosAgro';
+  constructor(
+    @InjectRepository(ProductoAgroEntity)
+    private readonly productosRepository: Repository<ProductoAgroEntity>,
+  ) {}
+
+  async create(dto: CreateProductoAgroDto): Promise<ProductoAgroEntity> {
+    const nuevo = this.productosRepository.create(dto);
+    return await this.productosRepository.save(nuevo);
   }
 
-  findAll() {
-    return `This action returns all productosAgro`;
+  async findAll(): Promise<ProductoAgroEntity[]> {
+    return await this.productosRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} productosAgro`;
+  async findOne(id: number): Promise<ProductoAgroEntity> {
+    const producto = await this.productosRepository.findOneBy({ id });
+    if (!producto) {
+      throw new NotFoundException(`Producto agropecuario con ID ${id} no encontrado`);
+    }
+    return producto;
   }
 
-  update(id: number, updateProductosAgroDto: UpdateProductosAgroDto) {
-    return `This action updates a #${id} productosAgro`;
+  async update(id: number, dto: UpdateProductoAgroDto): Promise<ProductoAgroEntity> {
+    const producto = await this.findOne(id);
+    this.productosRepository.merge(producto, dto);
+    return await this.productosRepository.save(producto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} productosAgro`;
+  async remove(id: number): Promise<void> {
+    const producto = await this.findOne(id);
+    await this.productosRepository.softDelete(producto.id);
   }
 }

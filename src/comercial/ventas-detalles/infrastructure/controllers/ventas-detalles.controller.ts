@@ -1,15 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller,Get,Post,Body,Patch,Param,Delete,ParseIntPipe, } from '@nestjs/common';
 import { VentasDetallesService } from '../../application/use-cases/ventas-detalles.service';
-import { CreateVentasDetalleDto } from '../../application/dto/create-ventas-detalle.dto';
-import { UpdateVentasDetalleDto } from '../../application/dto/update-ventas-detalle.dto';
+import { CreateVentaDetalleDto } from '../../application/dto/create-ventas-detalle.dto';
+import { UpdateVentaDetalleDto } from '../../application/dto/update-ventas-detalle.dto';
 
 @Controller('ventas-detalles')
 export class VentasDetallesController {
   constructor(private readonly ventasDetallesService: VentasDetallesService) {}
 
   @Post()
-  create(@Body() createVentasDetalleDto: CreateVentasDetalleDto) {
-    return this.ventasDetallesService.create(createVentasDetalleDto);
+  create(@Body() createDto: CreateVentaDetalleDto) {
+    return this.ventasDetallesService.create(createDto);
   }
 
   @Get()
@@ -18,17 +18,20 @@ export class VentasDetallesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ventasDetallesService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.ventasDetallesService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateVentasDetalleDto: UpdateVentasDetalleDto) {
-    return this.ventasDetallesService.update(+id, updateVentasDetalleDto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDto: UpdateVentaDetalleDto,
+  ) {
+    return this.ventasDetallesService.update(id, updateDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ventasDetallesService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.ventasDetallesService.remove(id);
   }
 }

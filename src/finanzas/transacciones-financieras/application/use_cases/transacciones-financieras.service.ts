@@ -1,26 +1,52 @@
-import { Injectable } from '@nestjs/common';
-import { CreateTransaccionesFinancieraDto } from '../dto/create-transacciones-financiera.dto';
-import { UpdateTransaccionesFinancieraDto } from '../dto/update-transacciones-financiera.dto';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
 
-@Injectable()
+@Entity({ name: 'transacciones_financieras' })
 export class TransaccionesFinancierasService {
-  create(createTransaccionesFinancieraDto: CreateTransaccionesFinancieraDto) {
-    return 'This action adds a new transaccionesFinanciera';
-  }
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
-  findAll() {
-    return `This action returns all transaccionesFinancieras`;
-  }
+  @Column({ type: 'varchar', length: 255 })
+  tipo: string; // ej: 'Ingreso', 'Egreso'
 
-  findOne(id: number) {
-    return `This action returns a #${id} transaccionesFinanciera`;
-  }
+  @Column({ type: 'varchar', length: 255 })
+  categoria: string;
 
-  update(id: number, updateTransaccionesFinancieraDto: UpdateTransaccionesFinancieraDto) {
-    return `This action updates a #${id} transaccionesFinanciera`;
-  }
+  @Column({ type: 'double precision' })
+  monto: number;
 
-  remove(id: number) {
-    return `This action removes a #${id} transaccionesFinanciera`;
-  }
+  @Column({ type: 'text', nullable: true })
+  descripcion: string;
+
+  @Column({ type: 'timestamp' })
+  fecha: Date;
+
+  
+  @Column({ name: 'actividadId', type: 'integer', nullable: true })
+  actividadId: number;
+
+  @Column({ name: 'insumoId', type: 'integer', nullable: true })
+  insumoId: number;
+
+  @Column({ name: 'ventaId', type: 'integer', nullable: true })
+  ventaId: number;
+
+  @Column({ name: 'usuarioId', type: 'integer', nullable: true })
+  usuarioId: number;
+
+  
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
+  deletedAt: Date;
 }

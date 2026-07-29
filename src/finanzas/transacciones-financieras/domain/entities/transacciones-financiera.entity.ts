@@ -1,1 +1,1 @@
-export class TransaccionesFinanciera {}
+export class TransaccionesFinancieraEntity {}
