@@ -1,0 +1,1 @@
+export const PERMISO_REPOSITORY = Symbol('PERMISO_REPOSITORY');
