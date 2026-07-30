@@ -7,10 +7,12 @@ import { listarActividadInsumosUseCase } from '../aplicattion/use-case/listar-ac
 import { eliminarActividadesUseCase } from '../../actividades/aplicattion/use-cases/eliminar-actividades.use-case';
 import { actividad_InsumoRepository } from '../domain/port/actividad-insumo.repository.port';
 import { actividadInsumoRepositoryImpl } from './persistence/actividad-insumo.repository.impl';
+import { ActividadesModule } from '../../actividades/infrastructure/actividades.module';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([actividadInsumoOrmEntity])
+        TypeOrmModule.forFeature([actividadInsumoOrmEntity]),
+        ActividadesModule,
     ],
     controllers: [actividadInsumoController],
     providers: [

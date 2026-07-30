@@ -6,64 +6,87 @@ import { actividadesOrmEntity } from "./actividades.Orm-entity";
 import { Actividades } from "../../domain/entities/actividades.entity";
 
 @Injectable()
-    export class actividadesRepositoryImpl implements actividadesRepositoryPort {
-        constructor(
-            @InjectRepository(actividadesOrmEntity)
-            private readonly repository: Repository<actividadesOrmEntity>,
-        ) {}
+export class actividadesRepositoryImpl implements actividadesRepositoryPort {
+    constructor(
+        @InjectRepository(actividadesOrmEntity)
+        private readonly repository: Repository<actividadesOrmEntity>,
+    ) {}
 
-        async crear(actividades: Actividades): Promise<Actividades> {
-            const ormEntity = this.repository.create({
-                nombre: actividades.nombre,
-                tipo: actividades.tipo,
-                subtipo: actividades.subtipo,
-                loteId: actividades.loteId,
-                subLoteId: actividades.subLoteId,
-                cultivoId: actividades.cultivoId,
-                fecha: actividades.fecha,
-                horasActividad: actividades.horasActividad,
-                precioHoraActividad: actividades.precioHoraActividad,
-                costoManoObra: actividades.costoManoObra,
-                descripcion: actividades.descripcion,
-                estado: actividades.estado,
-                creadoPorUsuarioId: actividades.creadoPorUsuarioId,
-                cantidadPlantas: actividades.cantidadPlantas,
-                kgRecolectados: actividades.kgRecolectados,
-                productoAgroId: actividades.productoAgroId,
-            });
-            const saved = await this.repository.save(ormEntity);
-            return this.toDomain(saved);
+    async crear(actividades: Actividades): Promise<Actividades> {
+        const ormEntity = this.repository.create({
+            nombre: actividades.nombre,
+            tipo: actividades.tipo,
+            subtipo: actividades.subtipo ?? undefined,
+            loteId: actividades.loteId,
+            subLoteId: actividades.subLoteId ?? undefined,
+            cultivoId: actividades.cultivoId,
+            fecha: actividades.fecha,
+            horasActividad: actividades.horasActividad,
+            precioHoraActividad: actividades.precioHoraActividad,
+            costoManoObra: actividades.costoManoObra,
+            descripcion: actividades.descripcion,
+            estado: actividades.estado,
+            creadoPorUsuarioId: actividades.creadoPorUsuarioId,
+            cantidadPlantas: actividades.cantidadPlantas ?? undefined,
+            kgRecolectados: actividades.kgRecolectados ?? undefined,
+            productoAgroId: actividades.productoAgroId ?? undefined,
+        });
+        const saved = await this.repository.save(ormEntity);
+        return this.toDomain(saved);
+    }
+
+    async buscarPorId(id: number): Promise<Actividades | null> {
+        const ormEntity = await this.repository.findOne({ where: { id } });
+        if (!ormEntity) return null;
+        return this.toDomain(ormEntity);
+    }
+
+    async listarPorCultivo(cultivoId: number): Promise<Actividades[]> {
+        const ormEntities = await this.repository.find({ where: { cultivoId } });
+        return ormEntities.map((entity) => this.toDomain(entity));
+    }
+
+    async actualizar(actividad: Actividades): Promise<Actividades> {
+        const ormEntity = await this.repository.preload({
+            id: actividad.id ?? undefined,
+            nombre: actividad.nombre,
+            tipo: actividad.tipo,
+            subtipo: actividad.subtipo ?? undefined,
+            loteId: actividad.loteId,
+            subLoteId: actividad.subLoteId ?? undefined,
+            cultivoId: actividad.cultivoId,
+            fecha: actividad.fecha,
+            horasActividad: actividad.horasActividad,
+            precioHoraActividad: actividad.precioHoraActividad,
+            costoManoObra: actividad.costoManoObra,           // <-- Usando 'actividad'
+            descripcion: actividad.descripcion,               // <-- Usando 'actividad'
+            estado: actividad.estado,                         // <-- Usando 'actividad'
+            creadoPorUsuarioId: actividad.creadoPorUsuarioId, // <-- Usando 'actividad'
+            cantidadPlantas: actividad.cantidadPlantas ?? undefined, // <-- Usando 'actividad'
+            kgRecolectados: actividad.kgRecolectados ?? undefined,   // <-- Usando 'actividad'
+            productoAgroId: actividad.productoAgroId ?? undefined,   // <-- Usando 'actividad'
+        });
+
+        if (!ormEntity) {
+            throw new Error(`Actividad con ID ${actividad.id} no encontrada para actualizar`);
         }
 
-        async buscarPorId(id: number): Promise<Actividades | null> {
-            const ormEntity = await this.repository.findOne({ where: {id}});
-            if (!ormEntity) return null;
-            return this.toDomain(ormEntity);
-        }
+        const updated = await this.repository.save(ormEntity);
+        return this.toDomain(updated);
+    }
 
-        async listarPorCultivo(cultivoId: number): Promise<Actividades[]> {
-            const ormEntities = await this.repository.find({ where: {cultivoId}});
-            return ormEntities.map((Entity) => this.toDomain(Entity));
-        }
+    async eliminar(id: number): Promise<void> {
+        await this.repository.delete(id);
+    }
 
-        async actualizar(actividad: Actividades): Promise<Actividades> {
-            const ormEntity = this.repository.create(actividad);
-            const update = await this.repository.save(ormEntity);
-            return this.toDomain(update);
-        }
-
-        async eliminar(id: number): Promise<void> {
-            await this.repository.delete(id);
-        }
-
-        private toDomain(ormEntity: actividadesOrmEntity): Actividades {
+    private toDomain(ormEntity: actividadesOrmEntity): Actividades {
         return new Actividades(
             ormEntity.id,
             ormEntity.nombre,
             ormEntity.tipo,
-            ormEntity.subtipo,
+            ormEntity.subtipo ?? null,
             ormEntity.loteId,
-            ormEntity.subLoteId,
+            ormEntity.subLoteId ?? null,
             ormEntity.cultivoId,
             ormEntity.fecha,
             ormEntity.horasActividad,
@@ -72,9 +95,9 @@ import { Actividades } from "../../domain/entities/actividades.entity";
             ormEntity.descripcion,
             ormEntity.estado,
             ormEntity.creadoPorUsuarioId,
-            ormEntity.cantidadPlantas,
-            ormEntity.kgRecolectados,
-            ormEntity.productoAgroId,
-            );
-        }
+            ormEntity.cantidadPlantas ?? null,
+            ormEntity.kgRecolectados ?? null,
+            ormEntity.productoAgroId ?? null,
+        );
     }
+}

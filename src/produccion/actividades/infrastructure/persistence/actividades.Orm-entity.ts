@@ -47,6 +47,12 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedCol
         @Column({ type: "varchar", default: "Pendiente" })
         estado: string;
 
+        @Column({ type: 'decimal', nullable: true })
+        costoManoObra: number;
+
+        @Column({ type: 'decimal', nullable: true })
+        kgRecolectados: number;
+
         @CreateDateColumn({ name: 'created_at' })
         createdAt: Date;
 

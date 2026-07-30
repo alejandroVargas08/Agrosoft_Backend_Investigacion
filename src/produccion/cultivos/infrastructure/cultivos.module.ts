@@ -18,6 +18,6 @@ import { Cultivo_Repository } from '../domain/ports/cultivo.repository.port';
             useClass: CultivoRepositoryImpl,
         },
     ],
-    exports: ['Cultivo_Repository'],
+    exports: [Cultivo_Repository],
 })
 export class CultivosModule {}

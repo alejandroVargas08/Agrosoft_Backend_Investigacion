@@ -6,6 +6,7 @@ import { CrearLoteProduccionUseCase } from '../application/use-cases/crear-lotes
 import { listarLotesProduccionUseCase } from '../application/use-cases/listar.lotes.produccion.use-case';
 import { ActualizarLoteProduccionUseCase } from '../application/use-cases/actualizar.lotes.produccion.use-case';
 import { LoteProduccionRepositoryImpl } from './persistence/lote.produccion.repository.impl';
+import { lote_ProduccionRepository } from '../domain/ports/lotes.produccion.repository.port';
 
 @Module({
     imports: [TypeOrmModule.forFeature([LoteProduccionOrmEntity])],
@@ -15,9 +16,10 @@ import { LoteProduccionRepositoryImpl } from './persistence/lote.produccion.repo
         ActualizarLoteProduccionUseCase,
         listarLotesProduccionUseCase,
         {
-            provide: 'LoteProduccionRepositoryPort',
+            provide: lote_ProduccionRepository,
             useClass: LoteProduccionRepositoryImpl,
         },
     ],
+    exports: [lote_ProduccionRepository]
 })
 export class LotesProduccionModule {}

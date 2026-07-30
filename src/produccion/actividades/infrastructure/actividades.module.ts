@@ -27,5 +27,9 @@ import { eliminarActividadesUseCase } from '../aplicattion/use-cases/eliminar-ac
         cambiarActividadesUseCase,
         eliminarActividadesUseCase,
     ],
+
+    exports: [
+        actividades_repository,
+    ]
 })
 export class ActividadesModule {}
