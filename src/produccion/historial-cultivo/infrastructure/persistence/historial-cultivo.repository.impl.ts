@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { HistorialCultivoRepositoryPort } from "../../domain/ports/historial-cultivo.port";
 import { InjectRepository } from "@nestjs/typeorm";
-import { historialCultivoOrmEntity } from "../historial-cultivo.orm-entity";
+import { historialCultivoOrmEntity } from "./historial-cultivo.orm-entity";
 import { Repository } from "typeorm";
 import { historialCultivo } from "../../domain/entities/historial-cultivo.entity";
 

@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('actividad_insumos')
     export class actividadInsumoOrmEntity {
@@ -22,4 +22,13 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
         @Column('double precision', { name: 'costo_total' }) 
         costoTotal: number;
+
+        @CreateDateColumn({ name: 'created_at' })
+        createdAt: Date;
+        
+        @UpdateDateColumn({ name: 'updated_at' })
+        updatedAt: Date;
+        
+        @DeleteDateColumn({ name: 'deleted_at' })
+        deletedAt: Date;
     }
