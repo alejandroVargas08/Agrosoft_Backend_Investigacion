@@ -7,6 +7,7 @@ import { listarLotesProduccionUseCase } from '../application/use-cases/listar.lo
 import { ActualizarLoteProduccionUseCase } from '../application/use-cases/actualizar.lotes.produccion.use-case';
 import { LoteProduccionRepositoryImpl } from './persistence/lote.produccion.repository.impl';
 import { lote_ProduccionRepository } from '../domain/ports/lotes.produccion.repository.port';
+import { descontarStockUseCase } from '../application/use-cases/descontar-lotes-produccion-use-case';
 
 @Module({
     imports: [TypeOrmModule.forFeature([LoteProduccionOrmEntity])],
@@ -15,11 +16,12 @@ import { lote_ProduccionRepository } from '../domain/ports/lotes.produccion.repo
         CrearLoteProduccionUseCase,
         ActualizarLoteProduccionUseCase,
         listarLotesProduccionUseCase,
+        descontarStockUseCase,
         {
             provide: lote_ProduccionRepository,
             useClass: LoteProduccionRepositoryImpl,
         },
     ],
-    exports: [lote_ProduccionRepository]
+    exports: [lote_ProduccionRepository, descontarStockUseCase]
 })
 export class LotesProduccionModule {}

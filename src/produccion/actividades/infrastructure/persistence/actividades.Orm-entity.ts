@@ -17,7 +17,7 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedCol
         @Column({ name: "lote_id" })
         loteId: number;
 
-        @Column({ name: "sub_lote_id", nullable: true })
+        @Column({ name: "sub_lote_id", type: "int", nullable: true })
         subLoteId: number | null;
 
         @Column({ name: "cultivo_id" })
@@ -41,7 +41,7 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedCol
         @Column({ name: "cantidad_plantas", nullable: true, type: "int" })
         cantidadPlantas: number | null;
 
-        @Column({ name: "producto_agro_id", nullable: true })
+        @Column({ name: "producto_agro_id", type: "int", nullable: true })
         productoAgroId: number | null;
 
         @Column({ type: "varchar", default: "Pendiente" })
