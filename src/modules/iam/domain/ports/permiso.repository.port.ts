@@ -1,6 +1,6 @@
 import { Permiso } from '../entities/permiso.entity';
 
-export interface RolPermisoRepositoryPort {
+export interface PermisoRepositoryPort {
   guardar(permiso: Permiso): Promise<Permiso>;
   actualizar(permiso: Permiso): Promise<Permiso>;
   buscarPorId(id: number): Promise<Permiso | null>;

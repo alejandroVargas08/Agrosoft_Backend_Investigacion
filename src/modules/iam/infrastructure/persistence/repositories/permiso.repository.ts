@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PermisoRepositoryPort } from '../../../domain/ports/permiso.repository.port';
+import type { PermisoRepositoryPort } from '../../../domain/ports/permiso.repository.port';
 import { Permiso } from '../../../domain/entities/permiso.entity';
 import { PermisoOrmEntity } from '../entities/permiso.orm-entity';
 import { PermisoMapper } from '../mappers/permiso.mapper';
@@ -21,12 +21,12 @@ export class PermisoRepository implements PermisoRepositoryPort {
 
   async actualizar(permiso: Permiso): Promise<Permiso> {
     const orm = PermisoMapper.aPersistencia(permiso);
-    await this.repo.save(orm);
-    return permiso;
+    const guardado = await this.repo.save(orm);
+    return PermisoMapper.aDominio(guardado);
   }
 
   async buscarPorId(id: number): Promise<Permiso | null> {
-    const orm = await this.repo.findOne({ where: { id }, withDeleted: true });
+    const orm = await this.repo.findOne({ where: { id } });
     return orm ? PermisoMapper.aDominio(orm) : null;
   }
 
@@ -41,6 +41,6 @@ export class PermisoRepository implements PermisoRepositoryPort {
   }
 
   async eliminar(id: number): Promise<void> {
-    await this.repo.softDelete(id);
+    await this.repo.delete(id);
   }
 }

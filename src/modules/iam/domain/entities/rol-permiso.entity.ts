@@ -8,20 +8,9 @@ export class RolPermiso {
     private eliminadoEn: Date | null,
   ) {}
 
-  static crear(props: {
-    id: number;
-    rolId: number;
-    permisoId: number;
-  }): RolPermiso {
+  static crear(props: { id: number; rolId: number; permisoId: number }): RolPermiso {
     const ahora = new Date();
-    return new RolPermiso(
-      props.id,
-      props.rolId,
-      props.permisoId,
-      ahora,
-      ahora,
-      null,
-    );
+    return new RolPermiso(props.id, props.rolId, props.permisoId, ahora, ahora, null);
   }
 
   static reconstruir(props: {
@@ -48,8 +37,4 @@ export class RolPermiso {
   obtenerCreadoEn(): Date { return this.creadoEn; }
   obtenerActualizadoEn(): Date { return this.actualizadoEn; }
   obtenerEliminadoEn(): Date | null { return this.eliminadoEn; }
-
-  eliminar(): void {
-    this.eliminadoEn = new Date();
-  }
 }
