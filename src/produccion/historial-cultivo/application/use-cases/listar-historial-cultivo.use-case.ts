@@ -1,5 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { historial_CultivoRepository, HistorialCultivoRepositoryPort } from "../../domain/ports/historial-cultivo.port";
+import { historial_CultivoRepository } from "../../domain/ports/historial-cultivo.port";
+import { type HistorialCultivoRepositoryPort } from "../../domain/ports/historial-cultivo.port";
 import { historialCultivo } from "../../domain/entities/historial-cultivo.entity";
 
 @Injectable()

@@ -9,7 +9,7 @@ export class actividadHistorial {
         public usuarioId: number,
         public motivo: string,
         public cambios: cambioRegistrado,
-        public readonly fechaCreacion?: Date = new Date(),
+        public readonly fechaCreacion: Date = new Date(),
     ) {}
 
     static crear(props: {

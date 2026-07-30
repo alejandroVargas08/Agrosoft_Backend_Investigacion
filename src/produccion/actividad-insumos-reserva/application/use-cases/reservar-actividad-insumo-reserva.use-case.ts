@@ -1,7 +1,8 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { actividad_insumoReservaRepository, actividadInsumoReservaRepositoryPort } from "../../domain/ports/actividad-insumos-reserva.repository.ports";
 import { reservaActividadInsumoDto } from "../dto/reservar-actividad-insumo-reserva.dto";
 import { actividadInsumoReserva } from "../../domain/entities/actividad-insumos-reserva.entity";
+import { actividad_insumoReservaRepository } from "../../domain/ports/actividad-insumos-reserva.repository.ports";
+import { type actividadInsumoReservaRepositoryPort } from "../../domain/ports/actividad-insumos-reserva.repository.ports";
 
 @Injectable()
     export class reservarActividadInsumoReservaUseCase {

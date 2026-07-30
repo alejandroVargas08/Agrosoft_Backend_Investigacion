@@ -1,7 +1,8 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { movimientoProduccion } from "../../domain/entities/movimiento-produccion.entity";
-import { movimiento_ProduccionRepository, movimientoProduccionRepositoryPort } from "../../domain/ports/movimiento-produccion.repository.port";
 import { registrarMovimientoProduccionDto } from "../dto/registrar-movimiento-produccion.dto";
+import { movimiento_ProduccionRepository } from "../../domain/ports/movimiento-produccion.repository.port";
+import { type movimientoProduccionRepositoryPort } from "../../domain/ports/movimiento-produccion.repository.port";
 
 @Injectable()
     export class registrarMovimientoProduccionUseCase {

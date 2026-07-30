@@ -1,6 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { lote_ProduccionRepository, loteProduccionRepositoryPort } from "../../domain/ports/lotes.produccion.repository.port";
 import { loteProduccion } from "../../domain/entities/lotes.produccion.entity";
+import { lote_ProduccionRepository } from "../../domain/ports/lotes.produccion.repository.port";
+import { type loteProduccionRepositoryPort } from "../../domain/ports/lotes.produccion.repository.port";
 
 @Injectable()
     export class descontarStockUseCase {

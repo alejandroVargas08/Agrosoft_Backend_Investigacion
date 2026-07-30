@@ -1,8 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { movimientoProduccion, tipoMovimientoProduccion } from "../../domain/entities/movimiento-produccion.entity";
+import { movimientoProduccion } from "../../domain/entities/movimiento-produccion.entity";
+import { type  tipoMovimientoProduccion } from "../../domain/entities/movimiento-produccion.entity";
 import { movimientoProduccionOrmEntity } from "./movimiento-produccion.orm-entity";
 import { Repository } from "typeorm";
+import { movimientoProduccionRepositoryPort } from "../../domain/ports/movimiento-produccion.repository.port";
 
 @Injectable()
     export class movimientoProduccionRepositoryImpl implements movimientoProduccionRepositoryPort {

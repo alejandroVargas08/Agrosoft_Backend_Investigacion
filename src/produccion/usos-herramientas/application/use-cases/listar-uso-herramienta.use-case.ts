@@ -1,5 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { uso_HerramientaRepository, usoHerramientaRepositoryPort } from "../../domain/ports/uso-herramienta.repository.port";
+import { uso_HerramientaRepository } from "../../domain/ports/uso-herramienta.repository.port";
+import { type usoHerramientaRepositoryPort } from "../../domain/ports/uso-herramienta.repository.port";
 
 @Injectable()
     export class listarUsoHerramientasUseCase {

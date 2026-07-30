@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
 import { listarActividadInsumoUsoUseCase } from "../../application/use-cases/listar-actividad-insumo-uso.use-case";
 import { registrarInsumoUseCase } from "../../application/use-cases/registrar-insumo-uso.use-case";
 import { registrarInsumoUsoDto } from "../../application/dto/registrar-insumo-uso.dto";

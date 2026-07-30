@@ -8,7 +8,7 @@ import { actividadResponsable } from "../../domain/entities/actividad-responsabl
 @Injectable()
     export class actividadResponsablesRepositoryImpl implements actividadResponsableRepositoryPort {
         constructor(
-            @InjectRepository(actividadResponsablesOrmEntity)
+            @InjectRepository(actividadResponsableOrmEntity)
             private readonly ormRepo: Repository<actividadResponsableOrmEntity>
         ) {}
 

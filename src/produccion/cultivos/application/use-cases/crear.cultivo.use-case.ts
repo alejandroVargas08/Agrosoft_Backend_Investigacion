@@ -1,6 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Cultivo } from "../../domain/entities/cultivo.entity";
-import { Cultivo_Repository, CultivoRepositoryPort } from "../../domain/ports/cultivo.repository.port";
+import { Cultivo_Repository } from "../../domain/ports/cultivo.repository.port";
+import { type CultivoRepositoryPort } from "../../domain/ports/cultivo.repository.port";
 import { CrearCultivoDto } from "../dtos/crear-cultivo.dto";
 
 @Injectable()

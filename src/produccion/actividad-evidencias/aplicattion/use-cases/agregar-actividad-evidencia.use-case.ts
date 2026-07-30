@@ -1,5 +1,7 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { actividad_evidenciaRepository, actividadEvidenciaRepositoryPort } from "../../domain/ports/actividad-evidencias.repository.port";
+import { actividad_evidenciaRepository } from "../../domain/ports/actividad-evidencias.repository.port";
+import { type actividadEvidenciaRepositoryPort } from "../../domain/ports/actividad-evidencias.repository.port";
+
 
 @Injectable()
     export class AgregarImagenActividadEvidenciaUseCase {

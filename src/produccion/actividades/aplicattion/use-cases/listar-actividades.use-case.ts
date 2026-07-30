@@ -1,5 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { actividades_repository, actividadesRepositoryPort } from "../../domain/ports/actividades.repository.port";
+import { actividades_repository } from "../../domain/ports/actividades.repository.port";
+import { type actividadesRepositoryPort } from "../../domain/ports/actividades.repository.port";
 import { Actividades } from "../../domain/entities/actividades.entity";
 
 @Injectable()

@@ -1,6 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { loteProduccion } from "../../domain/entities/lotes.produccion.entity";
-import { lote_ProduccionRepository, loteProduccionRepositoryPort } from "../../domain/ports/lotes.produccion.repository.port";
+import { lote_ProduccionRepository } from "../../domain/ports/lotes.produccion.repository.port";
+import { type loteProduccionRepositoryPort } from "../../domain/ports/lotes.produccion.repository.port";
 import { ActualizarLoteProduccionDto } from "../dtos/actualizar-lote.produccion.dto";
 
 @Injectable()

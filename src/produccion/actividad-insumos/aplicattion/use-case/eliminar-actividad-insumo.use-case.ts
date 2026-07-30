@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { actividad_InsumoRepository, actividadInsumoRepositoryPort } from "../../domain/port/actividad-insumo.repository.port";
-
+import { actividad_InsumoRepository } from "../../domain/port/actividad-insumo.repository.port";
+import { type actividadInsumoRepositoryPort } from "../../domain/port/actividad-insumo.repository.port";
 
 @Injectable()
     export class eliminarActividadInsumoUseCase {

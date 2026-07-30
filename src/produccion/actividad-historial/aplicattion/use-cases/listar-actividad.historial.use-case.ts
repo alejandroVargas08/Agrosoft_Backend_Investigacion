@@ -1,6 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { actividad_HistorialRepository, actividadHistorialRepositoryPort } from "../../domain/ports/actividad-historial.repository.port";
 import { actividadHistorial } from "../../domain/entities/actividad-historial.entity";
+import { actividad_HistorialRepository } from "../../domain/ports/actividad-historial.repository.port";
+import { type actividadHistorialRepositoryPort } from "../../domain/ports/actividad-historial.repository.port";
 
 @Injectable()
     export class listarActividadHistorialUseCase {

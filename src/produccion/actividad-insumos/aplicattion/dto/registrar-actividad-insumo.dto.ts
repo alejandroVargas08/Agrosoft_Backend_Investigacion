@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsNumber, Min } from "class-validator";
+import { IsInt, IsNotEmpty, IsNumber, IsString, Min } from "class-validator";
 
 export class registrarActividadInsumoDto {
     @IsInt()
@@ -14,5 +14,5 @@ export class registrarActividadInsumoDto {
 
     @IsNumber()
     @Min(0)
-    constoUnitario: number; 
+    costoUnitario: number; 
 }

@@ -3,9 +3,10 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { actividadEvidenciaOrmEntity } from "./actividad-evidencia.orm-entity";
 import { Repository } from "typeorm";
 import { actividadEvidencia } from "../../domain/entities/actividad-evidencia.entity";
+import { actividadEvidenciaRepositoryPort } from "../../domain/ports/actividad-evidencias.repository.port";
 
 @Injectable()
-    export class actividadEvidenciaRepositoryImpl implements ActividadEvidenciaRepositoryPort {
+    export class actividadEvidenciaRepositoryImpl implements actividadEvidenciaRepositoryPort {
         constructor(
             @InjectRepository(actividadEvidenciaOrmEntity)
             private readonly ormRepo: Repository<actividadEvidenciaOrmEntity>

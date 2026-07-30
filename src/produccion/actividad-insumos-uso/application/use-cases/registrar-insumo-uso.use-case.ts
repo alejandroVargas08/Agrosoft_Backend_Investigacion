@@ -2,7 +2,8 @@ import { Inject, Injectable, Optional } from "@nestjs/common";
 import { consumirActividadInsumoReservaUseCase } from "../../../actividad-insumos-reserva/application/use-cases/consumir-actividad-insumo-reserva.use-case";
 import { registrarInsumoUsoDto } from "../dto/registrar-insumo-uso.dto";
 import { actividadInsumoUso } from "../../domain/entities/actividad-insumos-uso.entity";
-import { actividad_InsumoUsoRepository, actividadInsumoUsoRepositoryPort } from "../../domain/ports/actividad-insumos-uso.repository.port";
+import { actividad_InsumoUsoRepository } from "../../domain/ports/actividad-insumos-uso.repository.port";
+import { type actividadInsumoUsoRepositoryPort } from "../../domain/ports/actividad-insumos-uso.repository.port";
 
 @Injectable()
     export class registrarInsumoUseCase {

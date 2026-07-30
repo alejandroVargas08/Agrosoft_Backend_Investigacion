@@ -1,5 +1,6 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { actividad_ResponsableRepository, actividadResponsableRepositoryPort } from "../../domain/ports/actividad-responsable.port";
+import { actividad_ResponsableRepository } from "../../domain/ports/actividad-responsable.port";
+import { type actividadResponsableRepositoryPort } from "../../domain/ports/actividad-responsable.port";
 
 @Injectable()
     export class actualizarActividadResponsablesUseCase {

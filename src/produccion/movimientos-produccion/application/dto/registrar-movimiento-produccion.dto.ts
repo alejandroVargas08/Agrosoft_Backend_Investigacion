@@ -1,5 +1,5 @@
 import { IsIn, IsInt, IsNumber, IsOptional, IsString, Min } from "class-validator";
-import { tipoMovimientoProduccion } from "../../domain/entities/movimiento-produccion.entity";
+import { type tipoMovimientoProduccion } from "../../domain/entities/movimiento-produccion.entity";
 
 export class registrarMovimientoProduccionDto {
     @IsIn(['entrada', 'salida'])

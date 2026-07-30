@@ -1,5 +1,5 @@
 import { IsInt, IsNotEmpty, IsString } from "class-validator";
-import { cambioRegistrado } from "../../domain/entities/actividad-historial.entity";
+import { type cambioRegistrado } from "../../domain/entities/actividad-historial.entity";
 
 export class crearActividadHistorialDto {
     @IsInt()

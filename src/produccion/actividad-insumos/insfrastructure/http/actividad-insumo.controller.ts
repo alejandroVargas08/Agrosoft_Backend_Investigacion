@@ -14,7 +14,7 @@ import { registrarActividadInsumoDto } from "../../aplicattion/dto/registrar-act
 
         @Post()
         registrar(@Param('actividadId', ParseIntPipe) actividadId: number, 
-        @Body dto: registrarActividadInsumoDto) {
+        @Body() dto: registrarActividadInsumoDto) {
             return this.registrarInsumoUC.ejecutar(actividadId, dto);
         }
 
@@ -25,6 +25,6 @@ import { registrarActividadInsumoDto } from "../../aplicattion/dto/registrar-act
 
         @Delete(':id')
         eliminar(@Param('id', ParseIntPipe) id: number) {
-            return this.eliminarInsumoUC.ejecutar(id);
+            return this.eliminarInsumoUC.execute(id);
         }
     }

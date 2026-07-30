@@ -19,13 +19,13 @@ import { actividadHistorial } from "../../domain/entities/actividad-historial.en
                 usuarioId: registro.usuarioId,
                 motivo: registro.motivo,
                 cambios: registro.cambios,
-                fecha: registro.fecha,
+                fecha: registro.fechaCreacion,
             });
             const saved = await this.repository.save(OrmEntity);
             return this.toDomain(saved);
         }
 
-        async listarPorActividad(actividadId: number): Promise<actividadHistorial[]> {
+        async listarActividad(actividadId: number): Promise<actividadHistorial[]> {
             const entities = await this.repository.find({where: { actividadId}});
             return entities.map((e) => this.toDomain(e));
         }

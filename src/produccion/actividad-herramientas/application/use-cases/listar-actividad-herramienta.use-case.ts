@@ -1,5 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { actividad_HerramientasRepository, actividad_HerramientasRepositoryPort } from "../../domain/ports/actividad-herramientas.repository.port";
+import { actividad_HerramientasRepository } from "../../domain/ports/actividad-herramientas.repository.port";
+import { type actividad_HerramientasRepositoryPort } from "../../domain/ports/actividad-herramientas.repository.port";
 
 @Injectable()
     export class listarActividadHerramientaUseCase {

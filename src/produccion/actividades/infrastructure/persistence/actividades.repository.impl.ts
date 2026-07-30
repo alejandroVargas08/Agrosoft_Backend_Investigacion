@@ -13,7 +13,24 @@ import { Actividades } from "../../domain/entities/actividades.entity";
         ) {}
 
         async crear(actividades: Actividades): Promise<Actividades> {
-            const ormEntity = this.repository.create(actividades);
+            const ormEntity = this.repository.create({
+                nombre: actividades.nombre,
+                tipo: actividades.tipo,
+                subtipo: actividades.subtipo,
+                loteId: actividades.loteId,
+                subLoteId: actividades.subLoteId,
+                cultivoId: actividades.cultivoId,
+                fecha: actividades.fecha,
+                horasActividad: actividades.horasActividad,
+                precioHoraActividad: actividades.precioHoraActividad,
+                costoManoObra: actividades.costoManoObra,
+                descripcion: actividades.descripcion,
+                estado: actividades.estado,
+                creadoPorUsuarioId: actividades.creadoPorUsuarioId,
+                cantidadPlantas: actividades.cantidadPlantas,
+                kgRecolectados: actividades.kgRecolectados,
+                productoAgroId: actividades.productoAgroId,
+            });
             const saved = await this.repository.save(ormEntity);
             return this.toDomain(saved);
         }
@@ -40,24 +57,24 @@ import { Actividades } from "../../domain/entities/actividades.entity";
         }
 
         private toDomain(ormEntity: actividadesOrmEntity): Actividades {
-            const actividades = new Actividades(
-                ormEntity.id,
-                ormEntity.nombre,
-                ormEntity.tipo,
-                ormEntity.subtipo,
-                ormEntity.loteId,
-                ormEntity.subLoteId,
-                ormEntity.cultivoId,
-                ormEntity.fecha,
-                ormEntity.horasActividad,
-                ormEntity.precioHoraActividad,
-                ormEntity.descripcion,
-                ormEntity.creadoPorUsuarioId,
-                ormEntity.cantidadPlantas,
-                ormEntity.productoAgroId,
-                ormEntity.estado as any,
+        return new Actividades(
+            ormEntity.id,
+            ormEntity.nombre,
+            ormEntity.tipo,
+            ormEntity.subtipo,
+            ormEntity.loteId,
+            ormEntity.subLoteId,
+            ormEntity.cultivoId,
+            ormEntity.fecha,
+            ormEntity.horasActividad,
+            ormEntity.precioHoraActividad,
+            ormEntity.costoManoObra,
+            ormEntity.descripcion,
+            ormEntity.estado,
+            ormEntity.creadoPorUsuarioId,
+            ormEntity.cantidadPlantas,
+            ormEntity.kgRecolectados,
+            ormEntity.productoAgroId,
             );
-
-            return actividades;
         }
     }

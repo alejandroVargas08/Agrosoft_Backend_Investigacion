@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { cambioRegistrado } from "../../domain/entities/actividad-historial.entity";
+import { type cambioRegistrado } from "../../domain/entities/actividad-historial.entity";
 
 @Entity('actividad_historial')
     export class actividadHistorialOrmEntity {

@@ -6,6 +6,7 @@ import { cambiarActividadesUseCase } from "../../aplicattion/use-cases/cambiar-a
 import { crearActividadesDto } from "../../aplicattion/dto/crear-actividades.dto";
 import { eliminarActividadesUseCase } from "../../aplicattion/use-cases/eliminar-actividades.use-case";
 import { actualizarActividadesDto } from "../../aplicattion/dto/actualizar-actividades.dto";
+import { estadoActividad } from "../../domain/entities/actividades.entity";
 
 @Controller('actividades')
     export class ActividadesController {
@@ -19,7 +20,11 @@ import { actualizarActividadesDto } from "../../aplicattion/dto/actualizar-activ
 
         @Post()
         async crear(@Body() dto: crearActividadesDto) {
-            return await this.crearActividadesUC.execute(dto);
+            const dtoFecha = {
+                ...dto,
+                fecha: new Date(dto.fecha)
+            };
+            return await this.crearActividadesUC.execute(dtoFecha);
         }
 
         @Get('cultivo/:cultivoId')
@@ -32,7 +37,11 @@ import { actualizarActividadesDto } from "../../aplicattion/dto/actualizar-activ
             @Param('id', ParseIntPipe) id: number,
             @Body() dto: actualizarActividadesDto,
         ) {
-        return await this.actualizarActividadesUC.execute(id, dto);
+            const dtoFecha = dto.fecha
+            ? { ...dto, fecha: new Date(dto.fecha)}
+            : dto;
+
+        return await this.actualizarActividadesUC.execute(id, dtoFecha);
         }
 
         @Patch(':id/estado')
@@ -40,7 +49,7 @@ import { actualizarActividadesDto } from "../../aplicattion/dto/actualizar-activ
             @Param('id', ParseIntPipe) id: number,
             @Body('estado') estado: string,
         ) {
-            return await this.cambiarActividadesUC.execute(id, estado);
+            return await this.cambiarActividadesUC.execute(id, estado as estadoActividad);
         }
 
         @Delete(':id')

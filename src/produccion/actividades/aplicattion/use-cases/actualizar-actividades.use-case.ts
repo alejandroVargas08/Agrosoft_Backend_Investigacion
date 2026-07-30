@@ -1,5 +1,7 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { actividades_repository, actividadesRepositoryPort } from "../../domain/ports/actividades.repository.port";
+import {  actividades_repository } from "../../domain/ports/actividades.repository.port";
+import {  type actividadesRepositoryPort } from "../../domain/ports/actividades.repository.port";
+
 import { Actividades } from "../../domain/entities/actividades.entity";
 
 export interface actualizarActividadesDto {
@@ -30,8 +32,8 @@ export interface actualizarActividadesDto {
                 throw new NotFoundException(`Actividad con ID ${id} no encontrada`);
             }
 
-            if (dto.horasActividades !== undefined && dto.precioHoraActividades !== undefined) {
-                actividades.actualizarHorasPrecio(dto.horasActividades, dto.precioHoraActividades);
+            if (dto.horasActividad !== undefined && dto.precioHoraActividad !== undefined) {
+                actividades.actualizarHorasPrecio(dto.horasActividad, dto.precioHoraActividad);
             }
 
             if (dto.nombre !== undefined) (actividades as any).nombre = dto.nombre;

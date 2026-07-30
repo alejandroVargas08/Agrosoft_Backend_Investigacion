@@ -1,4 +1,4 @@
-import { IsInt, IsNumber, IsString } from "class-validator";
+import { IsInt, IsNumber, IsString, Min } from "class-validator";
 
 export class registraractividadServicioDto{
     @IsString()

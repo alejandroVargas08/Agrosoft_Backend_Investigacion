@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from "@nestjs/common";
 import { asignarActividadHerramientaUseCase } from "../../application/use-cases/asignar-actividad-herramienta.use-case";
 import { listarActividadHerramientaUseCase } from "../../application/use-cases/listar-actividad-herramienta.use-case";
 import { quitarActividadHerramientaUseCase } from "../../application/use-cases/quitar-actividad-herramienra.use-case";

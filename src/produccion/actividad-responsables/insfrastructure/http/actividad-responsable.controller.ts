@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from "@nestjs/common";
 import { registrarActividadResponsableUseCase } from "../../application/use-cases/registrar-actividad-responsables.use-case";
 import { listarActividadResponsablesUseCase } from "../../application/use-cases/listar-actividad-responsables.use-case";
 import { actualizarActividadResponsablesUseCase } from "../../application/use-cases/actualizar-actividad-resposables.use-case";

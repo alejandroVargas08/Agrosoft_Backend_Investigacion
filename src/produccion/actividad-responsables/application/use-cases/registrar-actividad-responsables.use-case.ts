@@ -2,6 +2,7 @@ import { ConflictException, Inject, Injectable } from "@nestjs/common";
 import { actividad_ResponsableRepository } from "../../domain/ports/actividad-responsable.port";
 import { registrarActividadResponsableDto } from "../dto/registrar-actividad-responsables.dto";
 import { actividadResponsable } from "../../domain/entities/actividad-responsable.entity";
+import { type actividadResponsableRepositoryPort } from "../../domain/ports/actividad-responsable.port";
 
 @Injectable()
     export class registrarActividadResponsableUseCase {
@@ -11,7 +12,7 @@ import { actividadResponsable } from "../../domain/entities/actividad-responsabl
         ) {}
 
         async ejecutar(actividadId: number, dto: registrarActividadResponsableDto): Promise<actividadResponsable> {
-            const yaExiste = await this.repo.existePorActividadUsuario(actividadId, dto.usuarioId);
+            const yaExiste = await this.repo.existePorActividadYUsuario(actividadId, dto.usuarioId);
             if (yaExiste) {
                 throw new ConflictException('Este usuario ya está registrado como responsable de esta actividad');
             }
