@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { cambioRegistrado } from "../../domain/entities/actividad-historial.entity";
 
-@Entity('actividadHistorial')
+@Entity('actividad_historial')
     export class actividadHistorialOrmEntity {
         @PrimaryGeneratedColumn()
         id: number;

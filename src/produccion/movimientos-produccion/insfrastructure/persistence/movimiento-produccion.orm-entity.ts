@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity('movimientoProduccion')
+@Entity('movimientos_produccion')
     export class movimientoProduccionOrmEntity {
         @PrimaryGeneratedColumn() 
         id: number;
