@@ -8,7 +8,9 @@ export class RolPermiso {
     private eliminadoEn: Date | null,
   ) {}
 
-  static crear(props: { id: number; rolId: number; permisoId: number }): RolPermiso {
+  static crear(props: { 
+    id: number; rolId: number; permisoId: number 
+    }): RolPermiso {
     const ahora = new Date();
     return new RolPermiso(props.id, props.rolId, props.permisoId, ahora, ahora, null);
   }

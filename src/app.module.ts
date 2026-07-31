@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { IamModule } from './modules/iam/iam.module';
+import { NotificacionesModule } from './modules/notificaciones/notificaciones.module'
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { IamModule } from './modules/iam/iam.module';
       logging: true,
     }),
     IamModule,
+    NotificacionesModule
   ],
   controllers: [],
   providers: [],
