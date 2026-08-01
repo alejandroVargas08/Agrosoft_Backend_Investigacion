@@ -1,9 +1,13 @@
+import { Inject } from "@nestjs/common";
 import { loteProduccion } from "../../domain/entities/lotes.produccion.entity";
-import { loteProduccionRepositoryPort } from "../../domain/ports/lotes.produccion.repository.port";
+import { lote_ProduccionRepository } from "../../domain/ports/lotes.produccion.repository.port";
+import { type loteProduccionRepositoryPort } from "../../domain/ports/lotes.produccion.repository.port";
 import { CrearLoteProduccionDto } from "../dtos/crear-lote.produccion.dto";
 
 export class CrearLoteProduccionUseCase {
-    constructor(private readonly loteProduccionRepo: loteProduccionRepositoryPort) {}
+    constructor(
+        @Inject(lote_ProduccionRepository)
+        private readonly loteProduccionRepo: loteProduccionRepositoryPort) {}
 
     async ejecutar(dto: CrearLoteProduccionDto): Promise<loteProduccion> {
         const nuevoLote = new loteProduccion(
