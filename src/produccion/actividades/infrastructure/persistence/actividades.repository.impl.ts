@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { actividadesRepositoryPort } from "../../domain/ports/actividades.repository.port";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { actividadesOrmEntity } from "./actividades.Orm-entity";
+import { actividadesOrmEntity } from "./actividades.orm-entity";
 import { Actividades } from "../../domain/entities/actividades.entity";
 
 @Injectable()

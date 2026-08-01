@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { actividadesOrmEntity } from './persistence/actividades.Orm-entity';
+import { actividadesOrmEntity } from './persistence/actividades.orm-entity';
 import { ActividadesController } from './http/actividades.controller';
 import { actividades_repository } from '../domain/ports/actividades.repository.port';
 import { actividadesRepositoryImpl } from './persistence/actividades.repository.impl';

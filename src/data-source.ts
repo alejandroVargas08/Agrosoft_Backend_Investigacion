@@ -1,20 +1,19 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
-import { actividadEvidencia } from './produccion/actividad-evidencias/domain/entities/actividad-evidencia.entity';
-import { actividadHerramienta } from './produccion/actividad-herramientas/domain/entities/actividad-herramientas.entity';
-import { actividadHistorial } from './produccion/actividad-historial/domain/entities/actividad-historial.entity';
-import { actividadInsumo } from './produccion/actividad-insumos/domain/entities/actividad-insumos.entity';
-import { actividadInsumoReserva } from './produccion/actividad-insumos-reserva/domain/entities/actividad-insumos-reserva.entity';
-import { actividadInsumoUso } from './produccion/actividad-insumos-uso/domain/entities/actividad-insumos-uso.entity';
-import { actividadResponsable } from './produccion/actividad-responsables/domain/entities/actividad-responsable.entity';
-import { actividadServicio } from './produccion/actividad-servicios/domain/entities/actividad-servicios.entity';
-import { Actividades } from './produccion/actividades/domain/entities/actividades.entity';
-import { Cultivo } from './produccion/cultivos/domain/entities/cultivo.entity';
-import { historialCultivo } from './produccion/historial-cultivo/domain/entities/historial-cultivo.entity';
-import { loteProduccion } from './produccion/lotes_produccion/domain/entities/lotes.produccion.entity';
-import { movimientoProduccion } from './produccion/movimientos-produccion/domain/entities/movimiento-produccion.entity';
-import { usoHerramienta } from './produccion/usos-herramientas/domain/entities/uso-herramienta.entity';
-import { actividad_evidenciaRepository } from './produccion/actividad-evidencias/domain/ports/actividad-evidencias.repository.port';
+import { actividadEvidenciaOrmEntity } from './produccion/actividad-evidencias/infrastructure/persistence/actividad-evidencia.orm-entity';
+import { actividadInsumoOrmEntity } from './produccion/actividad-insumos/infrastructure/persistence/actividad-insumo.orm-entity';
+import { actividadHerramientaOrmEntity } from './produccion/actividad-herramientas/infrastructure/persistence/actividad-herramienta.orm-entity';
+import { actividadHistorialOrmEntity } from './produccion/actividad-historial/infrastructure/persistence/actividad-historial.orm-entity';
+import { actividadInsumoReservaOrmEntity } from './produccion/actividad-insumos-reserva/infrastructure/persistence/actividad-insumo-reserva.orm-entity';
+import { actividadInsumoUsoOrmEntity } from './produccion/actividad-insumos-uso/infrastructure/persistence/actividad-insumo-uso.orm-entity';
+import { actividadResponsableOrmEntity } from './produccion/actividad-responsables/infrastructure/persistence/actividad-responsables.orm-entity';
+import { actividadServicioOrmEntity } from './produccion/actividad-servicios/infrastructure/persistence/actividad-servicios.orm-entity';
+import { actividadesOrmEntity } from './produccion/actividades/infrastructure/persistence/actividades.orm-entity';
+import { CultivoOrmEntity } from './produccion/cultivos/infrastructure/persistence/cultivo.orm-entity';
+import { historialCultivoOrmEntity } from './produccion/historial-cultivo/infrastructure/persistence/historial-cultivo.orm-entity';
+import { LoteProduccionOrmEntity } from './produccion/lotes_produccion/infrastructure/persistence/lote.produccion.orm-entity';
+import { movimientoProduccionOrmEntity } from './produccion/movimientos-produccion/infrastructure/persistence/movimiento-produccion.orm-entity';
+import { usoHerramientaOrmEntity } from './produccion/usos-herramientas/infrastructure/persistence/uso-herramienta.orm-entity';
 
 config();
 
@@ -26,20 +25,20 @@ export default new DataSource({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     entities: [
-        actividad_evidenciaRepository,
-        actividadHerramienta,
-        actividadHistorial,
-        actividadInsumo,
-        actividadInsumoReserva,
-        actividadInsumoUso,
-        actividadResponsable,
-        actividadServicio,
-        Actividades,
-        Cultivo,
-        historialCultivo,
-        loteProduccion,
-        movimientoProduccion,
-        usoHerramienta,
+        actividadEvidenciaOrmEntity,
+        actividadHerramientaOrmEntity,
+        actividadHistorialOrmEntity,
+        actividadInsumoOrmEntity,
+        actividadInsumoReservaOrmEntity,
+        actividadInsumoUsoOrmEntity,
+        actividadResponsableOrmEntity,
+        actividadServicioOrmEntity,
+        actividadesOrmEntity,
+        CultivoOrmEntity,
+        historialCultivoOrmEntity,
+        LoteProduccionOrmEntity,
+        movimientoProduccionOrmEntity,
+        usoHerramientaOrmEntity,
         ],
     migrations: [__dirname + '/migrations/*{.ts,.js}'],
 }); 
