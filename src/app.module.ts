@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { TerritorioModule } from './modules/territorio/territorio.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ConfigModule } from '@nestjs/config';
       schema: 'public',
       synchronize: false
     }),
+    TerritorioModule,
   ],
   controllers: [],
   providers: [],
