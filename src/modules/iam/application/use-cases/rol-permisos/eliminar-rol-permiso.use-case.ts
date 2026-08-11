@@ -10,8 +10,10 @@ export class EliminarRolPermisoUseCase {
   ) {}
 
   async ejecutar(rolId: number, permisoId: number): Promise<void> {
-    const existente = await this.repository.buscarPorRolYPermiso(rolId, permisoId);
-    if (!existente) 
+    const existente = await this.repository.buscarPorRolYPermiso(
+      rolId,
+      permisoId);
+    if (!existente)
         throw new NotFoundException('La relación rol-permiso no existe');
             await this.repository.eliminar(rolId, permisoId);
 

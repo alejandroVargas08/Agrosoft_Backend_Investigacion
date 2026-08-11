@@ -18,7 +18,8 @@ export class ActualizarPermisoUseCase {
     }
 
     if (dto.nombre) permiso.cambiarNombre(dto.nombre);
-    if (dto.descripcion !== undefined) permiso.cambiarDescripcion(dto.descripcion);
+    if (dto.descripcion !== undefined)
+      permiso.cambiarDescripcion(dto.descripcion);
 
     return await this.permisoRepository.actualizar(permiso);
   }

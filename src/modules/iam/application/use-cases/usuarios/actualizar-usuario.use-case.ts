@@ -26,9 +26,12 @@ export class ActualizarUsuarioUseCase {
     }
 
     if (dto.estado) {
-      if (dto.estado === 'activo') usuarioExistente.activar();
-      if (dto.estado === 'inactivo') usuarioExistente.desactivar();
-      if (dto.estado === 'suspendido') usuarioExistente.suspender();
+      if (dto.estado === 'activo')
+        usuarioExistente.activar();
+      if (dto.estado === 'inactivo') 
+        usuarioExistente.desactivar();
+      if (dto.estado === 'suspendido') 
+        usuarioExistente.suspender();
     }
 
     return await this.usuarioRepository.actualizar(usuarioExistente);

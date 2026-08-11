@@ -12,11 +12,17 @@ export class AsignarRolPermisoUseCase {
   ) {}
 
   async ejecutar(dto: AsignarRolPermisoDto): Promise<RolPermiso> {
-    const existente = await this.repository.buscarPorRolYPermiso(dto.rolId, dto.permisoId);
-    if (existente) 
+    const existente = await this.repository.buscarPorRolYPermiso(
+      dto.rolId,
+      dto.permisoId);
+    if (existente)
       throw new Error('Este permiso ya está asignado a este rol');
 
-    const rolPermiso = RolPermiso.crear({ id: 0, rolId: dto.rolId, permisoId: dto.permisoId });
+    const rolPermiso = RolPermiso.crear({ 
+      id: 0,
+      rolId: dto.rolId, 
+      permisoId: dto.permisoId });
+
     return await this.repository.guardar(rolPermiso);
   }
 }
