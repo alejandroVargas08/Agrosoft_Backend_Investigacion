@@ -1,6 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Cliente } from '../../../clientes/domain/entities/cliente.entity';
 import { FacturaEntity } from '../../../facturas/domain/entities/factura.entity';
+import { PagoEntity } from '../../../pagos/domain/entities/pago.entity';
+import { VentaDetalleEntity } from '../../../ventas-detalles/domain/entities/ventas-detalle.entity';
 
 @Entity({ name: 'ventas' })
 export class VentaEntity {
@@ -53,4 +55,10 @@ export class VentaEntity {
 
   @OneToMany(() => FacturaEntity, (factura) => factura.venta)
   facturas: FacturaEntity[];
+
+  @OneToMany(() => PagoEntity, (pago) => pago.venta)
+  pagos: PagoEntity[];
+
+  @OneToMany(()=> VentaDetalleEntity, (venta_detalles) => venta_detalles.venta)
+  venta_detalles: VentaDetalleEntity[];
 }

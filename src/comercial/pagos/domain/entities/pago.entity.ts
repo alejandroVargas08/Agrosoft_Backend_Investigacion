@@ -5,7 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { VentaEntity } from '../../../ventas/domain/entities/venta.entity';
 
 @Entity({ name: 'pagos' })
 export class PagoEntity {
@@ -16,7 +19,7 @@ export class PagoEntity {
   ventaId: number;
 
   @Column({ type: 'varchar', length: 100 })
-  metodo: string; // ej: 'efectivo', 'transferencia', 'tarjeta'
+  metodo: string; 
 
   @Column({ type: 'double precision' })
   monto: number;
@@ -27,7 +30,6 @@ export class PagoEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   referencia: string;
 
-  // Timestamps / Auditoría
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
@@ -36,4 +38,9 @@ export class PagoEntity {
 
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
   deletedAt: Date;
+
+  //Relaciones 
+  @ManyToOne(()=> VentaEntity, (venta) => venta.pagos)
+  @JoinColumn({name: 'venta_id'})
+  venta: VentaEntity;
 }
