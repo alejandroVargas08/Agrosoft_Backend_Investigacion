@@ -1,11 +1,6 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Cliente } from '../../../clientes/domain/entities/cliente.entity';
+import { FacturaEntity } from '../../../facturas/domain/entities/factura.entity';
 
 @Entity({ name: 'ventas' })
 export class VentaEntity {
@@ -15,7 +10,7 @@ export class VentaEntity {
   @Column({ type: 'timestamp' })
   fecha: Date;
 
-  @Column({ name: 'clienteId', type: 'integer', nullable: true })
+  @Column({ name: 'cliente_id', type: 'integer', nullable: true })
   clienteId: number;
 
   @Column({ type: 'double precision' })
@@ -31,9 +26,9 @@ export class VentaEntity {
   total: number;
 
   @Column({ type: 'varchar', length: 50 })
-  estado: string; // ej: 'completada', 'pendiente', 'anulada'
+  estado: string;
 
-  @Column({ name: 'usuarioId', type: 'integer' })
+  @Column({ name: 'usuario_id', type: 'integer' })
   usuarioId: number;
 
   @Column({ name: 'anulada_por_usuario_id', type: 'integer', nullable: true })
@@ -42,7 +37,6 @@ export class VentaEntity {
   @Column({ name: 'fecha_anulacion', type: 'timestamp', nullable: true })
   fechaAnulacion: Date;
 
-  // Timestamps / Auditoría
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
@@ -51,4 +45,12 @@ export class VentaEntity {
 
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
   deletedAt: Date;
+
+  //Relacion
+  @ManyToOne(() => Cliente, (cliente) => cliente.ventas, { nullable: true })
+  @JoinColumn({ name: 'cliente_id' })
+  cliente: Cliente;
+
+  @OneToMany(() => FacturaEntity, (factura) => factura.venta)
+  facturas: FacturaEntity[];
 }

@@ -1,11 +1,6 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { VentaEntity } from '../../../ventas/domain/entities/venta.entity';
+
 
 @Entity({ name: 'facturas' })
 export class FacturaEntity {
@@ -42,4 +37,9 @@ export class FacturaEntity {
 
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
   deletedAt: Date;
+
+  //Relacion 
+  @ManyToOne(()=> VentaEntity, (venta)=> venta.facturas)
+  @JoinColumn({name: 'venta_id'})
+  venta: VentaEntity;
 }

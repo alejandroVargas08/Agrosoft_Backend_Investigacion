@@ -1,11 +1,5 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany } from 'typeorm';
+import { VentaEntity } from '../../../ventas/domain/entities/venta.entity';
 
 @Entity('clientes')
 export class Cliente {
@@ -38,4 +32,7 @@ export class Cliente {
 
   @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
   deletedAt?: Date;
+
+  @OneToMany(() => VentaEntity, (venta) => venta.cliente)
+  ventas: VentaEntity[];
 }
