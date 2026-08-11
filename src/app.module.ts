@@ -26,7 +26,7 @@ import { TransaccionesFinancierasModule } from './finanzas/transacciones-financi
       database: process.env.DB_NAME,
       autoLoadEntities: true,
       schema: 'public',
-      synchronize: false
+      synchronize: true
     }),
     ProductosAgroModule,
     ComercialModule,
