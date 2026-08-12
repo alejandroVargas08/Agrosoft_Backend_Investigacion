@@ -190,5 +190,6 @@ export enum EstadoInsumo {
     get vidaUtilHoras() { return this._vidaUtilHoras; }
     get horasUsadas() { return this._horasUsadas; }
     get depreciacionAcumulada() { return this._depreciacionAcumulada; }
+    get creadoPorUsuarioId() { return this._creadoPorUsuarioId; }
     get deletedAt() { return this._deletedAt; }
     }
