@@ -1,5 +1,6 @@
 import {Entity,PrimaryGeneratedColumn,Column,CreateDateColumn,UpdateDateColumn,DeleteDateColumn, ManyToOne, JoinColumn,} from 'typeorm';
 import { VentaEntity } from '../../../ventas/domain/entities/venta.entity';
+import { ProductoAgroEntity } from '../../../../produccion/productos-agro/domain/entities/productos-agro.entity';
 
 @Entity('ventas_detalles')
 export class VentaDetalleEntity {
@@ -46,5 +47,9 @@ deleted_at: Date;
 @ManyToOne(()=> VentaEntity, (venta)=> venta.venta_detalles)
 @JoinColumn({name: 'ventaId'})
 venta: VentaEntity;
+
+ @ManyToOne(() => ProductoAgroEntity, (producto) => producto.detalles)
+  @JoinColumn({ name: 'producto_agro_id' })
+  productoAgro: ProductoAgroEntity;
 
 }

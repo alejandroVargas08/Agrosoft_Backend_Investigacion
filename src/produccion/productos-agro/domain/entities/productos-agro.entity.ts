@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany } from 'typeorm';
+import { VentaDetalleEntity } from '../../../../comercial/ventas-detalles/domain/entities/ventas-detalle.entity';
 
 @Entity({ name: 'productos_agro' })
 export class ProductoAgroEntity {
@@ -27,5 +28,6 @@ export class ProductoAgroEntity {
   deletedAt: Date;
 
 
-
+  @OneToMany(() => VentaDetalleEntity, (detalle) => detalle.productoAgro)
+  detalles: VentaDetalleEntity[];
 }
