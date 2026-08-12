@@ -16,7 +16,7 @@ export class ProductoAgroEntity {
   nombre: string;
 
   @Column({ name: 'unidadBase', type: 'varchar', length: 100 })
-  unidadBase: string; // ej: 'Kg', 'Bulto', 'Litro'
+  unidadBase: string; 
 
   @Column({ type: 'text', nullable: true })
   descripcion: string;

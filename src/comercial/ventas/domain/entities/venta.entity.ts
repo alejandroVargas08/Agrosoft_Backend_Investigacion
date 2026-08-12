@@ -4,6 +4,7 @@ import { FacturaEntity } from '../../../facturas/domain/entities/factura.entity'
 import { PagoEntity } from '../../../pagos/domain/entities/pago.entity';
 import { VentaDetalleEntity } from '../../../ventas-detalles/domain/entities/ventas-detalle.entity';
 import { TransaccionesFinancieraEntity } from '../../../../finanzas/transacciones-financieras/domain/entities/transacciones-financiera.entity';
+import { HistorialPreciosLoteEntity } from '../../../../produccion/historial_precios_lote/domain/entities/historial_precios_lote.entity';
 
 @Entity({ name: 'ventas' })
 export class VentaEntity {
@@ -66,4 +67,6 @@ export class VentaEntity {
   @OneToMany(() => TransaccionesFinancieraEntity, (trans) => trans.venta)
   transacciones_financieras: TransaccionesFinancieraEntity[];
   
+  @OneToMany(() => HistorialPreciosLoteEntity, (hist) => hist.venta)
+  historialPreciosLote: HistorialPreciosLoteEntity[];
 }

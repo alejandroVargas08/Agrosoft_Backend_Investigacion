@@ -17,6 +17,10 @@ export class CreateHistorialPreciosLoteDto {
   @IsNotEmpty()
   usuarioId: number;
 
+  @IsNumber()
+  @IsOptional()
+  ventaId?: number;
+
   @IsDateString()
   @IsNotEmpty()
   fecha: string | Date;
