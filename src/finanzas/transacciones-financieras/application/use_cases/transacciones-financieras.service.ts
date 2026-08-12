@@ -1,52 +1,34 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-} from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { TransaccionesFinancieraEntity } from '../../domain/entities/transacciones-financiera.entity';
+import { CreateTransaccionesFinancieraDto } from '../dto/create-transacciones-financiera.dto';
+import { UpdateTransaccionesFinancieraDto } from '../dto/update-transacciones-financiera.dto';
 
-@Entity({ name: 'transacciones_financieras' })
+@Injectable()
 export class TransaccionesFinancierasService {
-  @PrimaryGeneratedColumn('increment')
-  id: number;
+  constructor(
+    @InjectRepository(TransaccionesFinancieraEntity)
+    private readonly repo: Repository<TransaccionesFinancieraEntity>,
+  ) {}
 
-  @Column({ type: 'varchar', length: 255 })
-  tipo: string; // ej: 'Ingreso', 'Egreso'
+  create(dto: CreateTransaccionesFinancieraDto) {
+    return this.repo.save(dto);
+  }
 
-  @Column({ type: 'varchar', length: 255 })
-  categoria: string;
+  findAll() {
+    return this.repo.find();
+  }
 
-  @Column({ type: 'double precision' })
-  monto: number;
+  findOne(id: number) {
+    return this.repo.findOne({ where: { id } });
+  }
 
-  @Column({ type: 'text', nullable: true })
-  descripcion: string;
+  update(id: number, dto: UpdateTransaccionesFinancieraDto) {
+    return this.repo.update(id, dto);
+  }
 
-  @Column({ type: 'timestamp' })
-  fecha: Date;
-
-  
-  @Column({ name: 'actividadId', type: 'integer', nullable: true })
-  actividadId: number;
-
-  @Column({ name: 'insumoId', type: 'integer', nullable: true })
-  insumoId: number;
-
-  @Column({ name: 'ventaId', type: 'integer', nullable: true })
-  ventaId: number;
-
-  @Column({ name: 'usuarioId', type: 'integer', nullable: true })
-  usuarioId: number;
-
-  
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
-  updatedAt: Date;
-
-  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
-  deletedAt: Date;
+  remove(id: number) {
+    return this.repo.softDelete(id);
+  }
 }

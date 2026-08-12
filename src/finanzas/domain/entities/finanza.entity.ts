@@ -1,11 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 
 @Entity('finanzas')
 export class FinanzaEntity {
@@ -13,7 +6,7 @@ export class FinanzaEntity {
   id: number;
 
   @Column({ type: 'varchar', length: 100 })
-  tipo: string; // Ej: 'INGRESO', 'EGRESO'
+  tipo: string; 
 
   @Column({ type: 'double precision' })
   monto: number;
@@ -35,4 +28,6 @@ export class FinanzaEntity {
 
   @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deleted_at: Date;
+
+  
 }

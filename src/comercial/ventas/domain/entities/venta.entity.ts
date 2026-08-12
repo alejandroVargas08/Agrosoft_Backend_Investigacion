@@ -3,6 +3,7 @@ import { Cliente } from '../../../clientes/domain/entities/cliente.entity';
 import { FacturaEntity } from '../../../facturas/domain/entities/factura.entity';
 import { PagoEntity } from '../../../pagos/domain/entities/pago.entity';
 import { VentaDetalleEntity } from '../../../ventas-detalles/domain/entities/ventas-detalle.entity';
+import { TransaccionesFinancieraEntity } from '../../../../finanzas/transacciones-financieras/domain/entities/transacciones-financiera.entity';
 
 @Entity({ name: 'ventas' })
 export class VentaEntity {
@@ -61,4 +62,8 @@ export class VentaEntity {
 
   @OneToMany(()=> VentaDetalleEntity, (venta_detalles) => venta_detalles.venta)
   venta_detalles: VentaDetalleEntity[];
+
+  @OneToMany(() => TransaccionesFinancieraEntity, (trans) => trans.venta)
+  transacciones_financieras: TransaccionesFinancieraEntity[];
+  
 }
