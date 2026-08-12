@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Body, Param, Patch, Delete, ParseIntPipe } from '@nestjs/common';
 import { CrearUsuarioUseCase } from '../../../application/use-cases/usuarios/crear-usuario.use-case';
 import { ActualizarUsuarioUseCase } from '../../../application/use-cases/usuarios/actualizar-usuario.use-case';
 import { LoginUsuarioUseCase } from '../../../application/use-cases/usuarios/login-usuario.use-case';

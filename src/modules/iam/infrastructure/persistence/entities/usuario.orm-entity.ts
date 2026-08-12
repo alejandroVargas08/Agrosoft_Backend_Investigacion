@@ -1,7 +1,4 @@
-import {
-  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn,
-  UpdateDateColumn, DeleteDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 import type { EstadoUsuario } from '../../../domain/entities/usuario.entity';
 
 @Entity('usuarios')

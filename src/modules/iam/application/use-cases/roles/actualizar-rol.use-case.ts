@@ -14,7 +14,7 @@ export class ActualizarRolUseCase {
   async ejecutar(id: number, dto: ActualizarRolDto): Promise<Rol> {
     const rol = await this.rolRepository.buscarPorId(id);
     if (!rol) {
-      throw new NotFoundException(`Rol con ID ${id} no encontrado`);
+      throw new NotFoundException(`Rol con Id ${id} no encontrado`);
     }
 
     if (dto.nombre) rol.cambiarNombre(dto.nombre);

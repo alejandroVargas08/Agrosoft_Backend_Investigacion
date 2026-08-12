@@ -1,4 +1,3 @@
-
 export class UsuarioPermiso {
   private constructor(
     private readonly id: number,

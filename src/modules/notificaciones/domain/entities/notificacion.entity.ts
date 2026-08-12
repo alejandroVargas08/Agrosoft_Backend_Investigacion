@@ -36,9 +36,9 @@ export class Notificacion {
             props.tipo,
             props.metadata,
             false,      // Nace leida
-            ahora,      // creadoEn
-            ahora,      // actualizadoEn
-            null,       // eliminadoEn
+            ahora,      // creado
+            ahora,      // actualizado
+            null,       // eliminado
         );
     }
     static reconstruir(props: {

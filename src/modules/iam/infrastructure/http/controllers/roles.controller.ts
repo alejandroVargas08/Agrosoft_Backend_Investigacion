@@ -1,5 +1,4 @@
-import {
-  Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, HttpCode, HttpStatus } from '@nestjs/common';
 import { CrearRolUseCase } from '../../../application/use-cases/roles/crear-rol.use-case';
 import { ListarRolesUseCase } from '../../../application/use-cases/roles/listar-roles.use-case';
 import { ActualizarRolUseCase } from '../../../application/use-cases/roles/actualizar-rol.use-case';

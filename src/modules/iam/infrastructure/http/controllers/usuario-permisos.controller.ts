@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Body,
-  Param,
-  ParseIntPipe,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, ParseIntPipe, HttpCode, HttpStatus } from '@nestjs/common';
 import { AsignarUsuarioPermisoUseCase } from '../../../application/use-cases/usuario-permisos/asignar-usuario-permiso.use-case';
 import { ListarPermisosPorUsuarioUseCase } from '../../../application/use-cases/usuario-permisos/listar-permisos-por-usuario.use-case';
 import { EliminarUsuarioPermisoUseCase } from '../../../application/use-cases/usuario-permisos/eliminar-usuario-permiso.use-case';

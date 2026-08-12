@@ -1,5 +1,4 @@
-import {
-  Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, HttpCode, HttpStatus} from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, HttpCode, HttpStatus} from '@nestjs/common';
 import { CrearPermisoUseCase } from '../../../application/use-cases/permisos/crear-permiso.use-case';
 import { ListarPermisosUseCase } from '../../../application/use-cases/permisos/listar-permisos.use-case';
 import { ActualizarPermisoUseCase } from '../../../application/use-cases/permisos/actualizar-permiso.use-case';
