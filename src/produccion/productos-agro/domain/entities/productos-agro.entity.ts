@@ -1,11 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 
 @Entity({ name: 'productos_agro' })
 export class ProductoAgroEntity {
@@ -24,7 +17,6 @@ export class ProductoAgroEntity {
   @Column({ type: 'text', nullable: true })
   imagen: string;
 
-  // Auditoría (Timestamps)
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
@@ -33,4 +25,7 @@ export class ProductoAgroEntity {
 
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
   deletedAt: Date;
+
+
+
 }
