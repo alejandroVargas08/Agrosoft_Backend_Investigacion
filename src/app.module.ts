@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { TerritorioModule } from './modules/territorio/territorio.module';
+import { InventarioModule } from './modules/inventario/inventario.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { TerritorioModule } from './modules/territorio/territorio.module';
       synchronize: false
     }),
     TerritorioModule,
+    InventarioModule,
   ],
   controllers: [],
   providers: [],
