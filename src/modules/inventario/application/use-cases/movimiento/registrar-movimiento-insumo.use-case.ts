@@ -31,8 +31,8 @@ export class RegistrarMovimientoInsumoUseCase {
         valorInventarioResultante: insumo.valorInventario(),
         });
 
-        await this.insumoRepo.guardar(insumo);
-        const guardado = await this.movimientoRepo.guardar(movimiento);
+        // Un solo guardado transaccional, en vez de dos por separado.
+        const guardado = await this.movimientoRepo.guardarConInsumo(insumo, movimiento);
 
         return {
         id: guardado.id as number,
