@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { IotModule } from './modules/iot/iot.module';
+import { WikiEpasModule } from './modules/wiki-epas/wiki-epas.module';
 
 @Module({
   imports: [
@@ -15,9 +16,10 @@ import { IotModule } from './modules/iot/iot.module';
       database: process.env.DB_NAME,
       autoLoadEntities: true,
       schema: 'public',
-      synchronize: false
+      synchronize: false,
     }),
     IotModule,
+    WikiEpasModule,
   ],
   controllers: [],
   providers: [],
