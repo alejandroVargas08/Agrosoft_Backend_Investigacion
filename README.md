@@ -36,6 +36,8 @@ Ejecutar en desarrollo:
     DB_PASSWORD=tu_clave
     DB_NAME=agrosoft
 
+## Se crearon los modulos
 ---
+Es desarrollado por el grupo de investigacion del proyecto Agrosoft
 
-Desarrollado por aprendices SENA.
+
