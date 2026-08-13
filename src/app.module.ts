@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { IotModule } from './modules/iot/iot.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ConfigModule } from '@nestjs/config';
       schema: 'public',
       synchronize: false
     }),
+    IotModule,
   ],
   controllers: [],
   providers: [],
