@@ -1,4 +1,15 @@
-// Nuevos imports
+
+import { TiposCultivosWikiController } from './infraestructure/http/controllers/tipos-cultivos-wiki.controller';
+import { TipoCultivoWikiOrmEntity } from './infraestructure/persistence/entities/tipo-cultivo-wiki.orm-entity';
+import { TipoCultivoWikiRepository } from './infraestructure/persistence/repositories/tipo-cultivo-wiki.repository';
+import { TIPO_CULTIVO_WIKI_REPOSITORY_TOKEN } from './domain/ports/tipo-cultivo-wiki.repository.token';
+
+import { CrearTipoCultivoWikiUseCase } from './application/use-cases/tipos-cultivos-wiki/crear-tipo-cultivo-wiki.use-case';
+import { ObtenerTipoCultivoWikiUseCase } from './application/use-cases/tipos-cultivos-wiki/obtener-tipo-cultivo-wiki.use-case';
+import { ListarTiposCultivosWikiUseCase } from './application/use-cases/tipos-cultivos-wiki/listar-tipos-cultivos-wiki.use-case';
+import { ActualizarTipoCultivoWikiUseCase } from './application/use-cases/tipos-cultivos-wiki/actualizar-tipo-cultivo-wiki.use-case';
+import { EliminarTipoCultivoWikiUseCase } from './application/use-cases/tipos-cultivos-wiki/eliminar-tipo-cultivo-wiki.use-case';
+
 import { WikiTipoEpaController } from './infraestructure/http/controllers/wiki-tipo-epa.controller';
 import { WikiTipoEpaOrmEntity } from './infraestructure/persistence/entities/wiki-tipo-epa.orm-entity';
 import { WikiTipoEpaRepository } from './infraestructure/persistence/repositories/wiki-tipo-epa.repository';
@@ -25,8 +36,8 @@ import { ActualizarEpaUseCase } from './application/use-cases/epas/actualizar-ep
 import { EliminarEpaUseCase } from './application/use-cases/epas/eliminar-epa.use-case';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([EpaOrmEntity, WikiTipoEpaOrmEntity])],
-  controllers: [EpasController, WikiTipoEpaController],
+  imports: [TypeOrmModule.forFeature([EpaOrmEntity, WikiTipoEpaOrmEntity, TipoCultivoWikiOrmEntity])],
+  controllers: [EpasController, WikiTipoEpaController, TiposCultivosWikiController],
   providers: [
     CrearEpaUseCase,
     ObtenerEpaUseCase,
@@ -41,7 +52,14 @@ import { EliminarEpaUseCase } from './application/use-cases/epas/eliminar-epa.us
     ActualizarWikiTipoEpaUseCase,
     EliminarWikiTipoEpaUseCase,
     { provide: WIKI_TIPO_EPA_REPOSITORY_TOKEN, useClass: WikiTipoEpaRepository },
+
+    CrearTipoCultivoWikiUseCase,
+    ObtenerTipoCultivoWikiUseCase,
+    ListarTiposCultivosWikiUseCase,
+    ActualizarTipoCultivoWikiUseCase,
+    EliminarTipoCultivoWikiUseCase,
+    { provide: TIPO_CULTIVO_WIKI_REPOSITORY_TOKEN, useClass: TipoCultivoWikiRepository },
   ],
-  exports: [EPA_REPOSITORY_TOKEN, WIKI_TIPO_EPA_REPOSITORY_TOKEN],
+  exports: [EPA_REPOSITORY_TOKEN, WIKI_TIPO_EPA_REPOSITORY_TOKEN, TIPO_CULTIVO_WIKI_REPOSITORY_TOKEN],
 })
 export class WikiEpasModule {}
