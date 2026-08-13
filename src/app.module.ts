@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { TerritorioModule } from './modules/territorio/territorio.module';
 import { InventarioModule } from './modules/inventario/inventario.module';
+import { TelegramModule } from './modules/integrations/telegram/telegram.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { InventarioModule } from './modules/inventario/inventario.module';
     }),
     TerritorioModule,
     InventarioModule,
+    TelegramModule,
   ],
   controllers: [],
   providers: [],
