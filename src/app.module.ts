@@ -15,6 +15,8 @@ import { ClientesModule } from './comercial/clientes/infrastructure/clientes.mod
 import { FacturasModule } from './comercial/facturas/infrastructure/facturas.module';
 import { PagosModule } from './comercial/pagos/infrastruture/pagos.module';
 import { TransaccionesFinancierasModule } from './finanzas/transacciones-financieras/infrastructure/transacciones-financieras.module';
+import { IamModule } from './modules/iam/iam.module';
+import { NotificacionesModule } from './modules/notificaciones/notificaciones.module';
 
 @Module({
   imports: [
@@ -28,7 +30,8 @@ import { TransaccionesFinancierasModule } from './finanzas/transacciones-financi
       database: process.env.DB_NAME,
       autoLoadEntities: true,
       schema: 'public',
-      synchronize: true
+      synchronize: true,
+      logging: true,
     }),
     TerritorioModule,
     InventarioModule,
@@ -44,6 +47,8 @@ import { TransaccionesFinancierasModule } from './finanzas/transacciones-financi
     FacturasModule,
     PagosModule,
     TransaccionesFinancierasModule,
+    IamModule,
+    NotificacionesModule,
   ],
   controllers: [],
   providers: [],
