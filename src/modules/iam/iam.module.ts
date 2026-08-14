@@ -11,6 +11,7 @@ import { LoginUsuarioUseCase } from './application/use-cases/usuarios/login-usua
 import { EliminarUsuarioUseCase } from './application/use-cases/usuarios/eliminar-usuario.use-case';
 import { USUARIO_REPOSITORY } from './domain/ports/usuario.repository.token';
 import { ListarUsuariosUseCase } from './application/use-cases/usuarios/listar-usuarios.use-case';
+import { ObtenerUsuarioUseCase } from './application/use-cases/usuarios/obtener-usuario.use-case';
 
 // Rol 
 import { RolOrmEntity } from './infrastructure/persistence/entities/rol.orm-entity';
@@ -55,6 +56,7 @@ import { EliminarPermisoUseCase } from './application/use-cases/permisos/elimina
 import { ListarPermisosUseCase } from './application/use-cases/permisos/listar-permisos.use-case';
 
 
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -79,6 +81,7 @@ import { ListarPermisosUseCase } from './application/use-cases/permisos/listar-p
     LoginUsuarioUseCase,
     EliminarUsuarioUseCase,
     ListarUsuariosUseCase,
+    ObtenerUsuarioUseCase,
     { provide: USUARIO_REPOSITORY, useClass: UsuarioRepository },
 
     // Rol
