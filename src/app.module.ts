@@ -16,7 +16,7 @@ import { WikiEpasModule } from './modules/wiki-epas/wiki-epas.module';
       database: process.env.DB_NAME,
       autoLoadEntities: true,
       schema: 'public',
-      synchronize: false,
+      synchronize: true,
     }),
     IotModule,
     WikiEpasModule,

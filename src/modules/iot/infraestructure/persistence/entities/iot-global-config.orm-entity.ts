@@ -35,11 +35,11 @@ export class IotGlobalConfigOrmEntity {
   @Column({ name: 'temas_personalizados', type: 'text', nullable: true })
   temasPersonalizados: string | null;
 
-  @Column({ name: 'lote_id', nullable: true })
-  loteId: number | null;
+ @Column({ name: 'lote_id', type: 'int', nullable: true })
+loteId: number | null;
 
-  @Column({ name: 'sub_lote_id', nullable: true })
-  subLoteId: number | null;
+  @Column({ name: 'sub_lote_id', type: 'int', nullable: true })
+subLoteId: number | null;
 
   @Column({ name: 'nombre_usuario' })
   nombreUsuario: string;

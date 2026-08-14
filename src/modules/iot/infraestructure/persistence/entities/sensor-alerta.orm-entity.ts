@@ -29,9 +29,9 @@ export class SensorAlertaOrmEntity {
   @Column({ name: 'fecha_alerta', type: 'timestamp' })
   fechaAlerta: Date;
 
-  @Column({ name: 'lote_id', nullable: true })
-  loteId: number | null;
+ @Column({ name: 'lote_id', type: 'int', nullable: true })
+loteId: number | null;
 
-  @Column({ name: 'sub_lote_id', nullable: true })
-  subLoteId: number | null;
+@Column({ name: 'sub_lote_id', type: 'int', nullable: true })
+subLoteId: number | null;
 }
