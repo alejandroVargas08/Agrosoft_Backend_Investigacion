@@ -17,6 +17,8 @@ import { PagosModule } from './comercial/pagos/infrastruture/pagos.module';
 import { TransaccionesFinancierasModule } from './finanzas/transacciones-financieras/infrastructure/transacciones-financieras.module';
 import { IamModule } from './modules/iam/iam.module';
 import { NotificacionesModule } from './modules/notificaciones/notificaciones.module';
+import { IotModule } from './modules/iot/iot.module';
+import { WikiEpasModule } from './modules/wiki-epas/wiki-epas.module';
 
 @Module({
   imports: [
@@ -30,7 +32,7 @@ import { NotificacionesModule } from './modules/notificaciones/notificaciones.mo
       database: process.env.DB_NAME,
       autoLoadEntities: true,
       schema: 'public',
-      synchronize: true,
+      synchronize: false,
       logging: true,
     }),
     TerritorioModule,
@@ -49,6 +51,8 @@ import { NotificacionesModule } from './modules/notificaciones/notificaciones.mo
     TransaccionesFinancierasModule,
     IamModule,
     NotificacionesModule,
+    IotModule,
+    WikiEpasModule,
   ],
   controllers: [],
   providers: [],
