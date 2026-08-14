@@ -13,6 +13,11 @@ export class UsuarioRepository implements UsuarioRepositoryPort {
     private readonly repo: Repository<UsuarioOrmEntity>,
   ) {}
 
+  async obtenerTodos(): Promise<Usuario[]> {
+    const usuariosOrm = await this.repo.find();
+    return usuariosOrm.map((orm) => UsuarioMapper.aDominio(orm));
+  }
+
   async guardar(usuario: Usuario): Promise<Usuario> {
     const orm = UsuarioMapper.aPersistencia(usuario);
     const guardado = await this.repo.save(orm);

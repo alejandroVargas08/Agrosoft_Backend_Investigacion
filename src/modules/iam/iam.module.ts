@@ -10,6 +10,7 @@ import { ActualizarUsuarioUseCase } from './application/use-cases/usuarios/actua
 import { LoginUsuarioUseCase } from './application/use-cases/usuarios/login-usuario.use-case';
 import { EliminarUsuarioUseCase } from './application/use-cases/usuarios/eliminar-usuario.use-case';
 import { USUARIO_REPOSITORY } from './domain/ports/usuario.repository.token';
+import { ListarUsuariosUseCase } from './application/use-cases/usuarios/listar-usuarios.use-case';
 
 // Rol 
 import { RolOrmEntity } from './infrastructure/persistence/entities/rol.orm-entity';
@@ -77,6 +78,7 @@ import { ListarPermisosUseCase } from './application/use-cases/permisos/listar-p
     ActualizarUsuarioUseCase,
     LoginUsuarioUseCase,
     EliminarUsuarioUseCase,
+    ListarUsuariosUseCase,
     { provide: USUARIO_REPOSITORY, useClass: UsuarioRepository },
 
     // Rol

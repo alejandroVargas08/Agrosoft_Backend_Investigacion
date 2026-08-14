@@ -1,8 +1,9 @@
-import { Controller, Post, Body, Param, Patch, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, ParseIntPipe } from '@nestjs/common';
 import { CrearUsuarioUseCase } from '../../../application/use-cases/usuarios/crear-usuario.use-case';
 import { ActualizarUsuarioUseCase } from '../../../application/use-cases/usuarios/actualizar-usuario.use-case';
 import { LoginUsuarioUseCase } from '../../../application/use-cases/usuarios/login-usuario.use-case';
 import { EliminarUsuarioUseCase } from '../../../application/use-cases/usuarios/eliminar-usuario.use-case';
+import { ListarUsuariosUseCase } from '../../../application/use-cases/usuarios/listar-usuarios.use-case';
 import { CrearUsuarioDto } from '../../../application/dto/usuarios/crear-usuario.dto';
 import { ActualizarUsuarioDto } from '../../../application/dto/usuarios/actualizar-usuario.dto';
 import { LoginUsuarioDto } from '../../../application/dto/usuarios/login-usuario.dto';
@@ -14,7 +15,13 @@ export class UsuarioController {
     private readonly actualizarUsuarioUseCase: ActualizarUsuarioUseCase,
     private readonly loginUsuarioUseCase: LoginUsuarioUseCase,
     private readonly eliminarUsuarioUseCase: EliminarUsuarioUseCase,
+    private readonly listarUsuariosUseCase: ListarUsuariosUseCase,
   ) {}
+
+  @Get()
+  async get() {
+    return await this.listarUsuariosUseCase.ejecutar();
+  }
 
   @Post()
   async crear(@Body() dto: CrearUsuarioDto) {
