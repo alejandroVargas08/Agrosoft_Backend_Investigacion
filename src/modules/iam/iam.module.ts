@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 //Usuario
 import { UsuarioOrmEntity } from './infrastructure/persistence/entities/usuario.orm-entity';
@@ -55,10 +58,14 @@ import { ActualizarPermisoUseCase } from './application/use-cases/permisos/actua
 import { EliminarPermisoUseCase } from './application/use-cases/permisos/eliminar-permiso.use-case';
 import { ListarPermisosUseCase } from './application/use-cases/permisos/listar-permisos.use-case';
 
-
+// JWT / Tokens
+import { TOKEN_SERVICE } from './domain/ports/token.service.port';
+import { JwtTokenService } from './infrastructure/services/jwt-token.service';
+import { JwtStrategy } from './infrastructure/http/strategies/jwt.strategy';
 
 @Module({
   imports: [
+    ConfigModule,
     TypeOrmModule.forFeature([
       UsuarioOrmEntity,
       RolOrmEntity,
@@ -66,6 +73,17 @@ import { ListarPermisosUseCase } from './application/use-cases/permisos/listar-p
       RolPermisoOrmEntity,
       UsuarioPermisoOrmEntity,
     ]),
+    PassportModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: config.get<string>('JWT_EXPIRES_IN') ?? '1d',
+        } as any,
+      }),
+    }),
   ],
   controllers: [
     UsuarioController,
@@ -109,6 +127,10 @@ import { ListarPermisosUseCase } from './application/use-cases/permisos/listar-p
     ListarPermisosPorUsuarioUseCase,
     EliminarUsuarioPermisoUseCase,
     { provide: USUARIO_PERMISO_REPOSITORY, useClass: UsuarioPermisoRepository },
+
+    // JWT / Tokens
+    { provide: TOKEN_SERVICE, useClass: JwtTokenService },
+    JwtStrategy,
   ],
   exports: [USUARIO_REPOSITORY, ROL_REPOSITORY, PERMISO_REPOSITORY],
 })
