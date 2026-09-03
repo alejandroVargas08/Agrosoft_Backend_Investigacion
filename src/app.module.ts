@@ -19,6 +19,7 @@ import { IamModule } from './modules/iam/iam.module';
 import { NotificacionesModule } from './modules/notificaciones/notificaciones.module';
 import { IotModule } from './modules/iot/iot.module';
 import { WikiEpasModule } from './modules/wiki-epas/wiki-epas.module';
+import { iaModule } from './ia/ ia.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { WikiEpasModule } from './modules/wiki-epas/wiki-epas.module';
     NotificacionesModule,
     IotModule,
     WikiEpasModule,
+    iaModule
   ],
   controllers: [],
   providers: [],
