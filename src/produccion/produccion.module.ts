@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { ProductosAgroModule } from './productos-agro/infrastructure/productos-agro.module';
+import { HistorialPreciosLoteModule } from './historial_precios_lote/infrastructure/historial_precios_lote.module';
 import { CultivosModule } from './cultivos/infrastructure/cultivos.module';
 import { LotesProduccionModule } from './lotes_produccion/infrastructure/lotes_produccion.module';
 import { HistorialCultivoModule } from './historial-cultivo/historial-cultivo.module';
@@ -14,18 +16,22 @@ import { ActividadInsumosUsoModule } from './actividad-insumos-uso/infrastructur
 import { MovimientosProduccionModule } from './movimientos-produccion/infrastructure/movimientos-produccion.module';
 
 @Module({
-  imports: [CultivosModule, 
-    LotesProduccionModule, 
-    HistorialCultivoModule, 
-    ActividadHistorialModule, 
-    ActividadInsumosModule, 
-    ActividadServiciosModule, 
-    ActividadEvidenciasModule, 
-    ActividadResponsablesModule, 
-    ActividadHerramientasModule, 
-    ActividadInsumosReservaModule, 
-    UsosHerramientasModule, 
-    ActividadInsumosUsoModule, 
-    MovimientosProduccionModule]
+  imports: [
+    ProductosAgroModule,
+    HistorialPreciosLoteModule,
+    CultivosModule,
+    LotesProduccionModule,
+    HistorialCultivoModule,
+    ActividadHistorialModule,
+    ActividadInsumosModule,
+    ActividadServiciosModule,
+    ActividadEvidenciasModule,
+    ActividadResponsablesModule,
+    ActividadHerramientasModule,
+    ActividadInsumosReservaModule,
+    UsosHerramientasModule,
+    ActividadInsumosUsoModule,
+    MovimientosProduccionModule,
+  ],
 })
 export class ProduccionModule {}
