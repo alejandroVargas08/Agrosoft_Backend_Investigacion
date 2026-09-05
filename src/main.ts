@@ -9,13 +9,15 @@ async function bootstrap() {
 
   app.use(json({limit: '10mb'}));
 
-  app.enableCors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  });
-
+app.enableCors({
+  origin: [
+    process.env.CORS_ORIGIN_1,
+    process.env.CORS_ORIGIN_2,
+  ],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+});
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
