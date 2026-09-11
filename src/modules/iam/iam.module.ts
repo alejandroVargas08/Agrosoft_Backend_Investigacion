@@ -63,6 +63,16 @@ import { TOKEN_SERVICE } from './domain/ports/token.service.port';
 import { JwtTokenService } from './infrastructure/services/jwt-token.service';
 import { JwtStrategy } from './infrastructure/http/strategies/jwt.strategy';
 
+//Lo del email
+import { EmailCodesController } from './infrastructure/http/controllers/email-codes.controller';
+import { GenerarCodigoUseCase } from './application/use-cases/email-codes/generar-codigo.usecase';
+import { VerificarCodigoUseCase } from './application/use-cases/email-codes/verificar-codigo.usecase';
+import { RestablecerContrasenaUseCase } from './application/use-cases/email-codes/restablecer-contrasena.usecase';
+import { EMAIL_CODE_REPOSITORY } from './domain/ports/email-code.repository.token';
+import { EmailCodeRepositoryImpl } from './infrastructure/persistence/repositories/email-code.repository.impl';
+import { EmailCodeOrmEntity } from './infrastructure/persistence/entities/email-code.orm-entity';
+import { MailerService } from './infrastructure/services/mailer.services';
+
 @Module({
   imports: [
     ConfigModule,
@@ -72,6 +82,7 @@ import { JwtStrategy } from './infrastructure/http/strategies/jwt.strategy';
       PermisoOrmEntity,
       RolPermisoOrmEntity,
       UsuarioPermisoOrmEntity,
+      EmailCodeOrmEntity,
     ]),
     PassportModule,
     JwtModule.registerAsync({
@@ -91,6 +102,7 @@ import { JwtStrategy } from './infrastructure/http/strategies/jwt.strategy';
     PermisoController,
     RolPermisosController,
     UsuarioPermisoController,
+    EmailCodesController,
   ],
   providers: [
     // Usuario
@@ -131,6 +143,13 @@ import { JwtStrategy } from './infrastructure/http/strategies/jwt.strategy';
     // JWT / Tokens
     { provide: TOKEN_SERVICE, useClass: JwtTokenService },
     JwtStrategy,
+
+    //Lo del email
+    { provide: EMAIL_CODE_REPOSITORY, useClass: EmailCodeRepositoryImpl },
+    MailerService,
+    GenerarCodigoUseCase,
+    VerificarCodigoUseCase,
+    RestablecerContrasenaUseCase,
   ],
   exports: [USUARIO_REPOSITORY, ROL_REPOSITORY, PERMISO_REPOSITORY],
 })
