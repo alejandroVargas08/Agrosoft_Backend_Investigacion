@@ -46,7 +46,6 @@ import { ListarPermisosPorUsuarioUseCase } from './application/use-cases/usuario
 import { EliminarUsuarioPermisoUseCase } from './application/use-cases/usuario-permisos/eliminar-usuario-permiso.use-case';
 import { USUARIO_PERMISO_REPOSITORY } from './domain/ports/usuario-permiso.repository.token';
 
-
 //Esto hace parte a lo del rol
 import { CrearRolUseCase } from './application/use-cases/roles/crear-rol.use-case';
 import { ListarRolesUseCase } from './application/use-cases/roles/listar-roles.use-case';
@@ -73,6 +72,11 @@ import { EmailCodeRepositoryImpl } from './infrastructure/persistence/repositori
 import { EmailCodeOrmEntity } from './infrastructure/persistence/entities/email-code.orm-entity';
 import { MailerService } from './infrastructure/services/mailer.services';
 
+// Programa de formacion
+import { ProgramaFormacionOrmEntity } from './infrastructure/persistence/entities/programa-formacion.orm-entity';
+import { ProgramaFormacionRepository } from './infrastructure/persistence/repositories/programa-formacion.repository';
+import { PROGRAMA_FORMACION_REPOSITORY } from './domain/ports/programa-formacion.repository.token';
+
 @Module({
   imports: [
     ConfigModule,
@@ -83,6 +87,7 @@ import { MailerService } from './infrastructure/services/mailer.services';
       RolPermisoOrmEntity,
       UsuarioPermisoOrmEntity,
       EmailCodeOrmEntity,
+      ProgramaFormacionOrmEntity, 
     ]),
     PassportModule,
     JwtModule.registerAsync({
@@ -140,6 +145,9 @@ import { MailerService } from './infrastructure/services/mailer.services';
     EliminarUsuarioPermisoUseCase,
     { provide: USUARIO_PERMISO_REPOSITORY, useClass: UsuarioPermisoRepository },
 
+    // Programa de Formacion
+    { provide: PROGRAMA_FORMACION_REPOSITORY, useClass: ProgramaFormacionRepository },
+
     // JWT / Tokens
     { provide: TOKEN_SERVICE, useClass: JwtTokenService },
     JwtStrategy,
@@ -151,6 +159,11 @@ import { MailerService } from './infrastructure/services/mailer.services';
     VerificarCodigoUseCase,
     RestablecerContrasenaUseCase,
   ],
-  exports: [USUARIO_REPOSITORY, ROL_REPOSITORY, PERMISO_REPOSITORY],
+  exports: [
+    USUARIO_REPOSITORY, 
+    ROL_REPOSITORY, 
+    PERMISO_REPOSITORY, 
+    PROGRAMA_FORMACION_REPOSITORY, 
+  ],
 })
 export class IamModule {}
