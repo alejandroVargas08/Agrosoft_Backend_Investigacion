@@ -28,6 +28,9 @@ export interface CrearInsumoInput {
     export interface InsumoOutput {
     id: number;
     nombre: string;
+    presentacionTipo: string;
+    unidadUso: string;
+    factorConversionUso: number;
     stockPresentacion: number;
     stockUso: number;
     stockReservado: number;
@@ -45,6 +48,9 @@ export interface CrearInsumoInput {
     return {
         id: insumo.id as number,
         nombre: insumo.nombre,
+        presentacionTipo: insumo.presentacionTipo,
+        unidadUso: insumo.unidadUso,
+        factorConversionUso: insumo.factorConversionUso,
         stockPresentacion: insumo.stockPresentacion,
         stockUso: insumo.stockUso,
         stockReservado: insumo.stockReservado,
