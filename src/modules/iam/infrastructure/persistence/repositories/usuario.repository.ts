@@ -31,7 +31,7 @@ export class UsuarioRepository implements UsuarioRepositoryPort {
   }
 
   async buscarPorId(id: number): Promise<Usuario | null> {
-    const orm = await this.repo.findOne({ where: { id } });
+    const orm = await this.repo.findOne({ where: { id }, });
     return orm ? UsuarioMapper.aDominio(orm) : null;
   }
 
