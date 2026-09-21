@@ -151,6 +151,22 @@ export class Usuario {
     this.actualizadoEn = new Date();
   }
 
+  cambiarNombre(nuevoNombre: string): void {
+    if (!nuevoNombre || nuevoNombre.trim().length === 0) {
+      throw new Error('El nombre no puede estar vacío');
+    }
+    this.nombre = nuevoNombre.trim();
+    this.actualizadoEn = new Date();
+  }
+
+  cambiarApellido(nuevoApellido: string): void {
+    if (!nuevoApellido || nuevoApellido.trim().length === 0) {
+      throw new Error('El apellido no puede estar vacío');
+    }
+    this.apellido = nuevoApellido.trim();
+    this.actualizadoEn = new Date();
+  }
+
   cambiarCorreo(nuevoCorreo: string): void {
     if (!nuevoCorreo || !nuevoCorreo.includes('@')) {
       throw new Error('El correo no es válido');

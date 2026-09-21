@@ -17,6 +17,14 @@ export class ActualizarUsuarioUseCase {
       throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
     }
 
+    if (dto.nombre) {
+      usuarioExistente.cambiarNombre(dto.nombre);
+    }
+
+    if (dto.apellido) {
+      usuarioExistente.cambiarApellido(dto.apellido);
+    }
+
     if (dto.correo) {
       usuarioExistente.cambiarCorreo(dto.correo);
     }
@@ -26,12 +34,9 @@ export class ActualizarUsuarioUseCase {
     }
 
     if (dto.estado) {
-      if (dto.estado === 'activo')
-        usuarioExistente.activar();
-      if (dto.estado === 'inactivo') 
-        usuarioExistente.desactivar();
-      if (dto.estado === 'suspendido') 
-        usuarioExistente.suspender();
+      if (dto.estado === 'activo') usuarioExistente.activar();
+      if (dto.estado === 'inactivo') usuarioExistente.desactivar();
+      if (dto.estado === 'suspendido') usuarioExistente.suspender();
     }
 
     return await this.usuarioRepository.actualizar(usuarioExistente);
