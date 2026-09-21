@@ -22,19 +22,21 @@ export interface SubLoteOutput {
     areaM2: number;
     areaHa: number;
     centroide: { lat: number; lng: number };
+    vertices: { lat: number; lng: number }[];
     descripcion?: string;
     estado: EstadoLote;
 }
 
 export function toSubLoteOutput(subLote: SubLote): SubLoteOutput {
-return {
-    id: subLote.id as number,
-    loteId: subLote.loteId,
-    nombre: subLote.nombre,
-    areaM2: subLote.area.m2,
-    areaHa: subLote.area.ha,
-    centroide: { lat: subLote.centroide.lat, lng: subLote.centroide.lng },
-    descripcion: subLote.descripcion,
-    estado: subLote.estado,
-};
+    return {
+        id: subLote.id as number,
+        loteId: subLote.loteId,
+        nombre: subLote.nombre,
+        areaM2: subLote.area.m2,
+        areaHa: subLote.area.ha,
+        centroide: { lat: subLote.centroide.lat, lng: subLote.centroide.lng },
+        vertices: subLote.poligono.vertices.map((v) => ({ lat: v.lat, lng: v.lng })),
+        descripcion: subLote.descripcion,
+        estado: subLote.estado,
+    };
 }
