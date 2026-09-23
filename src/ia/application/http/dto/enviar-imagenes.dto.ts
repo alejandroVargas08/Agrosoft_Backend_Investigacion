@@ -1,6 +1,6 @@
-import { IsArray, IsString, ArrayMinSize, ArrayMaxSize } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsString } from 'class-validator';
 
-export class AnalizarImagenDto {
+export class EnviarImagenesDto {
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(5)
