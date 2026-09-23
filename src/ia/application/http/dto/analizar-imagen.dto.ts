@@ -1,9 +1,12 @@
-import { IsString } from "class-validator";
+import { IsArray, IsString, ArrayMinSize, ArrayMaxSize } from 'class-validator';
 
-export class AnalizarImagenDto{
-    @IsString()
-    imagen: string;
+export class AnalizarImagenDto {
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(5)
+  @IsString({ each: true })
+  readonly imagenes: string[];
 
-    @IsString()
-    prompt: string;
+  @IsString()
+  readonly prompt: string;
 }

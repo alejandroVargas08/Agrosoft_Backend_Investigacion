@@ -12,7 +12,7 @@ export class ChatAsistenteUseCase {
     return this.iaProvider.chat(mensaje, contexto);
   }
 
-  async analizarImagen(base64Image: string, prompt: string): Promise<string> {
-    return this.iaProvider.analizarImagen(base64Image, prompt);
+  async analizarImagenes(base64Images: string[], prompt: string): Promise<string> {
+    return this.iaProvider.analizarImagenes(base64Images, prompt);
   }
 }

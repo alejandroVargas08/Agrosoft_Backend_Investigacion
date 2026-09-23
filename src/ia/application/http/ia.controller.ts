@@ -3,7 +3,6 @@ import { ChatAsistenteUseCase } from '../use-case/chat-asistente.use-case';
 import { ChatRequestDto } from './dto/chat-request.dto';
 import { AnalizarImagenDto } from './dto/analizar-imagen.dto';
 
-
 @Controller('ia')
 export class iaController {
   constructor(private readonly chatAsistenteUseCase: ChatAsistenteUseCase) {}
@@ -16,7 +15,7 @@ export class iaController {
 
   @Post('analizar-imagen')
   async analizarImagen(@Body() dto: AnalizarImagenDto) {
-    const respuesta = await this.chatAsistenteUseCase.analizarImagen(dto.imagen, dto.prompt);
+    const respuesta = await this.chatAsistenteUseCase.analizarImagenes(dto.imagenes, dto.prompt);
     return { respuesta };
   }
 }
