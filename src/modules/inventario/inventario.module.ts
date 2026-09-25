@@ -39,6 +39,7 @@ import { CrearInsumoUseCase } from './application/use-cases/insumo/crear-insumo.
 import { ListarInsumosUseCase } from './application/use-cases/insumo/listar-insumos.use-case';
 import { ListarInsumosBajoStockMinimoUseCase } from './application/use-cases/insumo/listar-insumos-bajo-stock-minimo.use-case';
 import { RegistrarMovimientoInsumoUseCase } from './application/use-cases/movimiento/registrar-movimiento-insumo.use-case';
+import { ListarMovimientosUseCase } from './application/use-cases/movimiento/listar-movimientos.use-case';
 import { CrearReservaUseCase } from './application/use-cases/reserva/crear-reserva.use-case';
 import { CancelarReservaUseCase } from './application/use-cases/reserva/cancelar-reserva.use-case';
 import { ConfirmarReservaUseCase } from './application/use-cases/reserva/confirmar-reserva.use-case';
@@ -74,6 +75,7 @@ import { ConfirmarReservaUseCase } from './application/use-cases/reserva/confirm
         ListarInsumosUseCase,
         ListarInsumosBajoStockMinimoUseCase,
         RegistrarMovimientoInsumoUseCase,
+        ListarMovimientosUseCase,
         CrearReservaUseCase,
         CancelarReservaUseCase,
         ConfirmarReservaUseCase,

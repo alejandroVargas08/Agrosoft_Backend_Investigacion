@@ -18,6 +18,7 @@ export class MovimientoInsumoMapper {
         usuarioId: orm.usuarioId,
         almacenOrigenId: orm.almacenOrigenId,
         almacenDestinoId: orm.almacenDestinoId,
+        creadoEn: orm.createdAt,
         });
     }
 

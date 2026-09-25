@@ -4,6 +4,7 @@ import { Insumo } from '../entities/insumo.entity';
 export interface MovimientoInsumoRepositoryPort {
     buscarPorId(id: number): Promise<MovimientoInsumo | null>;
     buscarPorInsumoId(insumoId: number): Promise<MovimientoInsumo[]>;
+    buscarTodos(): Promise<MovimientoInsumo[]>;
     guardar(movimiento: MovimientoInsumo): Promise<MovimientoInsumo>;
     guardarConInsumo(insumo: Insumo, movimiento: MovimientoInsumo): Promise<MovimientoInsumo>;
 }
