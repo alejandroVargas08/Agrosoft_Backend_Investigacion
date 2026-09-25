@@ -20,6 +20,7 @@ export enum TipoMovimiento {
     usuarioId: number;
     almacenOrigenId?: number;
     almacenDestinoId?: number;
+    creadoEn?: Date;
     }
 
     export class MovimientoInsumo {
@@ -37,6 +38,7 @@ export enum TipoMovimiento {
     private _usuarioId: number;
     private _almacenOrigenId?: number;
     private _almacenDestinoId?: number;
+    private _creadoEn?: Date;
 
     private constructor(props: MovimientoInsumoPropiedades) {
         this._id = props.id;
@@ -53,6 +55,7 @@ export enum TipoMovimiento {
         this._usuarioId = props.usuarioId;
         this._almacenOrigenId = props.almacenOrigenId;
         this._almacenDestinoId = props.almacenDestinoId;
+        this._creadoEn = props.creadoEn;
     }
 
     static crear(props: Omit<MovimientoInsumoPropiedades, 'id' | 'costoTotal'>): MovimientoInsumo {
@@ -82,4 +85,5 @@ export enum TipoMovimiento {
     get usuarioId() { return this._usuarioId; }
     get almacenOrigenId() { return this._almacenOrigenId; }
     get almacenDestinoId() { return this._almacenDestinoId; }
+    get creadoEn() { return this._creadoEn; }
 }

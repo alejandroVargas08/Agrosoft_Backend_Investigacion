@@ -28,6 +28,12 @@ export class MovimientoInsumoTypeOrmRepository implements MovimientoInsumoReposi
         return encontrados.map(MovimientoInsumoMapper.aDominio);
     }
 
+    /** Todos los movimientos, del más reciente al más antiguo. */
+    async buscarTodos(): Promise<MovimientoInsumo[]> {
+        const encontrados = await this.repo.find({ order: { createdAt: 'DESC' } });
+        return encontrados.map(MovimientoInsumoMapper.aDominio);
+    }
+
     async guardar(movimiento: MovimientoInsumo): Promise<MovimientoInsumo> {
         const ormData = MovimientoInsumoMapper.aOrm(movimiento);
         const guardado = await this.repo.save(ormData);

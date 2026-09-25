@@ -4,7 +4,7 @@ import { MOVIMIENTO_INSUMO_REPOSITORY_PORT } from '../../../domain/ports/movimie
 import type { MovimientoInsumoRepositoryPort } from '../../../domain/ports/movimiento-insumo.repository.port';
 import { INSUMO_REPOSITORY_PORT } from '../../../domain/ports/insumo.repository.port';
 import type { InsumoRepositoryPort } from '../../../domain/ports/insumo.repository.port';
-import { RegistrarMovimientoInput, MovimientoOutput } from '../../dto/movimiento-insumo.dto';
+import { RegistrarMovimientoInput, MovimientoOutput, toMovimientoOutput } from '../../dto/movimiento-insumo.dto';
 
 @Injectable()
 export class RegistrarMovimientoInsumoUseCase {
@@ -35,11 +35,7 @@ export class RegistrarMovimientoInsumoUseCase {
         const guardado = await this.movimientoRepo.guardarConInsumo(insumo, movimiento);
 
         return {
-        id: guardado.id as number,
-        insumoId: guardado.insumoId,
-        tipo: guardado.tipo,
-        cantidadUso: guardado.cantidadUso,
-        costoTotal: guardado.costoTotal,
+        ...toMovimientoOutput(guardado),
         stockResultante: insumo.stockUso,
         };
     }

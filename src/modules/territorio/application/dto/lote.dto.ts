@@ -19,20 +19,22 @@ export interface LoteOutput {
     areaM2: number;
     areaHa: number;
     centroide: { lat: number; lng: number };
+    vertices: { lat: number; lng: number }[];
     cantidadVertices: number;
     descripcion?: string;
     estado: EstadoLote;
 }
 
 export function toLoteOutput(lote: Lote): LoteOutput {
-return {
-    id: lote.id as number,
-    nombre: lote.nombre,
-    areaM2: lote.area.m2,
-    areaHa: lote.area.ha,
-    centroide: { lat: lote.centroide.lat, lng: lote.centroide.lng },
-    cantidadVertices: lote.poligono.cantidadVertices(),
-    descripcion: lote.descripcion,
-    estado: lote.estado,
-};
+    return {
+        id: lote.id as number,
+        nombre: lote.nombre,
+        areaM2: lote.area.m2,
+        areaHa: lote.area.ha,
+        centroide: { lat: lote.centroide.lat, lng: lote.centroide.lng },
+        vertices: lote.poligono.vertices.map((v) => ({ lat: v.lat, lng: v.lng })),
+        cantidadVertices: lote.poligono.cantidadVertices(),
+        descripcion: lote.descripcion,
+        estado: lote.estado,
+    };
 }
