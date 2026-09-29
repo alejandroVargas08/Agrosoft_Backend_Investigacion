@@ -1,4 +1,9 @@
+export interface MensajeHistorial {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
 export interface IaProviderPort {
-    chat(mensaje: string, contexto?: string): Promise<string>;
-    analizarImagenes(base64Images: string[], prompt: string): Promise<string>;
+  chat(historial: MensajeHistorial[]): Promise<string>;
+  analizarImagenes(base64Images: string[], prompt: string): Promise<string>;
 }
