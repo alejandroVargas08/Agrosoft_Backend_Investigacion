@@ -12,10 +12,10 @@ import { EnviarImagenesConversacionUseCase } from './application/use-case/enviar
 
 import { OllamaAdapter } from './infrastructure/ollama/ollama.adapter';
 
-import { ConversacionIAOrmEntity } from './infrastructure/persistence/conversacion-ia.orm-entity';
-import { MensajeIAOrmEntity } from './infrastructure/persistence/mensaje-ia.orm-entity';
-import { ConversacionIARepository } from './infrastructure/persistence/conversacion-ia.repository';
-import { MensajeIARepository } from './infrastructure/persistence/mensaje-ia.repository';
+import { ConversacionIAOrmEntity } from './infrastructure/persistence/entities/conversacion-ia.orm-entity';
+import { MensajeIAOrmEntity } from './infrastructure/persistence/entities/mensaje-ia.orm-entity';
+import { ConversacionIARepository } from './infrastructure/persistence/repositories/conversacion-ia.repository';
+import { MensajeIARepository } from './infrastructure/persistence/repositories/mensaje-ia.repository';
 
 import { CONVERSACION_IA_REPOSITORY } from './domain/ports/conversacion-ia.repository.token';
 import { MENSAJE_IA_REPOSITORY } from './domain/ports/mensaje-ia.repository.token';

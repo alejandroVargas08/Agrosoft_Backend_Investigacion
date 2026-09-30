@@ -2,7 +2,7 @@ import { MensajeIA, RolMensajeIA } from '../entities/mensaje-ia.entity';
 
 export interface MensajeIARepositoryPort {
   crear(props: {
-    conversacionId: number; 
+    conversacionId: number;
     rol: RolMensajeIA; 
     contenido: string;
     tieneImagenes?: boolean; 
