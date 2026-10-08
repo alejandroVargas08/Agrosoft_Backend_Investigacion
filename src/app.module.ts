@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { TerritorioModule } from './modules/territorio/territorio.module';
 import { InventarioModule } from './modules/inventario/inventario.module';
-import { TelegramModule } from './modules/integrations/telegram/telegram.module';
+// import { TelegramModule } from './modules/integrations/telegram/telegram.module';
 import { ProductosAgroModule } from './produccion/productos-agro/infrastructure/productos-agro.module';
 import { ComercialModule } from './comercial/infrastructure/comercial.module';
 import { FinanzasModule } from './finanzas/infrastructure/finanzas.module';
@@ -38,7 +38,7 @@ import { iaModule } from './ia/ia.module';
     }),
     TerritorioModule,
     InventarioModule,
-    TelegramModule,
+    // TelegramModule,
     ProductosAgroModule,
     ComercialModule,
     FinanzasModule,

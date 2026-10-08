@@ -14,6 +14,7 @@ import { ActividadInsumosReservaModule } from './actividad-insumos-reserva/activ
 import { UsosHerramientasModule } from './usos-herramientas/infrastructure/usos-herramientas.module';
 import { ActividadInsumosUsoModule } from './actividad-insumos-uso/infrastructure/actividad-insumos-uso.module';
 import { MovimientosProduccionModule } from './movimientos-produccion/infrastructure/movimientos-produccion.module';
+import { IncidenciasModule } from './incidencias/infrastructure/incidencias.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { MovimientosProduccionModule } from './movimientos-produccion/infrastruc
     UsosHerramientasModule,
     ActividadInsumosUsoModule,
     MovimientosProduccionModule,
+    IncidenciasModule,
   ],
 })
 export class ProduccionModule {}
