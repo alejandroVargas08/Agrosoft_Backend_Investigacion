@@ -20,6 +20,7 @@ import { NotificacionesModule } from './modules/notificaciones/notificaciones.mo
 import { IotModule } from './modules/iot/iot.module';
 import { WikiEpasModule } from './modules/wiki-epas/wiki-epas.module';
 import { iaModule } from './ia/ia.module';
+import { ReportesModule } from './reportes/infrastructure/reportes.module';
 
 @Module({
   imports: [
@@ -55,7 +56,8 @@ import { iaModule } from './ia/ia.module';
     NotificacionesModule,
     IotModule,
     WikiEpasModule,
-    iaModule
+    iaModule,
+    ReportesModule,
   ],
   controllers: [],
   providers: [],
