@@ -15,6 +15,7 @@ import { UsosHerramientasModule } from './usos-herramientas/infrastructure/usos-
 import { ActividadInsumosUsoModule } from './actividad-insumos-uso/infrastructure/actividad-insumos-uso.module';
 import { MovimientosProduccionModule } from './movimientos-produccion/infrastructure/movimientos-produccion.module';
 import { IncidenciasModule } from './incidencias/infrastructure/incidencias.module';
+import { TratamientosModule } from './tratamientos/infrastructure/tratamientos.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { IncidenciasModule } from './incidencias/infrastructure/incidencias.modu
     ActividadInsumosUsoModule,
     MovimientosProduccionModule,
     IncidenciasModule,
+    TratamientosModule,
   ],
 })
 export class ProduccionModule {}
