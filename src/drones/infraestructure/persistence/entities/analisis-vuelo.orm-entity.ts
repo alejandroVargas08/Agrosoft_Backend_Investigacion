@@ -20,14 +20,29 @@ export class AnalisisVueloOrmEntity {
   @Column({ type: 'varchar', length: 20 })
   estado: string;
 
+  @Column({ type: 'varchar', length: 30, nullable: true })
+  etapa: string | null;
+
   @Column({ type: 'jsonb' })
   umbrales: UmbralesNdviProps;
+
+  @Column({ name: 'usar_ia', default: true })
+  usarIa: boolean;
+
+  @Column({ type: 'text', nullable: true })
+  contexto: string | null;
 
   @Column({ name: 'capturas_totales', default: 0 })
   capturasTotales: number;
 
   @Column({ name: 'capturas_procesadas', default: 0 })
   capturasProcesadas: number;
+
+  @Column({ name: 'capturas_a_interpretar', default: 0 })
+  capturasAInterpretar: number;
+
+  @Column({ name: 'capturas_interpretadas', default: 0 })
+  capturasInterpretadas: number;
 
   @Column({ type: 'jsonb', nullable: true })
   resumen: ResumenAnalisis | null;

@@ -21,6 +21,7 @@ export interface ArchivoBanda {
 export interface MetadatosCaptura {
   ubicacion: Coordenada | null;
   altitudRelativaM: number | null;
+  inclinacionCamaraGrados: number | null;
   tomadaEn: Date | null;
 }
 
@@ -33,6 +34,7 @@ interface CapturaProps {
   numeroCaptura: number;
   ubicacion: Coordenada | null;
   altitudRelativaM: number | null;
+  inclinacionCamaraGrados: number | null;
   tomadaEn: Date | null;
   archivos: ArchivosCaptura;
   creadoEn?: Date;
@@ -49,6 +51,7 @@ export class Captura {
       id: null,
       ubicacion: null,
       altitudRelativaM: null,
+      inclinacionCamaraGrados: null,
       tomadaEn: null,
       archivos: {},
       eliminadoEn: null,
@@ -63,6 +66,7 @@ export class Captura {
     this.props.archivos = { ...this.props.archivos, [banda]: archivo };
     this.props.ubicacion ??= metadatos.ubicacion;
     this.props.altitudRelativaM ??= metadatos.altitudRelativaM;
+    this.props.inclinacionCamaraGrados ??= metadatos.inclinacionCamaraGrados;
     this.props.tomadaEn ??= metadatos.tomadaEn;
   }
 
@@ -78,6 +82,7 @@ export class Captura {
   get numeroCaptura() { return this.props.numeroCaptura; }
   get ubicacion() { return this.props.ubicacion; }
   get altitudRelativaM() { return this.props.altitudRelativaM; }
+  get inclinacionCamaraGrados() { return this.props.inclinacionCamaraGrados; }
   get tomadaEn() { return this.props.tomadaEn; }
   get archivos() { return this.props.archivos; }
   get creadoEn() { return this.props.creadoEn; }
@@ -94,4 +99,3 @@ export class Captura {
     };
   }
 }
-

@@ -89,6 +89,7 @@ export class CargarArchivosVueloUseCase {
           {
             ubicacion: Coordenada.intentarCrear(metadatos.latitud, metadatos.longitud),
             altitudRelativaM: metadatos.altitudRelativaM,
+            inclinacionCamaraGrados: metadatos.inclinacionCamaraGrados,
             tomadaEn: metadatos.tomadaEn,
           },
         );

@@ -1,17 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { fromFile } from 'geotiff';
-import type {
-  BandaParaProcesar,
-  BandasParaProcesar,
-  ProcesadorMultiespectralPort,
-  ResultadoProcesamiento,
-} from '../../domain/ports/procesador-multiespectral.port';
+import type { BandaParaProcesar, BandasParaProcesar, ProcesadorMultiespectralPort, ResultadoProcesamiento } from '../../domain/ports/procesador-multiespectral.port';
 import { EstadisticasIndice, redondear } from '../../domain/value-objects/estadisticas-indice.vo';
+import { ClaseCobertura, CombinadorCobertura } from '../../domain/value-objects/cobertura.vo';
 import { BINS_HISTOGRAMA_NDVI } from '../../domain/value-objects/umbrales-ndvi.vo';
 
 const MARGEN_RECORTE = 0.1;
 const FACTOR_REDUCCION = 4;
 const VALOR_SATURADO = 65535;
+const UMBRAL_VEGETACION_NDVI = 0.2;
+const UMBRAL_VEGETACION_REFERENCIA = 0.5;
+const MINIMO_PIXELES_REFERENCIA = 500;
+const FACTOR_OSCURIDAD_AGUA = 0.3;
+const UMBRAL_AGUA_NDWI_SIN_REFERENCIA = 0.2;
 
 class AcumuladorEstadisticas {
   private n = 0;
@@ -48,6 +49,12 @@ function indiceNormalizado(a: number, b: number): number | null {
   return (a - b) / suma;
 }
 
+function mediana(valores: number[]): number {
+  const ordenados = Float64Array.from(valores).sort();
+  const mitad = Math.floor(ordenados.length / 2);
+  return ordenados.length % 2 ? ordenados[mitad] : (ordenados[mitad - 1] + ordenados[mitad]) / 2;
+}
+
 @Injectable()
 export class ProcesadorMultiespectralGeotiffAdapter implements ProcesadorMultiespectralPort {
   async procesar(bandas: BandasParaProcesar): Promise<ResultadoProcesamiento> {
@@ -59,32 +66,66 @@ export class ProcesadorMultiespectralGeotiffAdapter implements ProcesadorMulties
     ]);
 
     const total = Math.min(verde.length, rojo.length, bordeRojo.length, nir.length);
-    const ndvi = new AcumuladorEstadisticas();
-    const ndre = new AcumuladorEstadisticas();
-    const gndvi = new AcumuladorEstadisticas();
-    const histogramaNdvi = new Array<number>(BINS_HISTOGRAMA_NDVI).fill(0);
+    const ndviPorPixel = new Float32Array(total);
+    const nirVegetacionDensa: number[] = [];
 
     for (let i = 0; i < total; i++) {
       const valorNdvi = indiceNormalizado(nir[i], rojo[i]);
-      if (valorNdvi !== null) {
-        ndvi.agregar(valorNdvi);
-        const bin = Math.min(BINS_HISTOGRAMA_NDVI - 1, Math.floor(((valorNdvi + 1) / 2) * BINS_HISTOGRAMA_NDVI));
-        histogramaNdvi[bin]++;
-      }
+      ndviPorPixel[i] = valorNdvi ?? NaN;
+      if (valorNdvi !== null && valorNdvi >= UMBRAL_VEGETACION_REFERENCIA) nirVegetacionDensa.push(nir[i]);
+    }
+
+    const referenciaNir = nirVegetacionDensa.length >= MINIMO_PIXELES_REFERENCIA ? mediana(nirVegetacionDensa) : null;
+
+    const ndvi = new AcumuladorEstadisticas();
+    const ndre = new AcumuladorEstadisticas();
+    const gndvi = new AcumuladorEstadisticas();
+    const ndwi = new AcumuladorEstadisticas();
+    const histogramaNdvi = new Array<number>(BINS_HISTOGRAMA_NDVI).fill(0);
+    const conteoCobertura = CombinadorCobertura.vacia();
+
+    for (let i = 0; i < total; i++) {
+      const valorNdvi = ndviPorPixel[i];
+      const valorNdwi = indiceNormalizado(verde[i], nir[i]);
+      if (valorNdwi !== null) ndwi.agregar(valorNdwi);
 
       const valorNdre = indiceNormalizado(nir[i], bordeRojo[i]);
       if (valorNdre !== null) ndre.agregar(valorNdre);
 
       const valorGndvi = indiceNormalizado(nir[i], verde[i]);
       if (valorGndvi !== null) gndvi.agregar(valorGndvi);
+
+      if (Number.isNaN(valorNdvi)) continue;
+
+      ndvi.agregar(valorNdvi);
+      const bin = Math.min(BINS_HISTOGRAMA_NDVI - 1, Math.floor(((valorNdvi + 1) / 2) * BINS_HISTOGRAMA_NDVI));
+      histogramaNdvi[bin]++;
+
+      conteoCobertura[this.clasificarCobertura(valorNdvi, valorNdwi, nir[i], referenciaNir)]++;
     }
 
     return {
       ndvi: ndvi.resultado(),
       ndre: ndre.resultado(),
       gndvi: gndvi.resultado(),
+      ndwi: ndwi.resultado(),
+      cobertura: CombinadorCobertura.desdeConteos(conteoCobertura),
       histogramaNdvi,
     };
+  }
+
+  private clasificarCobertura(
+    valorNdvi: number,
+    valorNdwi: number | null,
+    valorNir: number,
+    referenciaNir: number | null,
+  ): ClaseCobertura {
+    if (valorNdvi >= UMBRAL_VEGETACION_NDVI) return 'VEGETACION';
+    const esAgua =
+      referenciaNir !== null
+        ? valorNir < referenciaNir * FACTOR_OSCURIDAD_AGUA
+        : valorNdwi !== null && valorNdwi > UMBRAL_AGUA_NDWI_SIN_REFERENCIA;
+    return esAgua ? 'AGUA' : 'SIN_VEGETACION';
   }
 
   private async leerReflectancia(banda: BandaParaProcesar): Promise<Float32Array> {
@@ -109,16 +150,7 @@ export class ProcesadorMultiespectralGeotiffAdapter implements ProcesadorMulties
       });
       const datos = (rasters as unknown as ArrayLike<number>[])[0];
 
-      const {
-        blackLevel,
-        ganancia,
-        exposicionSeg,
-        ajusteGanancia,
-        irradiancia,
-        vineteo,
-        centroOpticoX,
-        centroOpticoY,
-      } = banda.calibracion;
+      const { blackLevel, ganancia, exposicionSeg, ajusteGanancia, irradiancia, vineteo, centroOpticoX, centroOpticoY } = banda.calibracion;
 
       const negro = blackLevel ?? 0;
       const factorSensor = ganancia && exposicionSeg ? ganancia * exposicionSeg : 1;
@@ -160,4 +192,3 @@ export class ProcesadorMultiespectralGeotiffAdapter implements ProcesadorMulties
     }
   }
 }
-

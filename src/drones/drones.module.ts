@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { iaModule } from '../ia/ia.module';
 
 import { DronesController } from './infraestructure/http/controllers/drones.controller';
 import { VuelosController } from './infraestructure/http/controllers/vuelos.controller';
@@ -20,6 +21,7 @@ import { ResultadoCapturaRepository } from './infraestructure/persistence/reposi
 import { AlmacenamientoLocalAdapter } from './infraestructure/storage/almacenamiento-local.adapter';
 import { ExtractorMetadatosDjiAdapter } from './infraestructure/procesamiento/extractor-metadatos-dji.adapter';
 import { ProcesadorMultiespectralGeotiffAdapter } from './infraestructure/procesamiento/procesador-multiespectral-geotiff.adapter';
+import { InterpreteAgronomicoOllamaAdapter } from './infraestructure/ia/interprete-agronomico-ollama.adapter';
 
 import { DRON_REPOSITORY_TOKEN } from './domain/ports/dron.repository.token';
 import { VUELO_REPOSITORY_TOKEN } from './domain/ports/vuelo.repository.token';
@@ -29,6 +31,7 @@ import { RESULTADO_CAPTURA_REPOSITORY_TOKEN } from './domain/ports/resultado-cap
 import { ALMACENAMIENTO_ARCHIVOS_TOKEN } from './domain/ports/almacenamiento-archivos.token';
 import { EXTRACTOR_METADATOS_TOKEN } from './domain/ports/extractor-metadatos.token';
 import { PROCESADOR_MULTIESPECTRAL_TOKEN } from './domain/ports/procesador-multiespectral.token';
+import { INTERPRETE_AGRONOMICO_TOKEN } from './domain/ports/interprete-agronomico.token';
 
 import { CrearDronUseCase } from './application/use-cases/drones/crear-dron.use-case';
 import { ObtenerDronUseCase } from './application/use-cases/drones/obtener-dron.use-case';
@@ -51,6 +54,7 @@ import { ListarResultadosAnalisisUseCase } from './application/use-cases/analisi
 
 @Module({
   imports: [
+    iaModule,
     TypeOrmModule.forFeature([
       DronOrmEntity,
       VueloOrmEntity,
@@ -88,8 +92,8 @@ import { ListarResultadosAnalisisUseCase } from './application/use-cases/analisi
     { provide: ALMACENAMIENTO_ARCHIVOS_TOKEN, useClass: AlmacenamientoLocalAdapter },
     { provide: EXTRACTOR_METADATOS_TOKEN, useClass: ExtractorMetadatosDjiAdapter },
     { provide: PROCESADOR_MULTIESPECTRAL_TOKEN, useClass: ProcesadorMultiespectralGeotiffAdapter },
+    { provide: INTERPRETE_AGRONOMICO_TOKEN, useClass: InterpreteAgronomicoOllamaAdapter },
   ],
   exports: [VUELO_REPOSITORY_TOKEN, ANALISIS_VUELO_REPOSITORY_TOKEN, RESULTADO_CAPTURA_REPOSITORY_TOKEN],
 })
 export class DronesModule {}
-

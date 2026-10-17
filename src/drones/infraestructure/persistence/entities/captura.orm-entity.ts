@@ -34,9 +34,13 @@ export class CapturaOrmEntity {
   @Column({ name: 'altitud_relativa_m', type: 'double precision', nullable: true })
   altitudRelativaM: number | null;
 
+  @Column({ name: 'inclinacion_camara_grados', type: 'double precision', nullable: true })
+  inclinacionCamaraGrados: number | null;
+
   @Column({ name: 'tomada_en', type: 'timestamptz', nullable: true })
   tomadaEn: Date | null;
 
   @Column({ type: 'jsonb', default: {} })
   archivos: ArchivosCaptura;
 }
+

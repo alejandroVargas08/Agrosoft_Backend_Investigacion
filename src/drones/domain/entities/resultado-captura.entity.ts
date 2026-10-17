@@ -1,5 +1,7 @@
+import { DistribucionCobertura } from '../value-objects/cobertura.vo';
 import { Coordenada } from '../value-objects/coordenada.vo';
 import { EstadisticasIndice } from '../value-objects/estadisticas-indice.vo';
+import { InterpretacionCaptura } from '../value-objects/interpretacion-ia.vo';
 import { ClaseVegetacion, DistribucionClases, UmbralesNdvi } from '../value-objects/umbrales-ndvi.vo';
 
 interface ResultadoCapturaProps {
@@ -10,16 +12,19 @@ interface ResultadoCapturaProps {
   ndvi: EstadisticasIndice;
   ndre: EstadisticasIndice;
   gndvi: EstadisticasIndice;
+  ndwi: EstadisticasIndice | null;
+  cobertura: DistribucionCobertura | null;
   histogramaNdvi: number[];
   distribucionNdvi: DistribucionClases;
   clasificacion: ClaseVegetacion;
   esCritica: boolean;
+  interpretacionIa: InterpretacionCaptura | null;
   creadoEn?: Date;
 }
 
 type DatosProcesados = Pick<
   ResultadoCapturaProps,
-  'analisisId' | 'capturaId' | 'ubicacion' | 'ndvi' | 'ndre' | 'gndvi' | 'histogramaNdvi'
+  'analisisId' | 'capturaId' | 'ubicacion' | 'ndvi' | 'ndre' | 'gndvi' | 'ndwi' | 'cobertura' | 'histogramaNdvi'
 >;
 
 export class ResultadoCaptura {
@@ -33,11 +38,16 @@ export class ResultadoCaptura {
       distribucionNdvi,
       clasificacion: umbrales.clasificar(datos.ndvi.promedio),
       esCritica: umbrales.esCritica(distribucionNdvi),
+      interpretacionIa: null,
     });
   }
 
   static desdePersistencia(props: ResultadoCapturaProps): ResultadoCaptura {
     return new ResultadoCaptura(props);
+  }
+
+  registrarInterpretacion(interpretacion: InterpretacionCaptura): void {
+    this.props.interpretacionIa = interpretacion;
   }
 
   get id() { return this.props.id; }
@@ -47,10 +57,13 @@ export class ResultadoCaptura {
   get ndvi() { return this.props.ndvi; }
   get ndre() { return this.props.ndre; }
   get gndvi() { return this.props.gndvi; }
+  get ndwi() { return this.props.ndwi; }
+  get cobertura() { return this.props.cobertura; }
   get histogramaNdvi() { return this.props.histogramaNdvi; }
   get distribucionNdvi() { return this.props.distribucionNdvi; }
   get clasificacion() { return this.props.clasificacion; }
   get esCritica() { return this.props.esCritica; }
+  get interpretacionIa() { return this.props.interpretacionIa; }
   get creadoEn() { return this.props.creadoEn; }
 
   toProps(): ResultadoCapturaProps { return { ...this.props }; }
@@ -60,4 +73,3 @@ export class ResultadoCaptura {
     return resto;
   }
 }
-

@@ -19,6 +19,7 @@ import { MensajeIARepository } from './infrastructure/persistence/repositories/m
 
 import { CONVERSACION_IA_REPOSITORY } from './domain/ports/conversacion-ia.repository.token';
 import { MENSAJE_IA_REPOSITORY } from './domain/ports/mensaje-ia.repository.token';
+import { IA_PROVIDER_TOKEN } from './domain/ports/ia-provider.token';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { MENSAJE_IA_REPOSITORY } from './domain/ports/mensaje-ia.repository.toke
     EnviarMensajeConversacionUseCase,
     EnviarImagenesConversacionUseCase,
     {
-      provide: 'IaProviderPort',
+      provide: IA_PROVIDER_TOKEN,
       useClass: OllamaAdapter,
     },
     {
@@ -45,6 +46,6 @@ import { MENSAJE_IA_REPOSITORY } from './domain/ports/mensaje-ia.repository.toke
       useClass: MensajeIARepository,
     },
   ],
-  exports: [EnviarMensajeConversacionUseCase, EnviarImagenesConversacionUseCase],
+  exports: [EnviarMensajeConversacionUseCase, EnviarImagenesConversacionUseCase, IA_PROVIDER_TOKEN],
 })
 export class iaModule {}

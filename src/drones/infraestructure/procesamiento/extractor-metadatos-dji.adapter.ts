@@ -14,6 +14,7 @@ export class ExtractorMetadatosDjiAdapter implements ExtractorMetadatosPort {
       latitud: this.numero(xmp, 'GpsLatitude'),
       longitud: this.numero(xmp, 'GpsLongitude') ?? this.numero(xmp, 'GpsLongtitude'),
       altitudRelativaM: this.numero(xmp, 'RelativeAltitude'),
+      inclinacionCamaraGrados: this.numero(xmp, 'GimbalPitchDegree'),
       tomadaEn: this.fecha(xmp),
       calibracion: {
         blackLevel: this.numero(xmp, 'BlackLevel'),

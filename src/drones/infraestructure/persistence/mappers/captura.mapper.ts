@@ -11,6 +11,7 @@ export class CapturaMapper {
       numeroCaptura: orm.numeroCaptura,
       ubicacion: Coordenada.intentarCrear(orm.latitud, orm.longitud),
       altitudRelativaM: orm.altitudRelativaM,
+      inclinacionCamaraGrados: orm.inclinacionCamaraGrados ?? null,
       tomadaEn: orm.tomadaEn,
       archivos: orm.archivos ?? {},
       creadoEn: orm.creadoEn,
@@ -28,6 +29,7 @@ export class CapturaMapper {
     orm.latitud = captura.ubicacion?.latitud ?? null;
     orm.longitud = captura.ubicacion?.longitud ?? null;
     orm.altitudRelativaM = captura.altitudRelativaM;
+    orm.inclinacionCamaraGrados = captura.inclinacionCamaraGrados;
     orm.tomadaEn = captura.tomadaEn;
     orm.archivos = captura.archivos;
     return orm;

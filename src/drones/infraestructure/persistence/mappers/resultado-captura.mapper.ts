@@ -13,10 +13,13 @@ export class ResultadoCapturaMapper {
       ndvi: orm.ndvi,
       ndre: orm.ndre,
       gndvi: orm.gndvi,
+      ndwi: orm.ndwi ?? null,
+      cobertura: orm.cobertura ?? null,
       histogramaNdvi: orm.histogramaNdvi,
       distribucionNdvi: orm.distribucionNdvi,
       clasificacion: orm.clasificacion as ClaseVegetacion,
       esCritica: orm.esCritica,
+      interpretacionIa: orm.interpretacionIa ?? null,
       creadoEn: orm.creadoEn,
     });
   }
@@ -34,8 +37,11 @@ export class ResultadoCapturaMapper {
     orm.ndvi = resultado.ndvi;
     orm.ndre = resultado.ndre;
     orm.gndvi = resultado.gndvi;
+    orm.ndwi = resultado.ndwi;
+    orm.cobertura = resultado.cobertura;
     orm.histogramaNdvi = resultado.histogramaNdvi;
     orm.distribucionNdvi = resultado.distribucionNdvi;
+    orm.interpretacionIa = resultado.interpretacionIa;
     return orm;
   }
 }

@@ -53,7 +53,13 @@ export class SolicitarAnalisisVueloUseCase {
     }
 
     const analisis = await this.analisisRepository.guardar(
-      AnalisisVuelo.crear({ vueloId, umbrales, solicitadoPorUsuarioId: dto.solicitadoPorUsuarioId }),
+      AnalisisVuelo.crear({
+        vueloId,
+        umbrales,
+        usarIa: dto.usarIa ?? true,
+        contexto: dto.contexto?.trim() || null,
+        solicitadoPorUsuarioId: dto.solicitadoPorUsuarioId,
+      }),
     );
 
     vuelo.iniciarAnalisis();
