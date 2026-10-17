@@ -21,6 +21,7 @@ import { IotModule } from './modules/iot/iot.module';
 import { WikiEpasModule } from './modules/wiki-epas/wiki-epas.module';
 import { iaModule } from './ia/ia.module';
 import { ReportesModule } from './reportes/infrastructure/reportes.module';
+import { DronesModule } from './drones/drones.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { ReportesModule } from './reportes/infrastructure/reportes.module';
     WikiEpasModule,
     iaModule,
     ReportesModule,
+    DronesModule,
   ],
   controllers: [],
   providers: [],
