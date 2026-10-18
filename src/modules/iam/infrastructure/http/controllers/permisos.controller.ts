@@ -6,8 +6,11 @@ import { EliminarPermisoUseCase } from '../../../application/use-cases/permisos/
 import { CrearPermisoDto } from '../../../application/dto/permisos/crear-permiso.dto';
 import { ActualizarPermisoDto } from '../../../application/dto/permisos/actualizar-permiso.dto';
 import { Permiso } from '../../../domain/entities/permiso.entity';
+import { Autenticado } from '../decorators/autenticado.decorator';
+import { PERMISO_GESTIONAR_USUARIOS } from '../permisos-iam';
 
 @Controller('permisos')
+@Autenticado(PERMISO_GESTIONAR_USUARIOS)
 export class PermisoController {
   constructor(
     private readonly crearPermisoUseCase: CrearPermisoUseCase,

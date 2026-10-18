@@ -6,9 +6,12 @@ import { movimientoProduccionController } from './http/movimiento-produccion.con
 import { registrarMovimientoProduccionUseCase } from '../application/use-cases/registrar-movimiento-produccion.use-case';
 import { listarMovimientoProduccionUseCase } from '../application/use-cases/listar-movimiento-produccion.use-case';
 import { movimiento_ProduccionRepository } from '../domain/ports/movimiento-produccion.repository.port';
+import { IamModule } from '../../../modules/iam/iam.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([movimientoProduccionOrmEntity])],
+    imports: [
+        IamModule,
+        TypeOrmModule.forFeature([movimientoProduccionOrmEntity])],
     controllers: [movimientoProduccionController],
     providers: [
         registrarMovimientoProduccionUseCase,

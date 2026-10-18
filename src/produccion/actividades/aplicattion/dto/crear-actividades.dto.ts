@@ -3,7 +3,7 @@ import { IsDateString, IsInt, IsNumber, IsOptional, IsString, Min } from "class-
 export class crearActividadesDto {
     @IsString()
     nombre: string;
-    
+
     @IsString()
     tipo: string;
 
@@ -36,12 +36,13 @@ export class crearActividadesDto {
     @IsString()
     descripcion?: string;
 
+    @IsOptional()
     @IsInt()
-    creadoPorUsuarioId: number;
+    creadoPorUsuarioId?: number;
 
     @IsOptional()
     @IsInt()
-    cantidadPlantas?: number; 
+    cantidadPlantas?: number;
 
     @IsOptional()
     @IsInt()

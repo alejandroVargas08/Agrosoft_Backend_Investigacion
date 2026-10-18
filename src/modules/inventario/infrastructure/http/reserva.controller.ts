@@ -3,8 +3,10 @@ import { CrearReservaUseCase } from '../../application/use-cases/reserva/crear-r
 import { CancelarReservaUseCase } from '../../application/use-cases/reserva/cancelar-reserva.use-case';
 import { ConfirmarReservaUseCase } from '../../application/use-cases/reserva/confirmar-reserva.use-case';
 import { CrearReservaDto } from './dto/reserva-request.dto';
+import { Autenticado } from '../../../iam/infrastructure/http/decorators/autenticado.decorator';
 
 @Controller('inventario/reservas')
+@Autenticado()
 export class ReservaController {
     constructor(
         private readonly crearReserva: CrearReservaUseCase,

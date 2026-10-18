@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Vuelo } from '../../../domain/entities/vuelo.entity';
 import type { FiltrosVuelo, VueloRepositoryPort } from '../../../domain/ports/vuelo.repository.port';
 import { VueloOrmEntity } from '../entities/vuelo.orm-entity';
@@ -29,9 +29,11 @@ export class VueloRepository implements VueloRepositoryPort {
   }
 
   async listar(filtros: FiltrosVuelo = {}): Promise<Vuelo[]> {
+    if (filtros.loteIds && filtros.loteIds.length === 0) return [];
     const filas = await this.ormRepository.find({
       where: {
         ...(filtros.loteId !== undefined && { loteId: filtros.loteId }),
+        ...(filtros.loteId === undefined && filtros.loteIds && { loteId: In(filtros.loteIds) }),
         ...(filtros.dronId !== undefined && { dronId: filtros.dronId }),
       },
       order: { fechaVuelo: 'DESC' },

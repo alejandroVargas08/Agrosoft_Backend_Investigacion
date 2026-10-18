@@ -8,9 +8,12 @@ import { ActualizarLoteProduccionUseCase } from '../application/use-cases/actual
 import { LoteProduccionRepositoryImpl } from './persistence/lote.produccion.repository.impl';
 import { lote_ProduccionRepository } from '../domain/ports/lotes.produccion.repository.port';
 import { descontarStockUseCase } from '../application/use-cases/descontar-lotes-produccion-use-case';
+import { IamModule } from '../../../modules/iam/iam.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([LoteProduccionOrmEntity])],
+    imports: [
+        IamModule,
+        TypeOrmModule.forFeature([LoteProduccionOrmEntity])],
     controllers: [loteProduccionController],
     providers: [
         CrearLoteProduccionUseCase,

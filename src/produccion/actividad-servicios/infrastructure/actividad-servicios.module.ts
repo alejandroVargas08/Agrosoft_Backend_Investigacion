@@ -8,9 +8,13 @@ import { actualizarActividadServicioUseCase } from '../aplicattion/use-cases/act
 import { eliminarActividadServicioUseCase } from '../aplicattion/use-cases/eliminar-actividad-servicios.use-case';
 import { actividad_ServicioRepository } from '../domain/ports/actividad-servicios.repository.port';
 import { actividadServicioRepositoryImpl } from './persistence/actividad-servicios.repository.impl';
+import { ActividadesModule } from '../../actividades/infrastructure/actividades.module';
+import { IamModule } from '../../../modules/iam/iam.module';
 
 @Module({
     imports: [
+        IamModule,
+        ActividadesModule,
         TypeOrmModule.forFeature([actividadServicioOrmEntity])],
     controllers: [actividadServicioController],
     providers: [

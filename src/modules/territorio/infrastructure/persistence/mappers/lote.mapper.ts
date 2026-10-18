@@ -12,6 +12,7 @@ static aDominio(orm: LoteOrmEntity): Lote {
         centroide: geoJsonAPunto(orm.centroide),
         area: Area.desdeM2(parseFloat(orm.areaM2)),
         descripcion: orm.descripcion,
+        programaFormacionId: orm.programaFormacionId ?? null,
         estado: orm.estado as EstadoLote,
         createdAt: orm.createdAt,
         updatedAt: orm.updatedAt,
@@ -28,6 +29,7 @@ static aOrm(lote: Lote): Partial<LoteOrmEntity> {
         areaM2: lote.area.m2.toString(),
         areaHa: lote.area.ha.toString(),
         descripcion: lote.descripcion,
+        programaFormacionId: lote.programaFormacionId,
         estado: lote.estado,
         deletedAt: lote.deletedAt ?? null,
     };

@@ -1,20 +1,14 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { LOTE_REPOSITORY_PORT } from '../../domain/ports/lote.repository.port';
-import type { LoteRepositoryPort } from '../../domain/ports/lote.repository.port';
+import { Injectable } from '@nestjs/common';
+import { AlcanceDatos } from '../../../iam/domain/value-objects/alcance-datos.vo';
+import { AccesoLotesService } from '../services/acceso-lotes.service';
 import { LoteOutput, toLoteOutput } from '../dto/lote.dto';
 
 @Injectable()
 export class ObtenerLotePorIdUseCase {
-constructor(
-    @Inject(LOTE_REPOSITORY_PORT)
-    private readonly loteRepository: LoteRepositoryPort,
-) {}
+constructor(private readonly accesoLotes: AccesoLotesService) {}
 
-async ejecutar(id: number): Promise<LoteOutput> {
-    const lote = await this.loteRepository.buscarPorId(id);
-    if (!lote) {
-        throw new NotFoundException(`Lote con id ${id} no encontrado`);
-    }
+async ejecutar(id: number, alcance: AlcanceDatos): Promise<LoteOutput> {
+    const lote = await this.accesoLotes.obtenerLoteVisible(id, alcance);
     return toLoteOutput(lote);
 }
 }

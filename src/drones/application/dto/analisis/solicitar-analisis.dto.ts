@@ -1,4 +1,4 @@
-import { IsBoolean, IsInt, IsNumber, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 
 export class SolicitarAnalisisDto {
   @IsOptional() @IsNumber() @Min(-1) @Max(1)
@@ -18,7 +18,4 @@ export class SolicitarAnalisisDto {
 
   @IsOptional() @IsString() @MaxLength(500)
   contexto?: string;
-
-  @IsInt()
-  solicitadoPorUsuarioId: number;
 }

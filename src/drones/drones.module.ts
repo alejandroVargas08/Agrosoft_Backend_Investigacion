@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { iaModule } from '../ia/ia.module';
+import { IamModule } from '../modules/iam/iam.module';
+import { TerritorioModule } from '../modules/territorio/territorio.module';
 
 import { DronesController } from './infraestructure/http/controllers/drones.controller';
 import { VuelosController } from './infraestructure/http/controllers/vuelos.controller';
@@ -55,6 +57,8 @@ import { ListarResultadosAnalisisUseCase } from './application/use-cases/analisi
 @Module({
   imports: [
     iaModule,
+    IamModule,
+    TerritorioModule,
     TypeOrmModule.forFeature([
       DronOrmEntity,
       VueloOrmEntity,

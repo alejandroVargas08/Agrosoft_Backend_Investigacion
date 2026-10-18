@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { IamModule } from '../modules/iam/iam.module';
 
 import { IaController } from './application/http/ia.controller';
 
@@ -24,6 +25,7 @@ import { IA_PROVIDER_TOKEN } from './domain/ports/ia-provider.token';
 @Module({
   imports: [
     ConfigModule,
+    IamModule,
     TypeOrmModule.forFeature([ConversacionIAOrmEntity, MensajeIAOrmEntity]),
   ],
   controllers: [IaController],

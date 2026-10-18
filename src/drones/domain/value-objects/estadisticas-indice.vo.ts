@@ -42,4 +42,3 @@ export function redondear(valor: number, decimales = 4): number {
   const factor = 10 ** decimales;
   return Math.round(valor * factor) / factor;
 }
-

@@ -43,4 +43,3 @@ export class Dron {
   toProps(): DronProps { return { ...this.props }; }
   toJSON() { return this.toProps(); }
 }
-

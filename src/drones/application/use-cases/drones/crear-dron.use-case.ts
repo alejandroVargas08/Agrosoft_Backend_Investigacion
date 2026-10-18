@@ -11,14 +11,14 @@ export class CrearDronUseCase {
     private readonly dronRepository: DronRepositoryPort,
   ) {}
 
-  async execute(dto: CrearDronDto): Promise<Dron> {
+  async execute(dto: CrearDronDto, usuarioId: number): Promise<Dron> {
     const dron = Dron.crear({
       nombre: dto.nombre,
       modelo: dto.modelo,
       numeroSerie: dto.numeroSerie ?? null,
       tipoCamara: dto.tipoCamara,
       tieneRtk: dto.tieneRtk ?? false,
-      creadoPorUsuarioId: dto.creadoPorUsuarioId,
+      creadoPorUsuarioId: usuarioId,
     });
     return this.dronRepository.guardar(dron);
   }

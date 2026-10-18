@@ -1,4 +1,5 @@
 import { BadRequestException, ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
+import type { UsuarioAutenticado } from '../../../../modules/iam/domain/value-objects/alcance-datos.vo';
 import { AnalisisVuelo } from '../../../domain/entities/analisis-vuelo.entity';
 import type { AnalisisVueloRepositoryPort } from '../../../domain/ports/analisis-vuelo.repository.port';
 import { ANALISIS_VUELO_REPOSITORY_TOKEN } from '../../../domain/ports/analisis-vuelo.repository.token';
@@ -26,8 +27,8 @@ export class SolicitarAnalisisVueloUseCase {
     private readonly procesarAnalisisVueloUseCase: ProcesarAnalisisVueloUseCase,
   ) {}
 
-  async execute(vueloId: number, dto: SolicitarAnalisisDto): Promise<AnalisisVuelo> {
-    const vuelo = await this.obtenerVueloUseCase.execute(vueloId);
+  async execute(vueloId: number, dto: SolicitarAnalisisDto, usuario: UsuarioAutenticado): Promise<AnalisisVuelo> {
+    const vuelo = await this.obtenerVueloUseCase.execute(vueloId, usuario);
     if (vuelo.estado === 'ANALIZANDO') {
       throw new ConflictException('El vuelo ya tiene un análisis en curso');
     }
@@ -58,7 +59,7 @@ export class SolicitarAnalisisVueloUseCase {
         umbrales,
         usarIa: dto.usarIa ?? true,
         contexto: dto.contexto?.trim() || null,
-        solicitadoPorUsuarioId: dto.solicitadoPorUsuarioId,
+        solicitadoPorUsuarioId: usuario.id,
       }),
     );
 

@@ -6,8 +6,10 @@ import { ActualizarWikiTipoEpaUseCase } from '../../../application/use-cases/wik
 import { EliminarWikiTipoEpaUseCase } from '../../../application/use-cases/wiki-tipo-epa/eliminar-wiki-tipo-epa.use-case';
 import { CrearWikiTipoEpaDto } from '../../../application/dto/wiki-tipo-epa/crear-wiki-tipo-epa.dto';
 import { ActualizarWikiTipoEpaDto } from '../../../application/dto/wiki-tipo-epa/actualizar-wiki-tipo-epa.dto';
+import { Autenticado } from '../../../../iam/infrastructure/http/decorators/autenticado.decorator';
 
 @Controller('wiki-tipo-epa')
+@Autenticado()
 export class WikiTipoEpaController {
   constructor(
     private readonly crearWikiTipoEpaUseCase: CrearWikiTipoEpaUseCase,

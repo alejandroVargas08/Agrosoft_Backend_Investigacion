@@ -1,4 +1,9 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
+import { Autenticado } from "../../../../modules/iam/infrastructure/http/decorators/autenticado.decorator";
+import { RequierePermisos } from "../../../../modules/iam/infrastructure/http/decorators/requiere-permisos.decorator";
+import { UsuarioActual } from "../../../../modules/iam/infrastructure/http/decorators/usuario-actual.decorator";
+import type { UsuarioAutenticado } from "../../../../modules/iam/domain/value-objects/alcance-datos.vo";
+import { PERMISOS_PRODUCCION } from "../../../permisos-produccion";
 import { CrearTratamientoUseCase } from "../../application/use-cases/crear.tratamiento.use-case";
 import { ListarTratamientosUseCase } from "../../application/use-cases/listar.tratamientos.use-case";
 import { CambiarEstadoTratamientoUseCase } from "../../application/use-cases/cambiar-estado.tratamiento.use-case";
@@ -6,6 +11,7 @@ import { EliminarTratamientoUseCase } from "../../application/use-cases/eliminar
 import { CambiarEstadoTratamientoDto, CrearTratamientoDto } from "../../application/dtos/crear-tratamiento.dto";
 
 @Controller('tratamientos')
+@Autenticado()
 export class TratamientoController {
     constructor(
         private readonly crearTratamientoUC: CrearTratamientoUseCase,
@@ -15,26 +21,30 @@ export class TratamientoController {
     ) {}
 
     @Post()
-    async crear(@Body() dto: CrearTratamientoDto) {
-        return await this.crearTratamientoUC.ejecutar(dto);
+    @RequierePermisos(PERMISOS_PRODUCCION.GESTIONAR_INCIDENCIAS)
+    crear(@Body() dto: CrearTratamientoDto, @UsuarioActual() usuario: UsuarioAutenticado) {
+        return this.crearTratamientoUC.ejecutar(dto, usuario);
     }
 
-    /** Todos los tratamientos, o los de una incidencia con ?incidenciaId= */
     @Get()
-    async listar(@Query('incidenciaId') incidenciaId?: string) {
-        return await this.listarTratamientosUC.ejecutar(incidenciaId ? Number(incidenciaId) : undefined);
+    @RequierePermisos(PERMISOS_PRODUCCION.VER_INCIDENCIAS)
+    listar(@UsuarioActual() usuario: UsuarioAutenticado, @Query('incidenciaId') incidenciaId?: string) {
+        return this.listarTratamientosUC.ejecutar(usuario, incidenciaId ? Number(incidenciaId) : undefined);
     }
 
     @Patch(':id/estado')
-    async cambiarEstado(
+    @RequierePermisos(PERMISOS_PRODUCCION.GESTIONAR_INCIDENCIAS)
+    cambiarEstado(
         @Param('id', ParseIntPipe) id: number,
         @Body() dto: CambiarEstadoTratamientoDto,
+        @UsuarioActual() usuario: UsuarioAutenticado,
     ) {
-        return await this.cambiarEstadoUC.ejecutar(id, dto.estado);
+        return this.cambiarEstadoUC.ejecutar(id, dto.estado, usuario);
     }
 
     @Delete(':id')
-    async eliminar(@Param('id', ParseIntPipe) id: number) {
-        return await this.eliminarTratamientoUC.ejecutar(id);
+    @RequierePermisos(PERMISOS_PRODUCCION.GESTIONAR_INCIDENCIAS)
+    eliminar(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
+        return this.eliminarTratamientoUC.ejecutar(id, usuario);
     }
 }

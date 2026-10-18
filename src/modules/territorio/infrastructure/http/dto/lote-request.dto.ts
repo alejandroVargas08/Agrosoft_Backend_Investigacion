@@ -1,6 +1,7 @@
 import {
     IsArray,
     IsEnum,
+    IsInt,
     IsNumber,
     IsOptional,
     IsString,
@@ -33,6 +34,10 @@ export class CrearLoteDto {
     @IsOptional()
     @IsString()
     descripcion?: string;
+
+    @IsOptional()
+    @IsInt()
+    programaFormacionId?: number | null;
 }
 
 export class CambiarEstadoLoteDto {

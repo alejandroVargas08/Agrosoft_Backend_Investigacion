@@ -2,8 +2,10 @@ import {Controller,Get,Post,Body,Patch,Param,Delete,ParseIntPipe, } from '@nestj
 import { VentasDetallesService } from '../../application/use-cases/ventas-detalles.service';
 import { CreateVentaDetalleDto } from '../../application/dto/create-ventas-detalle.dto';
 import { UpdateVentaDetalleDto } from '../../application/dto/update-ventas-detalle.dto';
+import { Autenticado } from '../../../../modules/iam/infrastructure/http/decorators/autenticado.decorator';
 
 @Controller('ventas-detalles')
+@Autenticado()
 export class VentasDetallesController {
   constructor(private readonly ventasDetallesService: VentasDetallesService) {}
 

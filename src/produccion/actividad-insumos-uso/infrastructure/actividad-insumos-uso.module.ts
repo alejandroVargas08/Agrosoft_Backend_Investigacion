@@ -7,9 +7,13 @@ import { listarActividadInsumoUsoUseCase } from '../application/use-cases/listar
 import { registrarInsumoUseCase } from '../application/use-cases/registrar-insumo-uso.use-case';
 import { actividad_InsumoUsoRepository } from '../domain/ports/actividad-insumos-uso.repository.port';
 import { actividadInsumoUsoRepositoryImpl } from './persistence/actividad-insumo-uso.repository.impl';
+import { ActividadesModule } from '../../actividades/infrastructure/actividades.module';
+import { IamModule } from '../../../modules/iam/iam.module';
 
 @Module({
     imports: [
+        IamModule,
+        ActividadesModule,
         TypeOrmModule.forFeature([actividadInsumoUsoOrmEntity]),
         ActividadInsumosReservaModule,
     ],

@@ -27,4 +27,3 @@ export class ArchivoDji {
     return new ArchivoDji(nombre, `${marcaTiempo}_${numero}`, Number(numero), BANDA_POR_SUFIJO[sufijo.toUpperCase()]);
   }
 }
-

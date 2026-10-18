@@ -5,8 +5,10 @@ import { ajustarActividadInsumoReservaDto } from "../../application/dto/ajustar-
 import { liberarActividadInsumoReservaUseCase } from "../../application/use-cases/liberar-actividad-insumo-reserva.use-case";
 import { reservaActividadInsumoDto } from "../../application/dto/reservar-actividad-insumo-reserva.dto";
 import { ajustarCantidadActividadInsumoReservaUseCase } from "../../application/use-cases/ajustar-cantidad-actividad-insumo-reserva.use-case";
+import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso-actividad.decorator';
 
 @Controller('actividad/:actividadId/insumoReserva')
+@AccesoActividad()
     export class actividadInsumoReservaController {
         constructor(
             private readonly reservaInsumoUC: reservarActividadInsumoReservaUseCase,

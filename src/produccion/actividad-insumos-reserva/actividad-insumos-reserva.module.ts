@@ -9,9 +9,13 @@ import { liberarActividadInsumoReservaUseCase } from './application/use-cases/li
 import { consumirActividadInsumoReservaUseCase } from './application/use-cases/consumir-actividad-insumo-reserva.use-case';
 import { actividad_insumoReservaRepository } from './domain/ports/actividad-insumos-reserva.repository.ports';
 import { actividadInsumoReservaRepositoryImpl } from './infrastructure/persistence/actividad-insumo-reserva.repository.impl';
+import { ActividadesModule } from '../actividades/infrastructure/actividades.module';
+import { IamModule } from '../../modules/iam/iam.module';
 
 @Module({
     imports: [
+        IamModule,
+        ActividadesModule,
         TypeOrmModule.forFeature([actividadInsumoReservaOrmEntity])
     ],
     controllers: [actividadInsumoReservaController],

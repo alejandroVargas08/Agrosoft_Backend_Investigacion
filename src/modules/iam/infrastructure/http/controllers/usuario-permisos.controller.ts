@@ -4,8 +4,11 @@ import { ListarPermisosPorUsuarioUseCase } from '../../../application/use-cases/
 import { EliminarUsuarioPermisoUseCase } from '../../../application/use-cases/usuario-permisos/eliminar-usuario-permiso.use-case';
 import { AsignarUsuarioPermisoDto } from '../../../application/dto/usuario-permisos/asignar-usuario-permiso.dto';
 import { UsuarioPermiso } from '../../../domain/entities/usuario-permiso.entity';
+import { Autenticado } from '../decorators/autenticado.decorator';
+import { PERMISO_GESTIONAR_USUARIOS } from '../permisos-iam';
 
 @Controller('usuario-permisos')
+@Autenticado(PERMISO_GESTIONAR_USUARIOS)
 export class UsuarioPermisoController {
   constructor(
     private readonly asignarUsuarioPermisoUseCase: AsignarUsuarioPermisoUseCase,

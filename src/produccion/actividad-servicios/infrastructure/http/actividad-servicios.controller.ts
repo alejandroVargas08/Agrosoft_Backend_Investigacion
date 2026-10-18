@@ -5,8 +5,10 @@ import { eliminarActividadServicioUseCase } from "../../aplicattion/use-cases/el
 import { listarActividadServicioUseCase } from "../../aplicattion/use-cases/listar-actividad-servicios.use-case";
 import { registraractividadServicioDto } from "../../aplicattion/dto/registrar-actividad-servicio.dto";
 import { actualizarActividadServicioDto } from "../../aplicattion/dto/actualizar-actividad-servicios.dto";
+import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso-actividad.decorator';
 
 @Controller('actividades/:actividadId/servicios')
+@AccesoActividad()
     export class actividadServicioController {
         constructor(
             private readonly registrarServicioUC: registrarActividadServicioUseCase,

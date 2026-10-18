@@ -24,7 +24,4 @@ export class CrearVueloDto {
 
   @IsOptional() @IsString()
   observaciones?: string;
-
-  @IsInt()
-  creadoPorUsuarioId: number;
 }

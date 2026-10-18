@@ -2,9 +2,31 @@ import { Inject, Injectable } from '@nestjs/common';
 import sharp from 'sharp';
 import type { IaProviderPort } from '../../../ia/domain/ports/ia-provider.port';
 import { IA_PROVIDER_TOKEN } from '../../../ia/domain/ports/ia-provider.token';
-import type { DatosInterpretacionCaptura, DatosSintesisVuelo, InterpreteAgronomicoPort } from '../../domain/ports/interprete-agronomico.port';
-import { CoberturaVisual, HallazgoVisual, InterpretacionCaptura, Nivel, NIVELES, SintesisVuelo, TIPOS_COBERTURA_VISUAL, TIPOS_HALLAZGO, TipoCoberturaVisual, TipoHallazgo } from '../../domain/value-objects/interpretacion-ia.vo';
-import { construirPromptCaptura, construirPromptSintesis, ESQUEMA_INTERPRETACION_CAPTURA, ESQUEMA_SINTESIS_VUELO, INCLINACION_MINIMA_SEMIVERTICAL, INCLINACION_MINIMA_VERTICAL } from './prompts-agronomicos';
+import type {
+  DatosInterpretacionCaptura,
+  DatosSintesisVuelo,
+  InterpreteAgronomicoPort,
+} from '../../domain/ports/interprete-agronomico.port';
+import {
+  CoberturaVisual,
+  HallazgoVisual,
+  InterpretacionCaptura,
+  Nivel,
+  NIVELES,
+  SintesisVuelo,
+  TIPOS_COBERTURA_VISUAL,
+  TIPOS_HALLAZGO,
+  TipoCoberturaVisual,
+  TipoHallazgo,
+} from '../../domain/value-objects/interpretacion-ia.vo';
+import {
+  construirPromptCaptura,
+  construirPromptSintesis,
+  ESQUEMA_INTERPRETACION_CAPTURA,
+  ESQUEMA_SINTESIS_VUELO,
+  INCLINACION_MINIMA_SEMIVERTICAL,
+  INCLINACION_MINIMA_VERTICAL,
+} from './prompts-agronomicos';
 
 const LADO_MAXIMO_IMAGEN = 1024;
 const CALIDAD_JPEG = 80;

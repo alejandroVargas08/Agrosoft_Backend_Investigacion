@@ -1,4 +1,5 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import type { AlcanceDatos } from '../../../../modules/iam/domain/value-objects/alcance-datos.vo';
 import { Captura } from '../../../domain/entities/captura.entity';
 import type { AlmacenamientoArchivosPort } from '../../../domain/ports/almacenamiento-archivos.port';
 import { ALMACENAMIENTO_ARCHIVOS_TOKEN } from '../../../domain/ports/almacenamiento-archivos.token';
@@ -45,8 +46,8 @@ export class CargarArchivosVueloUseCase {
     private readonly obtenerVueloUseCase: ObtenerVueloUseCase,
   ) {}
 
-  async execute(vueloId: number, archivos: ArchivoRecibido[]): Promise<ResultadoCarga> {
-    const vuelo = await this.obtenerVueloUseCase.execute(vueloId);
+  async execute(vueloId: number, archivos: ArchivoRecibido[], alcance: AlcanceDatos): Promise<ResultadoCarga> {
+    const vuelo = await this.obtenerVueloUseCase.execute(vueloId, alcance);
     if (!vuelo.puedeCargarImagenes()) {
       throw new ConflictException('El vuelo se está analizando; espera a que termine para cargar más imágenes');
     }

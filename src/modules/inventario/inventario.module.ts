@@ -43,9 +43,11 @@ import { ListarMovimientosUseCase } from './application/use-cases/movimiento/lis
 import { CrearReservaUseCase } from './application/use-cases/reserva/crear-reserva.use-case';
 import { CancelarReservaUseCase } from './application/use-cases/reserva/cancelar-reserva.use-case';
 import { ConfirmarReservaUseCase } from './application/use-cases/reserva/confirmar-reserva.use-case';
+import { IamModule } from '../iam/iam.module';
 
 @Module({
     imports: [
+        IamModule,
         TypeOrmModule.forFeature([
         AlmacenOrmEntity,
         CategoriaOrmEntity,

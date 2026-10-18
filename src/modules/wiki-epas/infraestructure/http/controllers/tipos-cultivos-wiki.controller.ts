@@ -6,8 +6,10 @@ import { ActualizarTipoCultivoWikiUseCase } from '../../../application/use-cases
 import { EliminarTipoCultivoWikiUseCase } from '../../../application/use-cases/tipos-cultivos-wiki/eliminar-tipo-cultivo-wiki.use-case';
 import { CrearTipoCultivoWikiDto } from '../../../application/dto/tipos-cultivos-wiki/crear-tipo-cultivo-wiki.dto';
 import { ActualizarTipoCultivoWikiDto } from '../../../application/dto/tipos-cultivos-wiki/actualizar-tipo-cultivo-wiki.dto';
+import { Autenticado } from '../../../../iam/infrastructure/http/decorators/autenticado.decorator';
 
 @Controller('tipos-cultivos-wiki')
+@Autenticado()
 export class TiposCultivosWikiController {
   constructor(
     private readonly crearTipoCultivoWikiUseCase: CrearTipoCultivoWikiUseCase,

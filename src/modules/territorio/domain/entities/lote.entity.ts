@@ -15,6 +15,7 @@ export interface LotePropiedades {
     area: Area;
     centroide: PuntoGeografico;
     descripcion?: string;
+    programaFormacionId?: number | null;
     estado: EstadoLote;
     createdAt?: Date;
     updatedAt?: Date;
@@ -28,6 +29,7 @@ export class Lote {
     private _area: Area;
     private _centroide: PuntoGeografico;
     private _descripcion?: string;
+    private _programaFormacionId: number | null;
     private _estado: EstadoLote;
     private readonly _createdAt?: Date;
     private _updatedAt?: Date;
@@ -40,6 +42,7 @@ private constructor(props: LotePropiedades) {
     this._area = props.area;
     this._centroide = props.centroide;
     this._descripcion = props.descripcion;
+    this._programaFormacionId = props.programaFormacionId ?? null;
     this._estado = props.estado;
     this._createdAt = props.createdAt;
     this._updatedAt = props.updatedAt;
@@ -88,6 +91,7 @@ get poligono() { return this._poligono; }
 get area() { return this._area; }
 get centroide() { return this._centroide; }
 get descripcion() { return this._descripcion; }
+get programaFormacionId() { return this._programaFormacionId; }
 get estado() { return this._estado; }
 get deletedAt() { return this._deletedAt; }
 }

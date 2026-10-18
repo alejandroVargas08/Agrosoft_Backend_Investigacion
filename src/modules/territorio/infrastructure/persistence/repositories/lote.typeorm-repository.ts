@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, In, IsNull, Repository } from 'typeorm';
 import type { LoteRepositoryPort } from '../../../domain/ports/lote.repository.port';
 import { Lote } from '../../../domain/entities/lote.entity';
 import { LoteOrmEntity } from '../orm-entities/lote.orm-entity';
@@ -21,6 +21,23 @@ constructor(
     async buscarTodos(): Promise<Lote[]> {
         const todos = await this.repo.find();
     return todos.map(LoteMapper.aDominio);
+}
+
+    async buscarVisibles(programasPermitidos: number[] | null): Promise<Lote[]> {
+        if (programasPermitidos === null) return this.buscarTodos();
+        const filas = await this.repo.find({ where: this.condicionVisibles(programasPermitidos) });
+    return filas.map(LoteMapper.aDominio);
+}
+
+    async idsVisibles(programasPermitidos: number[]): Promise<number[]> {
+        const filas = await this.repo.find({ select: { id: true }, where: this.condicionVisibles(programasPermitidos) });
+    return filas.map((fila) => fila.id);
+}
+
+    private condicionVisibles(programasPermitidos: number[]): FindOptionsWhere<LoteOrmEntity>[] {
+        const condiciones: FindOptionsWhere<LoteOrmEntity>[] = [{ programaFormacionId: IsNull() }];
+        if (programasPermitidos.length > 0) condiciones.push({ programaFormacionId: In(programasPermitidos) });
+    return condiciones;
 }
 
     async guardar(lote: Lote): Promise<Lote> {

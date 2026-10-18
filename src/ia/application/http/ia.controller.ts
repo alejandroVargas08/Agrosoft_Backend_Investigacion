@@ -1,17 +1,20 @@
-import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, Inject, NotFoundException, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { CrearConversacionUseCase } from '../use-case/crear-conversacion.use-case';
 import { ListarConversacionesUseCase } from '../use-case/listar-conversaciones.use-case';
 import { ObtenerMensajesUseCase } from '../use-case/obtener-mensajes.use-case';
 import { EnviarMensajeConversacionUseCase } from '../use-case/enviar-mensaje-conversacion.use-case';
 import { EnviarImagenesConversacionUseCase } from '../use-case/enviar-imagenes-conversacion.use-case';
-
 import type { ConversacionIARepositoryPort } from '../../domain/ports/conversacion-ia.repository.port';
 import { CONVERSACION_IA_REPOSITORY } from '../../domain/ports/conversacion-ia.repository.token';
-
+import { ConversacionIA } from '../../domain/entities/conversacion-ia.entity';
 import { CrearConversacionDto, EnviarMensajeDto } from './dto/enviar-mensaje.dto';
 import { EnviarImagenesDto } from './dto/enviar-imagenes.dto';
+import { Autenticado } from '../../../modules/iam/infrastructure/http/decorators/autenticado.decorator';
+import { UsuarioActual } from '../../../modules/iam/infrastructure/http/decorators/usuario-actual.decorator';
+import type { UsuarioAutenticado } from '../../../modules/iam/domain/value-objects/alcance-datos.vo';
 
 @Controller('ia')
+@Autenticado()
 export class IaController {
   constructor(
     private readonly crearConversacionUseCase: CrearConversacionUseCase,
@@ -24,19 +27,23 @@ export class IaController {
   ) {}
 
   @Post('conversaciones')
-  async crear(@Body() dto: CrearConversacionDto) {
-    const conversacion = await this.crearConversacionUseCase.ejecutar(dto.usuarioId, dto.titulo);
+  async crear(@Body() dto: CrearConversacionDto, @UsuarioActual() usuario: UsuarioAutenticado) {
+    const conversacion = await this.crearConversacionUseCase.ejecutar(usuario.id, dto.titulo);
     return this.mapConversacion(conversacion);
   }
 
   @Get('conversaciones/usuario/:usuarioId')
-  async listar(@Param('usuarioId', ParseIntPipe) usuarioId: number) {
-    const conversaciones = await this.listarConversacionesUseCase.ejecutar(usuarioId);
+  async listar(@Param('usuarioId', ParseIntPipe) usuarioId: number, @UsuarioActual() usuario: UsuarioAutenticado) {
+    if (usuarioId !== usuario.id) {
+      throw new ForbiddenException('Solo puedes ver tus propias conversaciones');
+    }
+    const conversaciones = await this.listarConversacionesUseCase.ejecutar(usuario.id);
     return conversaciones.map((c) => this.mapConversacion(c));
   }
 
   @Get('conversaciones/:id/mensajes')
-  async mensajes(@Param('id', ParseIntPipe) id: number) {
+  async mensajes(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
+    await this.validarPropietario(id, usuario);
     const mensajes = await this.obtenerMensajesUseCase.ejecutar(id);
     return mensajes.map((m) => ({
       id: m.obtenerId(),
@@ -49,12 +56,22 @@ export class IaController {
   }
 
   @Post('conversaciones/:id/chat')
-  async chat(@Param('id', ParseIntPipe) id: number, @Body() dto: EnviarMensajeDto) {
+  async chat(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: EnviarMensajeDto,
+    @UsuarioActual() usuario: UsuarioAutenticado,
+  ) {
+    await this.validarPropietario(id, usuario);
     return this.enviarMensajeConversacionUseCase.ejecutar({ conversacionId: id, mensaje: dto.mensaje });
   }
 
   @Post('conversaciones/:id/analizar-imagen')
-  async analizarImagen(@Param('id', ParseIntPipe) id: number, @Body() dto: EnviarImagenesDto) {
+  async analizarImagen(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: EnviarImagenesDto,
+    @UsuarioActual() usuario: UsuarioAutenticado,
+  ) {
+    await this.validarPropietario(id, usuario);
     return this.enviarImagenesConversacionUseCase.ejecutar({
       conversacionId: id,
       imagenes: dto.imagenes,
@@ -63,12 +80,20 @@ export class IaController {
   }
 
   @Delete('conversaciones/:id')
-  async eliminar(@Param('id', ParseIntPipe) id: number) {
+  async eliminar(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
+    await this.validarPropietario(id, usuario);
     await this.conversaciones.eliminar(id);
     return { eliminado: true };
   }
 
-  private mapConversacion(c: any) {
+  private async validarPropietario(conversacionId: number, usuario: UsuarioAutenticado): Promise<void> {
+    const conversacion = await this.conversaciones.buscarPorId(conversacionId);
+    if (!conversacion || conversacion.obtenerUsuarioId() !== usuario.id) {
+      throw new NotFoundException(`Conversación con id ${conversacionId} no encontrada`);
+    }
+  }
+
+  private mapConversacion(c: ConversacionIA) {
     return {
       id: c.obtenerId(),
       titulo: c.obtenerTitulo(),

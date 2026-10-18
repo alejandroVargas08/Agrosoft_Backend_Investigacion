@@ -34,9 +34,12 @@ import { ObtenerEpaUseCase } from './application/use-cases/epas/obtener-epa.use-
 import { ListarEpasUseCase } from './application/use-cases/epas/listar-epas.use-case';
 import { ActualizarEpaUseCase } from './application/use-cases/epas/actualizar-epa.use-case';
 import { EliminarEpaUseCase } from './application/use-cases/epas/eliminar-epa.use-case';
+import { IamModule } from '../iam/iam.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([EpaOrmEntity, WikiTipoEpaOrmEntity, TipoCultivoWikiOrmEntity])],
+  imports: [
+        IamModule,
+        TypeOrmModule.forFeature([EpaOrmEntity, WikiTipoEpaOrmEntity, TipoCultivoWikiOrmEntity])],
   controllers: [EpasController, WikiTipoEpaController, TiposCultivosWikiController],
   providers: [
     CrearEpaUseCase,

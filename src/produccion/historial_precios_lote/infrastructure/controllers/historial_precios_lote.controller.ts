@@ -2,8 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from 
 import { HistorialPreciosLoteService } from '../../application/use-cases/historial_precios_lote.service';
 import { CreateHistorialPreciosLoteDto } from '../../application/dto/create-historial_precios_lote.dto';
 import { UpdateHistorialPreciosLoteDto } from '../../application/dto/update-historial_precios_lote.dto';
+import { Autenticado } from '../../../../modules/iam/infrastructure/http/decorators/autenticado.decorator';
 
 @Controller('historial-precios-lote')
+@Autenticado()
 export class HistorialPreciosLoteController {
   constructor(private readonly historialService: HistorialPreciosLoteService) {}
 

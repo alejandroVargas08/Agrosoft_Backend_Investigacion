@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { IamModule } from '../iam/iam.module';
 
 import { NotificacionOrmEntity } from './infrastructure/persistence/entities/notificacion.orm-entity';
 import { NotificacionRepository } from './infrastructure/persistence/repositories/notificacion.repository';
@@ -13,7 +14,7 @@ import { EliminarNotificacionUseCase } from './application/use-cases/eliminar-no
 import { NOTIFICACION_REPOSITORY } from './domain/ports/notificacion.repository.token';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([NotificacionOrmEntity])],
+  imports: [IamModule, TypeOrmModule.forFeature([NotificacionOrmEntity])],
   controllers: [NotificacionesController],
   providers: [
     CrearNotificacionUseCase,

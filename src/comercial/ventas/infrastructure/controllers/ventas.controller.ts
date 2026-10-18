@@ -2,8 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from 
 import { VentasService } from '../../application/use-cases/ventas.service';
 import { CreateVentaDto } from '../../application/dto/create-venta.dto';
 import { UpdateVentaDto } from '../../application/dto/update-venta.dto';
+import { Autenticado } from '../../../../modules/iam/infrastructure/http/decorators/autenticado.decorator';
 
 @Controller('ventas')
+@Autenticado()
 export class VentasController {
   constructor(private readonly ventasService: VentasService) {}
 

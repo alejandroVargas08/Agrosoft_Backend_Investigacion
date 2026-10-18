@@ -3,9 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { FinanzaEntity } from '../domain/entities/finanza.entity'; 
 import { FinanzasService } from '../application/use-cases/finanzas.service';
 import { FinanzasController } from './controllers/finanzas.controller';
+import { IamModule } from '../../modules/iam/iam.module';
 
 @Module({
   imports: [
+        IamModule,
     TypeOrmModule.forFeature([FinanzaEntity]), 
   ],
   providers: [FinanzasService],

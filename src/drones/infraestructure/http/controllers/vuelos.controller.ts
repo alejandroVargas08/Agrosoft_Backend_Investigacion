@@ -1,8 +1,26 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { promises as fs } from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { Autenticado } from '../../../../modules/iam/infrastructure/http/decorators/autenticado.decorator';
+import { RequierePermisos } from '../../../../modules/iam/infrastructure/http/decorators/requiere-permisos.decorator';
+import { UsuarioActual } from '../../../../modules/iam/infrastructure/http/decorators/usuario-actual.decorator';
+import type { UsuarioAutenticado } from '../../../../modules/iam/domain/value-objects/alcance-datos.vo';
 import { CrearVueloUseCase } from '../../../application/use-cases/vuelos/crear-vuelo.use-case';
 import { ObtenerVueloUseCase } from '../../../application/use-cases/vuelos/obtener-vuelo.use-case';
 import { ListarVuelosUseCase } from '../../../application/use-cases/vuelos/listar-vuelos.use-case';
@@ -14,6 +32,7 @@ import { ListarAnalisisPorVueloUseCase } from '../../../application/use-cases/an
 import { CrearVueloDto } from '../../../application/dto/vuelos/crear-vuelo.dto';
 import { ListarVuelosQueryDto } from '../../../application/dto/vuelos/listar-vuelos.query.dto';
 import { SolicitarAnalisisDto } from '../../../application/dto/analisis/solicitar-analisis.dto';
+import { PERMISOS_DRONES } from '../permisos-drones';
 
 const MAX_ARCHIVOS_POR_CARGA = 60;
 const MAX_TAMANO_ARCHIVO = 60 * 1024 * 1024;
@@ -25,6 +44,7 @@ interface ArchivoSubido {
 }
 
 @Controller('vuelos')
+@Autenticado()
 export class VuelosController {
   constructor(
     private readonly crearVueloUseCase: CrearVueloUseCase,
@@ -38,26 +58,31 @@ export class VuelosController {
   ) {}
 
   @Post()
-  crear(@Body() dto: CrearVueloDto) {
-    return this.crearVueloUseCase.execute(dto);
+  @RequierePermisos(PERMISOS_DRONES.GESTIONAR_VUELOS)
+  crear(@Body() dto: CrearVueloDto, @UsuarioActual() usuario: UsuarioAutenticado) {
+    return this.crearVueloUseCase.execute(dto, usuario);
   }
 
   @Get()
-  listar(@Query() query: ListarVuelosQueryDto) {
-    return this.listarVuelosUseCase.execute({ loteId: query.loteId, dronId: query.dronId });
+  @RequierePermisos(PERMISOS_DRONES.VER_VUELOS)
+  listar(@Query() query: ListarVuelosQueryDto, @UsuarioActual() usuario: UsuarioAutenticado) {
+    return this.listarVuelosUseCase.execute({ loteId: query.loteId, dronId: query.dronId }, usuario);
   }
 
   @Get(':id')
-  obtener(@Param('id', ParseIntPipe) id: number) {
-    return this.obtenerVueloUseCase.execute(id);
+  @RequierePermisos(PERMISOS_DRONES.VER_VUELOS)
+  obtener(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
+    return this.obtenerVueloUseCase.execute(id, usuario);
   }
 
   @Delete(':id')
-  eliminar(@Param('id', ParseIntPipe) id: number) {
-    return this.eliminarVueloUseCase.execute(id);
+  @RequierePermisos(PERMISOS_DRONES.GESTIONAR_VUELOS)
+  eliminar(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
+    return this.eliminarVueloUseCase.execute(id, usuario);
   }
 
   @Post(':id/archivos')
+  @RequierePermisos(PERMISOS_DRONES.CARGAR_IMAGENES)
   @UseInterceptors(
     FilesInterceptor('archivos', MAX_ARCHIVOS_POR_CARGA, {
       dest: path.join(os.tmpdir(), 'agrosoft-drones'),
@@ -69,15 +94,17 @@ export class VuelosController {
   )
   async cargarArchivos(
     @Param('id', ParseIntPipe) id: number,
+    @UsuarioActual() usuario: UsuarioAutenticado,
     @UploadedFiles() archivos: ArchivoSubido[] = [],
   ) {
-    if (archivos.length === 0) {
-      throw new BadRequestException('Envía al menos una imagen JPG o TIF en el campo "archivos"');
-    }
     try {
+      if (archivos.length === 0) {
+        throw new BadRequestException('Envía al menos una imagen JPG o TIF en el campo "archivos"');
+      }
       return await this.cargarArchivosVueloUseCase.execute(
         id,
         archivos.map((a) => ({ rutaTemporal: a.path, nombreOriginal: path.basename(a.originalname) })),
+        usuario,
       );
     } finally {
       await Promise.all(archivos.map((a) => fs.rm(a.path, { force: true })));
@@ -85,18 +112,25 @@ export class VuelosController {
   }
 
   @Get(':id/capturas')
-  listarCapturas(@Param('id', ParseIntPipe) id: number) {
-    return this.listarCapturasPorVueloUseCase.execute(id);
+  @RequierePermisos(PERMISOS_DRONES.VER_VUELOS)
+  listarCapturas(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
+    return this.listarCapturasPorVueloUseCase.execute(id, usuario);
   }
 
   @Post(':id/analisis')
   @HttpCode(HttpStatus.ACCEPTED)
-  solicitarAnalisis(@Param('id', ParseIntPipe) id: number, @Body() dto: SolicitarAnalisisDto) {
-    return this.solicitarAnalisisVueloUseCase.execute(id, dto);
+  @RequierePermisos(PERMISOS_DRONES.SOLICITAR_ANALISIS)
+  solicitarAnalisis(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: SolicitarAnalisisDto,
+    @UsuarioActual() usuario: UsuarioAutenticado,
+  ) {
+    return this.solicitarAnalisisVueloUseCase.execute(id, dto, usuario);
   }
 
   @Get(':id/analisis')
-  listarAnalisis(@Param('id', ParseIntPipe) id: number) {
-    return this.listarAnalisisPorVueloUseCase.execute(id);
+  @RequierePermisos(PERMISOS_DRONES.VER_VUELOS)
+  listarAnalisis(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
+    return this.listarAnalisisPorVueloUseCase.execute(id, usuario);
   }
 }

@@ -5,8 +5,10 @@ import { actualizarActividadResponsablesUseCase } from "../../application/use-ca
 import { eliminarActividadResponsablesUseCase } from "../../application/use-cases/eliminar-actividad-responsables.use-case";
 import { registrarActividadResponsableDto } from "../../application/dto/registrar-actividad-responsables.dto";
 import { actualizarActividadResponsableDto } from "../../application/dto/actualizar-actividad-responsables.dto";
+import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso-actividad.decorator';
 
 @Controller('actividades/:actividadId/responsables')
+@AccesoActividad()
     export class actividadResponsableController {
         constructor(
             private readonly registrarResponsableUC: registrarActividadResponsableUseCase,

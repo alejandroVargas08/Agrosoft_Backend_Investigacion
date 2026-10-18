@@ -6,8 +6,9 @@ export class EnviarMensajeDto {
 }
 
 export class CrearConversacionDto {
+  @IsOptional()
   @IsInt()
-  readonly usuarioId: number;
+  readonly usuarioId?: number;
 
   @IsOptional()
   @IsString()

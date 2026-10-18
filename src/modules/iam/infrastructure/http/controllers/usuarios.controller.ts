@@ -1,13 +1,25 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { CrearUsuarioUseCase } from '../../../application/use-cases/usuarios/crear-usuario.use-case';
 import { ActualizarUsuarioUseCase } from '../../../application/use-cases/usuarios/actualizar-usuario.use-case';
 import { LoginUsuarioUseCase } from '../../../application/use-cases/usuarios/login-usuario.use-case';
 import { EliminarUsuarioUseCase } from '../../../application/use-cases/usuarios/eliminar-usuario.use-case';
-import { ListarUsuariosUseCase } from '../../../application/use-cases/usuarios/listar-usuarios.use-case';
 import { ObtenerUsuarioUseCase } from '../../../application/use-cases/usuarios/obtener-usuario.use-case';
+import { AdministrarUsuarioUseCase } from '../../../application/use-cases/usuarios/administrar-usuario.use-case';
 import { CrearUsuarioDto } from '../../../application/dto/usuarios/crear-usuario.dto';
 import { ActualizarUsuarioDto } from '../../../application/dto/usuarios/actualizar-usuario.dto';
 import { LoginUsuarioDto } from '../../../application/dto/usuarios/login-usuario.dto';
+import { CambiarProgramaUsuarioDto, CambiarRolUsuarioDto } from '../../../application/dto/usuarios/administrar-usuario.dto';
+import { aUsuarioPublico } from '../../../application/dto/usuarios/usuario-respuesta.mapper';
+import type { UsuarioAutenticado } from '../../../domain/value-objects/alcance-datos.vo';
+import { Autenticado } from '../decorators/autenticado.decorator';
+import { UsuarioActual } from '../decorators/usuario-actual.decorator';
+import { PERMISO_GESTIONAR_USUARIOS } from '../permisos-iam';
+
+function validarPropioOAdministrador(usuario: UsuarioAutenticado, id: number): void {
+  if (usuario.id !== id && !usuario.permisos.includes(PERMISO_GESTIONAR_USUARIOS)) {
+    throw new ForbiddenException('Solo puedes consultar o editar tu propio perfil');
+  }
+}
 
 @Controller('usuarios')
 export class UsuarioController {
@@ -16,40 +28,65 @@ export class UsuarioController {
     private readonly actualizarUsuarioUseCase: ActualizarUsuarioUseCase,
     private readonly loginUsuarioUseCase: LoginUsuarioUseCase,
     private readonly eliminarUsuarioUseCase: EliminarUsuarioUseCase,
-    private readonly listarUsuariosUseCase: ListarUsuariosUseCase,
-    private readonly obtenerUsuarioUseCase: ObtenerUsuarioUseCase, // ← NUEVO
+    private readonly obtenerUsuarioUseCase: ObtenerUsuarioUseCase,
+    private readonly administrarUsuarioUseCase: AdministrarUsuarioUseCase,
   ) {}
 
-  @Get()
-  async get() {
-    return await this.listarUsuariosUseCase.ejecutar();
-  }
-
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return await this.obtenerUsuarioUseCase.ejecutar(id);
-  }
-
   @Post()
-  async crear(@Body() dto: CrearUsuarioDto) {
-    return await this.crearUsuarioUseCase.ejecutar(dto);
+  crear(@Body() dto: CrearUsuarioDto) {
+    return this.crearUsuarioUseCase.ejecutar(dto);
   }
 
   @Post('login')
-  async login(@Body() dto: LoginUsuarioDto) {
-    return await this.loginUsuarioUseCase.ejecutar(dto);
+  login(@Body() dto: LoginUsuarioDto) {
+    return this.loginUsuarioUseCase.ejecutar(dto);
+  }
+
+  @Get()
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  listar() {
+    return this.administrarUsuarioUseCase.listar();
+  }
+
+  @Get(':id')
+  @Autenticado()
+  obtener(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
+    validarPropioOAdministrador(usuario, id);
+    return this.obtenerUsuarioUseCase.ejecutar(id);
   }
 
   @Patch(':id')
+  @Autenticado()
   async actualizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ActualizarUsuarioDto,
+    @UsuarioActual() usuario: UsuarioAutenticado,
   ) {
-    return await this.actualizarUsuarioUseCase.ejecutar(id, dto);
+    validarPropioOAdministrador(usuario, id);
+    if (dto.estado && !usuario.permisos.includes(PERMISO_GESTIONAR_USUARIOS)) {
+      throw new ForbiddenException('Solo un administrador puede cambiar el estado de un usuario');
+    }
+    return aUsuarioPublico(await this.actualizarUsuarioUseCase.ejecutar(id, dto));
+  }
+
+  @Patch(':id/rol')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  cambiarRol(@Param('id', ParseIntPipe) id: number, @Body() dto: CambiarRolUsuarioDto) {
+    return this.administrarUsuarioUseCase.cambiarRol(id, dto.rolId);
+  }
+
+  @Patch(':id/programa')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  cambiarPrograma(@Param('id', ParseIntPipe) id: number, @Body() dto: CambiarProgramaUsuarioDto) {
+    return this.administrarUsuarioUseCase.cambiarPrograma(id, dto.programaFormacionId ?? null);
   }
 
   @Delete(':id')
-  async eliminar(@Param('id', ParseIntPipe) id: number) {
-    return await this.eliminarUsuarioUseCase.ejecutar(id);
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  eliminar(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
+    if (usuario.id === id) {
+      throw new ForbiddenException('No puedes eliminar tu propio usuario');
+    }
+    return this.eliminarUsuarioUseCase.ejecutar(id);
   }
 }

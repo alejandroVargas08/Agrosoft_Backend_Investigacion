@@ -8,9 +8,13 @@ import { actualizarActividadResponsablesUseCase } from '../application/use-cases
 import { eliminarActividadResponsablesUseCase } from '../application/use-cases/eliminar-actividad-responsables.use-case';
 import { actividad_ResponsableRepository } from '../domain/ports/actividad-responsable.port';
 import { actividadResponsablesRepositoryImpl } from './persistence/actividad-responsable.repository.impl';
+import { ActividadesModule } from '../../actividades/infrastructure/actividades.module';
+import { IamModule } from '../../../modules/iam/iam.module';
 
 @Module({
     imports: [
+        IamModule,
+        ActividadesModule,
         TypeOrmModule.forFeature([actividadResponsableOrmEntity])
     ],
     controllers: [actividadResponsableController],

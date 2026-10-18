@@ -15,14 +15,15 @@ import { EliminarUsuarioUseCase } from './application/use-cases/usuarios/elimina
 import { USUARIO_REPOSITORY } from './domain/ports/usuario.repository.token';
 import { ListarUsuariosUseCase } from './application/use-cases/usuarios/listar-usuarios.use-case';
 import { ObtenerUsuarioUseCase } from './application/use-cases/usuarios/obtener-usuario.use-case';
+import { AdministrarUsuarioUseCase } from './application/use-cases/usuarios/administrar-usuario.use-case';
 
-// Rol 
+// Rol
 import { RolOrmEntity } from './infrastructure/persistence/entities/rol.orm-entity';
 import { RolRepository } from './infrastructure/persistence/repositories/rol.repository';
 import { RolController } from './infrastructure/http/controllers/roles.controller';
 import { ROL_REPOSITORY } from './domain/ports/rol.repository.token';
 
-// Permiso 
+// Permiso
 import { PermisoOrmEntity } from './infrastructure/persistence/entities/permiso.orm-entity';
 import { PermisoRepository } from './infrastructure/persistence/repositories/permiso.repository';
 import { PermisoController } from './infrastructure/http/controllers/permisos.controller';
@@ -37,7 +38,7 @@ import { ListarPermisosPorRolUseCase } from './application/use-cases/rol-permiso
 import { EliminarRolPermisoUseCase } from './application/use-cases/rol-permisos/eliminar-rol-permiso.use-case';
 import { ROL_PERMISO_REPOSITORY } from './domain/ports/rol-permiso.repository.token';
 
-//Usuario Permiso 
+//Usuario Permiso
 import { UsuarioPermisoOrmEntity } from './infrastructure/persistence/entities/usuario-permiso.orm-entity';
 import { UsuarioPermisoRepository } from './infrastructure/persistence/repositories/usuario-permiso.repository';
 import { UsuarioPermisoController } from './infrastructure/http/controllers/usuario-permisos.controller';
@@ -76,6 +77,19 @@ import { MailerService } from './infrastructure/services/mailer.services';
 import { ProgramaFormacionOrmEntity } from './infrastructure/persistence/entities/programa-formacion.orm-entity';
 import { ProgramaFormacionRepository } from './infrastructure/persistence/repositories/programa-formacion.repository';
 import { PROGRAMA_FORMACION_REPOSITORY } from './domain/ports/programa-formacion.repository.token';
+import { GestionarProgramasFormacionUseCase } from './application/use-cases/programa-formacion/gestionar-programas-formacion.use-case';
+import { ProgramasFormacionController } from './infrastructure/http/controllers/programas-formacion.controller';
+
+// Acceso por ficha y permisos
+import { UsuarioProgramaOrmEntity } from './infrastructure/persistence/entities/usuario-programa.orm-entity';
+import { UsuarioProgramaRepository } from './infrastructure/persistence/repositories/usuario-programa.repository';
+import { USUARIO_PROGRAMA_REPOSITORY } from './domain/ports/usuario-programa.repository.token';
+import { CONTEXTO_ACCESO_TOKEN } from './domain/ports/contexto-acceso.token';
+import { ContextoAccesoService } from './infrastructure/services/contexto-acceso.service';
+import { GestionarProgramasACargoUseCase } from './application/use-cases/usuario-programas/gestionar-programas-a-cargo.use-case';
+import { UsuarioProgramasController } from './infrastructure/http/controllers/usuario-programas.controller';
+import { MiAccesoController } from './infrastructure/http/controllers/mi-acceso.controller';
+import { PermisosGuard } from './infrastructure/http/guards/permisos.guard';
 
 @Module({
   imports: [
@@ -87,7 +101,8 @@ import { PROGRAMA_FORMACION_REPOSITORY } from './domain/ports/programa-formacion
       RolPermisoOrmEntity,
       UsuarioPermisoOrmEntity,
       EmailCodeOrmEntity,
-      ProgramaFormacionOrmEntity, 
+      ProgramaFormacionOrmEntity,
+      UsuarioProgramaOrmEntity,
     ]),
     PassportModule,
     JwtModule.registerAsync({
@@ -108,6 +123,9 @@ import { PROGRAMA_FORMACION_REPOSITORY } from './domain/ports/programa-formacion
     RolPermisosController,
     UsuarioPermisoController,
     EmailCodesController,
+    UsuarioProgramasController,
+    MiAccesoController,
+    ProgramasFormacionController,
   ],
   providers: [
     // Usuario
@@ -117,6 +135,7 @@ import { PROGRAMA_FORMACION_REPOSITORY } from './domain/ports/programa-formacion
     EliminarUsuarioUseCase,
     ListarUsuariosUseCase,
     ObtenerUsuarioUseCase,
+    AdministrarUsuarioUseCase,
     { provide: USUARIO_REPOSITORY, useClass: UsuarioRepository },
 
     // Rol
@@ -147,6 +166,7 @@ import { PROGRAMA_FORMACION_REPOSITORY } from './domain/ports/programa-formacion
 
     // Programa de Formacion
     { provide: PROGRAMA_FORMACION_REPOSITORY, useClass: ProgramaFormacionRepository },
+    GestionarProgramasFormacionUseCase,
 
     // JWT / Tokens
     { provide: TOKEN_SERVICE, useClass: JwtTokenService },
@@ -158,12 +178,20 @@ import { PROGRAMA_FORMACION_REPOSITORY } from './domain/ports/programa-formacion
     GenerarCodigoUseCase,
     VerificarCodigoUseCase,
     RestablecerContrasenaUseCase,
+
+    // Acceso por ficha y permisos
+    { provide: USUARIO_PROGRAMA_REPOSITORY, useClass: UsuarioProgramaRepository },
+    { provide: CONTEXTO_ACCESO_TOKEN, useClass: ContextoAccesoService },
+    GestionarProgramasACargoUseCase,
+    PermisosGuard,
   ],
   exports: [
-    USUARIO_REPOSITORY, 
-    ROL_REPOSITORY, 
-    PERMISO_REPOSITORY, 
-    PROGRAMA_FORMACION_REPOSITORY, 
+    USUARIO_REPOSITORY,
+    ROL_REPOSITORY,
+    PERMISO_REPOSITORY,
+    PROGRAMA_FORMACION_REPOSITORY,
+    CONTEXTO_ACCESO_TOKEN,
+    PermisosGuard,
   ],
 })
 export class IamModule {}

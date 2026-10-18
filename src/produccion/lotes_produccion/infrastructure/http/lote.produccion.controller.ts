@@ -5,8 +5,10 @@ import { listarLotesProduccionUseCase } from "../../application/use-cases/listar
 import type { CrearLoteProduccionDto } from "../../application/dtos/crear-lote.produccion.dto";
 import type { ActualizarLoteProduccionDto } from "../../application/dtos/actualizar-lote.produccion.dto";
 import { descontarStockUseCase } from "../../application/use-cases/descontar-lotes-produccion-use-case";
+import { Autenticado } from '../../../../modules/iam/infrastructure/http/decorators/autenticado.decorator';
 
 @Controller('loteProduccion')
+@Autenticado()
 export class loteProduccionController {
     constructor(
         private readonly crearLoteUC: CrearLoteProduccionUseCase,

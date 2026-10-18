@@ -4,8 +4,10 @@ import { CrearInsumoUseCase } from '../../application/use-cases/insumo/crear-ins
 import { ListarInsumosUseCase } from '../../application/use-cases/insumo/listar-insumos.use-case';
 import { ListarInsumosBajoStockMinimoUseCase } from '../../application/use-cases/insumo/listar-insumos-bajo-stock-minimo.use-case';
 import { CrearInsumoDto } from './dto/insumo-request.dto';
+import { Autenticado } from '../../../iam/infrastructure/http/decorators/autenticado.decorator';
 
 @Controller('inventario/insumos')
+@Autenticado()
 export class InsumoController {
     constructor(
         private readonly crearInsumo: CrearInsumoUseCase,

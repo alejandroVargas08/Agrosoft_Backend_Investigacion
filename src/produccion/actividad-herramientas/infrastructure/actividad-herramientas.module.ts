@@ -8,9 +8,13 @@ import { reEstimarActividadHerramientaUseCase } from '../application/use-cases/r
 import { quitarActividadHerramientaUseCase } from '../application/use-cases/quitar-actividad-herramienra.use-case';
 import { actividad_HerramientasRepository } from '../domain/ports/actividad-herramientas.repository.port';
 import { actividadHerramientaRepositoryImpl } from './persistence/actividad-herramienta.repository.impl';
+import { ActividadesModule } from '../../actividades/infrastructure/actividades.module';
+import { IamModule } from '../../../modules/iam/iam.module';
 
 @Module({
     imports: [
+        IamModule,
+        ActividadesModule,
         TypeOrmModule.forFeature([actividadHerramientaOrmEntity])
     ],
     controllers: [actividadHerramientaController],

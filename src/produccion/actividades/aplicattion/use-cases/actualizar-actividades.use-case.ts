@@ -1,52 +1,60 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import {  actividades_repository } from "../../domain/ports/actividades.repository.port";
-import {  type actividadesRepositoryPort } from "../../domain/ports/actividades.repository.port";
-
+import { Inject, Injectable } from "@nestjs/common";
+import type { AlcanceDatos } from "../../../../modules/iam/domain/value-objects/alcance-datos.vo";
+import { actividades_repository } from "../../domain/ports/actividades.repository.port";
+import { type actividadesRepositoryPort } from "../../domain/ports/actividades.repository.port";
 import { Actividades } from "../../domain/entities/actividades.entity";
+import { AccesoActividadesService } from "../services/acceso-actividades.service";
 
 export interface actualizarActividadesDto {
     nombre?: string;
     tipo?: string;
-    subtipo?: string | null; 
+    subtipo?: string | null;
     loteId?: number;
-    subLoteId?: number | null; 
-    cultivoId?: number; 
+    subLoteId?: number | null;
+    cultivoId?: number;
     fecha?: Date;
-    horasActividad?: number; 
-    precioHoraActividad?: number; 
+    horasActividad?: number;
+    precioHoraActividad?: number;
     descripcion?: string;
-    cantidadPlantas?: number | null; 
-    productoAgroId?: number | null; 
+    cantidadPlantas?: number | null;
+    productoAgroId?: number | null;
 }
 
 @Injectable()
-    export class actualizarActividadesUseCase {
-        constructor(
-            @Inject(actividades_repository)
-            private readonly actividadesRepository: actividadesRepositoryPort,
-        ) {}
+export class actualizarActividadesUseCase {
+    constructor(
+        @Inject(actividades_repository)
+        private readonly actividadesRepository: actividadesRepositoryPort,
+        private readonly accesoActividades: AccesoActividadesService,
+    ) {}
 
-        async execute(id: number, dto: actualizarActividadesDto): Promise<Actividades> {
-            const actividades = await this.actividadesRepository.buscarPorId(id);
-            if(!actividades) {
-                throw new NotFoundException(`Actividad con ID ${id} no encontrada`);
-            }
+    async execute(id: number, dto: actualizarActividadesDto, alcance: AlcanceDatos): Promise<Actividades> {
+        const actividades = await this.accesoActividades.obtenerActividadVisible(id, alcance);
 
-            if (dto.horasActividad !== undefined && dto.precioHoraActividad !== undefined) {
-                actividades.actualizarHorasPrecio(dto.horasActividad, dto.precioHoraActividad);
-            }
-
-            if (dto.nombre !== undefined) (actividades as any).nombre = dto.nombre;
-            if (dto.tipo !== undefined) (actividades as any).tipo = dto.tipo;
-            if (dto.subtipo !== undefined) (actividades as any).subtTip = dto.subtipo; // Ojo con mantener el nombre exacto de tu propiedad
-            if (dto.loteId !== undefined) (actividades as any).loteId = dto.loteId;
-            if (dto.subLoteId !== undefined) (actividades as any).subLoteId = dto.subLoteId;
-            if (dto.cultivoId !== undefined) (actividades as any).cultivoId = dto.cultivoId;
-            if (dto.fecha !== undefined) (actividades as any).fecha = dto.fecha;
-            if (dto.descripcion !== undefined) (actividades as any).descripcion = dto.descripcion;
-            if (dto.cantidadPlantas !== undefined) (actividades as any).cantidadPlantas = dto.cantidadPlantas;
-            if (dto.productoAgroId !== undefined) (actividades as any).productoAgroId = dto.productoAgroId;
-
-            return await this.actividadesRepository.actualizar(actividades);
+        if (dto.loteId !== undefined || dto.cultivoId !== undefined) {
+            await this.accesoActividades.validarCultivoDelLote(
+                dto.cultivoId ?? actividades.cultivoId,
+                dto.loteId ?? actividades.loteId,
+                alcance,
+            );
         }
+
+        if (dto.horasActividad !== undefined && dto.precioHoraActividad !== undefined) {
+            actividades.actualizarHorasPrecio(dto.horasActividad, dto.precioHoraActividad);
+        }
+
+        const editable = actividades as unknown as Record<string, unknown>;
+        if (dto.nombre !== undefined) editable.nombre = dto.nombre;
+        if (dto.tipo !== undefined) editable.tipo = dto.tipo;
+        if (dto.subtipo !== undefined) editable.subtipo = dto.subtipo;
+        if (dto.loteId !== undefined) editable.loteId = dto.loteId;
+        if (dto.subLoteId !== undefined) editable.subLoteId = dto.subLoteId;
+        if (dto.cultivoId !== undefined) editable.cultivoId = dto.cultivoId;
+        if (dto.fecha !== undefined) editable.fecha = dto.fecha;
+        if (dto.descripcion !== undefined) editable.descripcion = dto.descripcion;
+        if (dto.cantidadPlantas !== undefined) editable.cantidadPlantas = dto.cantidadPlantas;
+        if (dto.productoAgroId !== undefined) editable.productoAgroId = dto.productoAgroId;
+
+        return await this.actividadesRepository.actualizar(actividades);
     }
+}

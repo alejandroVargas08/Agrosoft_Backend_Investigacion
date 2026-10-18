@@ -58,13 +58,13 @@ export class actividadesRepositoryImpl implements actividadesRepositoryPort {
             fecha: actividad.fecha,
             horasActividad: actividad.horasActividad,
             precioHoraActividad: actividad.precioHoraActividad,
-            costoManoObra: actividad.costoManoObra,           // <-- Usando 'actividad'
-            descripcion: actividad.descripcion,               // <-- Usando 'actividad'
-            estado: actividad.estado,                         // <-- Usando 'actividad'
-            creadoPorUsuarioId: actividad.creadoPorUsuarioId, // <-- Usando 'actividad'
-            cantidadPlantas: actividad.cantidadPlantas ?? undefined, // <-- Usando 'actividad'
-            kgRecolectados: actividad.kgRecolectados ?? undefined,   // <-- Usando 'actividad'
-            productoAgroId: actividad.productoAgroId ?? undefined,   // <-- Usando 'actividad'
+            costoManoObra: actividad.costoManoObra,
+            descripcion: actividad.descripcion,
+            estado: actividad.estado,
+            creadoPorUsuarioId: actividad.creadoPorUsuarioId,
+            cantidadPlantas: actividad.cantidadPlantas ?? undefined,
+            kgRecolectados: actividad.kgRecolectados ?? undefined,
+            productoAgroId: actividad.productoAgroId ?? undefined,
         });
 
         if (!ormEntity) {

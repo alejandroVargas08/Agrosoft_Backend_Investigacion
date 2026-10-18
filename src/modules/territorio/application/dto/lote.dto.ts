@@ -6,6 +6,7 @@ export interface CrearLoteInput {
     centroide: { lat: number; lng: number };
     areaM2: number;
     descripcion?: string;
+    programaFormacionId?: number | null;
 }
 
 export interface CambiarEstadoLoteInput {
@@ -22,6 +23,7 @@ export interface LoteOutput {
     vertices: { lat: number; lng: number }[];
     cantidadVertices: number;
     descripcion?: string;
+    programaFormacionId: number | null;
     estado: EstadoLote;
 }
 
@@ -35,6 +37,7 @@ export function toLoteOutput(lote: Lote): LoteOutput {
         vertices: lote.poligono.vertices.map((v) => ({ lat: v.lat, lng: v.lng })),
         cantidadVertices: lote.poligono.cantidadVertices(),
         descripcion: lote.descripcion,
+        programaFormacionId: lote.programaFormacionId,
         estado: lote.estado,
     };
 }

@@ -6,8 +6,11 @@ import { EliminarRolUseCase } from '../../../application/use-cases/roles/elimina
 import { CrearRolDto } from '../../../application/dto/roles/crear-rol.dto';
 import { ActualizarRolDto } from '../../../application/dto/roles/actualizar-rol.dto';
 import { Rol } from '../../../domain/entities/rol.entity';
+import { Autenticado } from '../decorators/autenticado.decorator';
+import { PERMISO_GESTIONAR_USUARIOS } from '../permisos-iam';
 
 @Controller('roles')
+@Autenticado(PERMISO_GESTIONAR_USUARIOS)
 export class RolController {
   constructor(
     private readonly crearRolUseCase: CrearRolUseCase,

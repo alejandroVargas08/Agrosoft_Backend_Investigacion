@@ -43,4 +43,3 @@ export class CapturaOrmEntity {
   @Column({ type: 'jsonb', default: {} })
   archivos: ArchivosCaptura;
 }
-

@@ -3,9 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PagoEntity } from '../domain/entities/pago.entity';
 import { PagosService } from '../application/use_cases/pagos.service';
 import { PagosController } from './controllers/pagos.controller';
+import { IamModule } from '../../../modules/iam/iam.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PagoEntity])],
+  imports: [
+        IamModule,
+        TypeOrmModule.forFeature([PagoEntity])],
   controllers: [PagosController],
   providers: [PagosService],
   exports: [PagosService, TypeOrmModule],

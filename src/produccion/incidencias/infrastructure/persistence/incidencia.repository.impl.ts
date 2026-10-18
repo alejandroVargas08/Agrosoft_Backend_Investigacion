@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { FindOptionsWhere, In, IsNull, Repository } from "typeorm";
 import { IncidenciaRepositoryPort } from "../../domain/ports/incidencia.repository.port";
 import { Incidencia } from "../../domain/entities/incidencia.entity";
 import { IncidenciaOrmEntity } from "./incidencia.orm-entity";
@@ -23,13 +23,43 @@ export class IncidenciaRepositoryImpl implements IncidenciaRepositoryPort {
         return this.toDomain(row);
     }
 
-    /** Todas las incidencias, o solo las de un cultivo, de la más reciente a la más antigua. */
     async listar(cultivoId?: number): Promise<Incidencia[]> {
         const rows = await this.ormRepo.find({
             where: cultivoId ? { cultivoId } : {},
             order: { fecha: 'DESC', id: 'DESC' },
         });
         return rows.map((row) => this.toDomain(row));
+    }
+
+    async listarVisibles(cultivoIdsPermitidos: number[] | null, cultivoId?: number): Promise<Incidencia[]> {
+        const rows = await this.ormRepo.find({
+            where: this.filtroVisibles(cultivoIdsPermitidos, cultivoId),
+            order: { fecha: 'DESC', id: 'DESC' },
+        });
+        return rows.map((row) => this.toDomain(row));
+    }
+
+    async idsVisibles(cultivoIdsPermitidos: number[] | null): Promise<number[] | null> {
+        if (cultivoIdsPermitidos === null) return null;
+        const rows = await this.ormRepo.find({
+            select: { id: true },
+            where: this.filtroVisibles(cultivoIdsPermitidos),
+        });
+        return rows.map((row) => row.id);
+    }
+
+    private filtroVisibles(
+        cultivoIdsPermitidos: number[] | null,
+        cultivoId?: number,
+    ): FindOptionsWhere<IncidenciaOrmEntity> | FindOptionsWhere<IncidenciaOrmEntity>[] {
+        if (cultivoId !== undefined) {
+            if (cultivoIdsPermitidos !== null && !cultivoIdsPermitidos.includes(cultivoId)) {
+                return { id: -1 };
+            }
+            return { cultivoId };
+        }
+        if (cultivoIdsPermitidos === null) return {};
+        return [{ cultivoId: IsNull() }, { cultivoId: In(cultivoIdsPermitidos) }];
     }
 
     async actualizar(incidencia: Incidencia): Promise<Incidencia> {

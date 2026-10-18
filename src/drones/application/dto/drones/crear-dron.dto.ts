@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsIn, IsOptional, IsBoolean, MinLength } from 'class-validator';
+import { IsString, IsIn, IsOptional, IsBoolean, MinLength } from 'class-validator';
 
 export class CrearDronDto {
   @IsString() @MinLength(3)
@@ -15,7 +15,4 @@ export class CrearDronDto {
 
   @IsOptional() @IsBoolean()
   tieneRtk?: boolean;
-
-  @IsInt()
-  creadoPorUsuarioId: number;
 }

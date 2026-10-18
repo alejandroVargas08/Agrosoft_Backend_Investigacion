@@ -1,16 +1,21 @@
 import { Inject, Injectable } from "@nestjs/common";
+import type { AlcanceDatos } from "../../../../modules/iam/domain/value-objects/alcance-datos.vo";
 import { Incidencia } from "../../domain/entities/incidencia.entity";
 import { Incidencia_Repository } from "../../domain/ports/incidencia.repository.port";
 import { type IncidenciaRepositoryPort } from "../../domain/ports/incidencia.repository.port";
 import { CrearIncidenciaDto } from "../dtos/crear-incidencia.dto";
+import { AccesoIncidenciasService } from "../services/acceso-incidencias.service";
 
 @Injectable()
 export class CrearIncidenciaUseCase {
     constructor(
         @Inject(Incidencia_Repository) private readonly incidenciaRepo: IncidenciaRepositoryPort,
+        private readonly accesoIncidencias: AccesoIncidenciasService,
     ) {}
 
-    async ejecutar(dto: CrearIncidenciaDto): Promise<Incidencia> {
+    async ejecutar(dto: CrearIncidenciaDto, alcance: AlcanceDatos): Promise<Incidencia> {
+        await this.accesoIncidencias.validarCultivo(dto.cultivoId ?? null, alcance);
+
         const incidencia = new Incidencia(
             null,
             dto.titulo,

@@ -1,20 +1,13 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+import type { AlcanceDatos } from "../../../../modules/iam/domain/value-objects/alcance-datos.vo";
 import { Cultivo } from "../../domain/entities/cultivo.entity";
-import { Cultivo_Repository } from "../../domain/ports/cultivo.repository.port";
-import { type CultivoRepositoryPort } from "../../domain/ports/cultivo.repository.port";
+import { AccesoCultivosService } from "../services/acceso-cultivos.service";
 
 @Injectable()
 export class ObtenerCultivoUseCase {
-    constructor(
-        @Inject(Cultivo_Repository) 
-        private readonly cultivoRepo: CultivoRepositoryPort
-    ) {}
+    constructor(private readonly accesoCultivos: AccesoCultivosService) {}
 
-    async ejecutar(id: number): Promise<Cultivo> {
-        const cultivo = await this.cultivoRepo.buscarPorId(id);
-        if (!cultivo) {
-            throw new NotFoundException(`Cultivo con ID ${id} no encontrado`);
-        }
-        return cultivo;
+    async ejecutar(id: number, alcance: AlcanceDatos): Promise<Cultivo> {
+        return this.accesoCultivos.obtenerCultivoVisible(id, alcance);
     }
 }

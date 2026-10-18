@@ -5,8 +5,10 @@ import { quitarActividadHerramientaUseCase } from "../../application/use-cases/q
 import { reEstimarActividadHerramientaUseCase } from "../../application/use-cases/reestimar-actividad-herramienta.use.case";
 import { asignarActividadHerramientaDto } from "../../application/dto/asignar-actividad-herramienta.dto";
 import { reEstimarHorasActividadHerramientaDto } from "../../application/dto/reestimar-actividad-herramienta.dto";
+import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso-actividad.decorator';
 
 @Controller('actividad/:actividadId/herramientas')
+@AccesoActividad()
     export class actividadHerramientaController {
         constructor(
             private readonly asignarHerramientaUC: asignarActividadHerramientaUseCase, 

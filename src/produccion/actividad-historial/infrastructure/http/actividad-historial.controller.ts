@@ -2,8 +2,10 @@ import { Body, Controller, Get, Param, ParseIntPipe, Post } from "@nestjs/common
 import { registrarActividadHistorialUseCase } from "../../aplicattion/use-cases/registrar-actividad-historial.use-case";
 import { listarActividadHistorialUseCase } from "../../aplicattion/use-cases/listar-actividad.historial.use-case";
 import { crearActividadHistorialDto } from "../../aplicattion/dto/crear-actividad-historial.dto";
+import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso-actividad.decorator';
 
 @Controller('actividadHistorial')
+@AccesoActividad()
     export class actividadHistorialController {
         constructor(
             private readonly registrarCambioUC: registrarActividadHistorialUseCase,

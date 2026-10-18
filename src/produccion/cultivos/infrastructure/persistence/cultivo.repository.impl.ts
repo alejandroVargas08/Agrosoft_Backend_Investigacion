@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { CultivoRepositoryPort } from "../../domain/ports/cultivo.repository.port";
 import { CultivoOrmEntity } from "./cultivo.orm-entity";
 import { Cultivo } from "../../domain/entities/cultivo.entity";
@@ -24,6 +24,12 @@ export class CultivoRepositoryImpl implements CultivoRepositoryPort {
     async listarPorLote(loteId: number): Promise<Cultivo[]> {
         const rows = await this.ormRepo.find({ where: { loteId }});
         return rows.map(row => this.toDomain(row));
+    }
+
+    async idsPorLotes(loteIds: number[]): Promise<number[]> {
+        if (loteIds.length === 0) return [];
+        const rows = await this.ormRepo.find({ select: { id: true }, where: { loteId: In(loteIds) } });
+        return rows.map(row => row.id);
     }
 
     async actualizar(cultivo: Cultivo): Promise<Cultivo> {

@@ -2,8 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { ComercialService } from '../../application/use-cases/comercial.service';
 import { CreateComercialDto } from '../../application/dto/create-comercial.dto';
 import { UpdateComercialDto } from '../../application/dto/update-comercial.dto';
+import { Autenticado } from '../../../modules/iam/infrastructure/http/decorators/autenticado.decorator';
 
 @Controller('comercial')
+@Autenticado()
 export class ComercialController {
   constructor(private readonly comercialService: ComercialService) {}
 

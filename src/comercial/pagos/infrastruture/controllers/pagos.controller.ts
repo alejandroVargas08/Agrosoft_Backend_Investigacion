@@ -2,8 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from 
 import { PagosService } from '../../application/use_cases/pagos.service';
 import { CreatePagoDto } from '../../application/dto/create-pago.dto';
 import { UpdatePagoDto } from '../../application/dto/update-pago.dto';
+import { Autenticado } from '../../../../modules/iam/infrastructure/http/decorators/autenticado.decorator';
 
 @Controller('pagos')
+@Autenticado()
 export class PagosController {
   constructor(private readonly pagosService: PagosService) {}
 

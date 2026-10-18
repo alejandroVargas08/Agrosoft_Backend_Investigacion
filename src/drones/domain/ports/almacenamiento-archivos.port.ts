@@ -3,4 +3,3 @@ export interface AlmacenamientoArchivosPort {
   obtenerRutaLocal(ruta: string): Promise<string>;
   eliminar(ruta: string): Promise<void>;
 }
-

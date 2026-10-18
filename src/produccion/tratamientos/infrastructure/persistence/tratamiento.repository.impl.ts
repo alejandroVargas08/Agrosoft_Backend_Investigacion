@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { FindOptionsWhere, In, IsNull, Repository } from "typeorm";
 import { TratamientoRepositoryPort } from "../../domain/ports/tratamiento.repository.port";
 import { Tratamiento } from "../../domain/entities/tratamiento.entity";
 import { TratamientoOrmEntity } from "./tratamiento.orm-entity";
@@ -23,13 +23,34 @@ export class TratamientoRepositoryImpl implements TratamientoRepositoryPort {
         return this.toDomain(row);
     }
 
-    /** Todos los tratamientos, o solo los de una incidencia, del más reciente al más antiguo. */
     async listar(incidenciaId?: number): Promise<Tratamiento[]> {
         const rows = await this.ormRepo.find({
             where: incidenciaId ? { incidenciaId } : {},
             order: { fecha: 'DESC', id: 'DESC' },
         });
         return rows.map((row) => this.toDomain(row));
+    }
+
+    async listarVisibles(incidenciaIdsPermitidas: number[] | null, incidenciaId?: number): Promise<Tratamiento[]> {
+        const rows = await this.ormRepo.find({
+            where: this.filtroVisibles(incidenciaIdsPermitidas, incidenciaId),
+            order: { fecha: 'DESC', id: 'DESC' },
+        });
+        return rows.map((row) => this.toDomain(row));
+    }
+
+    private filtroVisibles(
+        incidenciaIdsPermitidas: number[] | null,
+        incidenciaId?: number,
+    ): FindOptionsWhere<TratamientoOrmEntity> | FindOptionsWhere<TratamientoOrmEntity>[] {
+        if (incidenciaId !== undefined) {
+            if (incidenciaIdsPermitidas !== null && !incidenciaIdsPermitidas.includes(incidenciaId)) {
+                return { id: -1 };
+            }
+            return { incidenciaId };
+        }
+        if (incidenciaIdsPermitidas === null) return {};
+        return [{ incidenciaId: IsNull() }, { incidenciaId: In(incidenciaIdsPermitidas) }];
     }
 
     async actualizar(tratamiento: Tratamiento): Promise<Tratamiento> {

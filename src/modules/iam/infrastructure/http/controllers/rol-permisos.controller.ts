@@ -3,8 +3,11 @@ import { AsignarRolPermisoUseCase } from '../../../application/use-cases/rol-per
 import { ListarPermisosPorRolUseCase } from '../../../application/use-cases/rol-permisos/listar-permisos-por-rol.use-case';
 import { EliminarRolPermisoUseCase } from '../../../application/use-cases/rol-permisos/eliminar-rol-permiso.use-case';
 import { AsignarRolPermisoDto } from '../../../application/dto/rol-permisos/asignar-rol-permiso.dto';
+import { Autenticado } from '../decorators/autenticado.decorator';
+import { PERMISO_GESTIONAR_USUARIOS } from '../permisos-iam';
 
 @Controller('rol-permisos')
+@Autenticado(PERMISO_GESTIONAR_USUARIOS)
 export class RolPermisosController {
   constructor(
     private readonly asignarUseCase: AsignarRolPermisoUseCase,

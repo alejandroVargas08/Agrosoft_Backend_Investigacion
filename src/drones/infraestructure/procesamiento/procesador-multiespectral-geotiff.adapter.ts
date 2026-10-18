@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { fromFile } from 'geotiff';
-import type { BandaParaProcesar, BandasParaProcesar, ProcesadorMultiespectralPort, ResultadoProcesamiento } from '../../domain/ports/procesador-multiespectral.port';
+import type {
+  BandaParaProcesar,
+  BandasParaProcesar,
+  ProcesadorMultiespectralPort,
+  ResultadoProcesamiento,
+} from '../../domain/ports/procesador-multiespectral.port';
 import { EstadisticasIndice, redondear } from '../../domain/value-objects/estadisticas-indice.vo';
 import { ClaseCobertura, CombinadorCobertura } from '../../domain/value-objects/cobertura.vo';
 import { BINS_HISTOGRAMA_NDVI } from '../../domain/value-objects/umbrales-ndvi.vo';
@@ -150,7 +155,16 @@ export class ProcesadorMultiespectralGeotiffAdapter implements ProcesadorMulties
       });
       const datos = (rasters as unknown as ArrayLike<number>[])[0];
 
-      const { blackLevel, ganancia, exposicionSeg, ajusteGanancia, irradiancia, vineteo, centroOpticoX, centroOpticoY } = banda.calibracion;
+      const {
+        blackLevel,
+        ganancia,
+        exposicionSeg,
+        ajusteGanancia,
+        irradiancia,
+        vineteo,
+        centroOpticoX,
+        centroOpticoY,
+      } = banda.calibracion;
 
       const negro = blackLevel ?? 0;
       const factorSensor = ganancia && exposicionSeg ? ganancia * exposicionSeg : 1;

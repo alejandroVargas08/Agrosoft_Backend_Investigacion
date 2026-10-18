@@ -1,14 +1,12 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { Incidencia_Repository } from "../../domain/ports/incidencia.repository.port";
-import { type IncidenciaRepositoryPort } from "../../domain/ports/incidencia.repository.port";
+import { Injectable } from "@nestjs/common";
+import type { AlcanceDatos } from "../../../../modules/iam/domain/value-objects/alcance-datos.vo";
+import { AccesoIncidenciasService } from "../services/acceso-incidencias.service";
 
 @Injectable()
 export class ListarIncidenciasUseCase {
-    constructor(
-        @Inject(Incidencia_Repository) private readonly incidenciaRepo: IncidenciaRepositoryPort,
-    ) {}
+    constructor(private readonly accesoIncidencias: AccesoIncidenciasService) {}
 
-    async ejecutar(cultivoId?: number) {
-        return this.incidenciaRepo.listar(cultivoId);
+    async ejecutar(alcance: AlcanceDatos, cultivoId?: number) {
+        return this.accesoIncidencias.listar(alcance, cultivoId);
     }
 }

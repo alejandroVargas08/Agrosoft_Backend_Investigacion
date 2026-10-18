@@ -38,6 +38,9 @@ centroide: { type: 'Point'; coordinates: [number, number] };
     @Column({ type: 'varchar', nullable: true })
         descripcion?: string;
 
+    @Column({ name: 'programa_formacion_id', type: 'int', nullable: true })
+        programaFormacionId: number | null;
+
     @Column({ type: 'varchar' })
         estado: string;
 

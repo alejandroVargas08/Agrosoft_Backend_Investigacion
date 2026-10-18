@@ -2,8 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { TransaccionesFinancierasService } from '../../application/use_cases/transacciones-financieras.service';
 import { CreateTransaccionesFinancieraDto } from '../../application/dto/create-transacciones-financiera.dto';
 import { UpdateTransaccionesFinancieraDto } from '../../application/dto/update-transacciones-financiera.dto';
+import { Autenticado } from '../../../../modules/iam/infrastructure/http/decorators/autenticado.decorator';
 
 @Controller('transacciones-financieras')
+@Autenticado()
 export class TransaccionesFinancierasController {
   constructor(private readonly service: TransaccionesFinancierasService) {}
 

@@ -75,4 +75,3 @@ export class Vuelo {
   toProps(): VueloProps { return { ...this.props }; }
   toJSON() { return this.toProps(); }
 }
-

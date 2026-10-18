@@ -8,9 +8,14 @@ import { AgregarImagenActividadEvidenciaUseCase } from '../aplicattion/use-cases
 import { eliminarEvidenciaActividadUseCase } from '../aplicattion/use-cases/eliminar-actividad.evidencia.use-case';
 import { actividad_evidenciaRepository } from '../domain/ports/actividad-evidencias.repository.port';
 import { actividadEvidenciaRepositoryImpl } from './persistence/actividad-evidencia.repository.impl';
+import { ActividadesModule } from '../../actividades/infrastructure/actividades.module';
+import { IamModule } from '../../../modules/iam/iam.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([
+    imports: [
+        IamModule,
+        ActividadesModule,
+        TypeOrmModule.forFeature([
         actividadEvidenciaOrmEntity
     ])],
     controllers: [actividadEvidenciaController],

@@ -13,9 +13,11 @@ import {
 import { ClientesService } from '../../application/use-cases/clientes.service';
 import { CreateClienteDto } from '../../application/dto/create-cliente.dto';
 import { UpdateClienteDto } from '../../application/dto/update-cliente.dto';
+import { Autenticado } from '../../../../modules/iam/infrastructure/http/decorators/autenticado.decorator';
 
 
 @Controller('clientes')
+@Autenticado()
 export class ClientesController {
   constructor(private readonly clientesService: ClientesService) {}
 

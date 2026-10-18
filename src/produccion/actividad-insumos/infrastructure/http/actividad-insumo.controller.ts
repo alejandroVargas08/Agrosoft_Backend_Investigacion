@@ -1,15 +1,17 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
 import { registrarActividadInsumoUseCase } from "../../aplicattion/use-case/registrar-actividad-insumo.use-case";
 import { listarActividadInsumosUseCase } from "../../aplicattion/use-case/listar-actividad-insumos.use-case";
-import { eliminarActividadesUseCase } from "../../../actividades/aplicattion/use-cases/eliminar-actividades.use-case";
+import { eliminarActividadInsumoUseCase } from "../../aplicattion/use-case/eliminar-actividad-insumo.use-case";
 import { registrarActividadInsumoDto } from "../../aplicattion/dto/registrar-actividad-insumo.dto";
+import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso-actividad.decorator';
 
 @Controller('actividades/:actividadId/insumos')
+@AccesoActividad()
     export class actividadInsumoController {
         constructor(
             private readonly registrarInsumoUC: registrarActividadInsumoUseCase,
             private readonly listarInsumoUC: listarActividadInsumosUseCase,
-            private readonly eliminarInsumoUC: eliminarActividadesUseCase,
+            private readonly eliminarInsumoUC: eliminarActividadInsumoUseCase,
         ) {}
 
         @Post()
@@ -25,6 +27,6 @@ import { registrarActividadInsumoDto } from "../../aplicattion/dto/registrar-act
 
         @Delete(':id')
         eliminar(@Param('id', ParseIntPipe) id: number) {
-            return this.eliminarInsumoUC.execute(id);
+            return this.eliminarInsumoUC.ejecutar(id);
         }
     }

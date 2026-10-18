@@ -2,8 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from 
 import { ProductosAgroService } from '../../application/use-cases/productos-agro.service';
 import { CreateProductoAgroDto } from '../../application/dto/create-productos-agro.dto';
 import { UpdateProductoAgroDto } from '../../application/dto/update-productos-agro.dto';
+import { Autenticado } from '../../../../modules/iam/infrastructure/http/decorators/autenticado.decorator';
 
 @Controller('productos-agro')
+@Autenticado()
 export class ProductosAgroController {
   constructor(private readonly productosAgroService: ProductosAgroService) {}
 
