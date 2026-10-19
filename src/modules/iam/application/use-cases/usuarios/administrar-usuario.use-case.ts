@@ -6,7 +6,16 @@ import { ROL_REPOSITORY } from '../../../domain/ports/rol.repository.token';
 import type { ProgramaFormacionRepositoryPort } from '../../../domain/ports/programa-formacion.repository.port';
 import { PROGRAMA_FORMACION_REPOSITORY } from '../../../domain/ports/programa-formacion.repository.token';
 import { Usuario } from '../../../domain/entities/usuario.entity';
+import type { AlcanceDatos } from '../../../domain/value-objects/alcance-datos.vo';
 import { aUsuarioPublico, UsuarioPublico } from '../../dto/usuarios/usuario-respuesta.mapper';
+
+export interface AprendizResumen {
+  id: number;
+  nombre: string;
+  apellido: string;
+  correo: string;
+  programaFormacionId: number | null;
+}
 
 @Injectable()
 export class AdministrarUsuarioUseCase {
@@ -22,6 +31,28 @@ export class AdministrarUsuarioUseCase {
   async listar(): Promise<UsuarioPublico[]> {
     const usuarios = await this.usuarioRepository.obtenerTodos();
     return usuarios.map(aUsuarioPublico);
+  }
+
+  async listarAprendices(alcance: AlcanceDatos, programaFormacionId?: number): Promise<AprendizResumen[]> {
+    const rol = await this.rolRepository.buscarPorNombre('Aprendiz');
+    if (!rol) return [];
+    const usuarios = await this.usuarioRepository.obtenerTodos();
+    return usuarios
+      .filter((usuario) => usuario.estaActivo() && usuario.obtenerRolId() === rol.obtenerId())
+      .filter((usuario) => {
+        const programa = usuario.obtenerProgramaFormacionId();
+        if (programa === null) return false;
+        if (programaFormacionId !== undefined && programa !== programaFormacionId) return false;
+        return alcance.verTodo || alcance.programasPermitidos.includes(programa);
+      })
+      .map((usuario) => ({
+        id: usuario.obtenerId(),
+        nombre: usuario.obtenerNombre(),
+        apellido: usuario.obtenerApellido(),
+        correo: usuario.obtenerCorreo(),
+        programaFormacionId: usuario.obtenerProgramaFormacionId(),
+      }))
+      .sort((a, b) => `${a.apellido} ${a.nombre}`.localeCompare(`${b.apellido} ${b.nombre}`, 'es'));
   }
 
   async cambiarRol(usuarioId: number, rolId: number): Promise<UsuarioPublico> {

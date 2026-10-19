@@ -4,9 +4,11 @@ import { listarActividadInsumosUseCase } from "../../aplicattion/use-case/listar
 import { eliminarActividadInsumoUseCase } from "../../aplicattion/use-case/eliminar-actividad-insumo.use-case";
 import { registrarActividadInsumoDto } from "../../aplicattion/dto/registrar-actividad-insumo.dto";
 import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso-actividad.decorator';
+import { PermitirEjecutor } from "../../../actividades/infrastructure/http/permitir-ejecutor.decorator";
 
 @Controller('actividades/:actividadId/insumos')
 @AccesoActividad()
+    @PermitirEjecutor()
     export class actividadInsumoController {
         constructor(
             private readonly registrarInsumoUC: registrarActividadInsumoUseCase,

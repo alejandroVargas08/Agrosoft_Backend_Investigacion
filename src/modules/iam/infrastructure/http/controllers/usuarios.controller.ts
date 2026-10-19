@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { CrearUsuarioUseCase } from '../../../application/use-cases/usuarios/crear-usuario.use-case';
 import { ActualizarUsuarioUseCase } from '../../../application/use-cases/usuarios/actualizar-usuario.use-case';
 import { LoginUsuarioUseCase } from '../../../application/use-cases/usuarios/login-usuario.use-case';
@@ -13,7 +13,7 @@ import { aUsuarioPublico } from '../../../application/dto/usuarios/usuario-respu
 import type { UsuarioAutenticado } from '../../../domain/value-objects/alcance-datos.vo';
 import { Autenticado } from '../decorators/autenticado.decorator';
 import { UsuarioActual } from '../decorators/usuario-actual.decorator';
-import { PERMISO_GESTIONAR_USUARIOS } from '../permisos-iam';
+import { PERMISO_GESTIONAR_USUARIOS, PERMISO_ASIGNAR_ACTIVIDADES } from '../permisos-iam';
 
 function validarPropioOAdministrador(usuario: UsuarioAutenticado, id: number): void {
   if (usuario.id !== id && !usuario.permisos.includes(PERMISO_GESTIONAR_USUARIOS)) {
@@ -53,6 +53,13 @@ export class UsuarioController {
   obtener(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
     validarPropioOAdministrador(usuario, id);
     return this.obtenerUsuarioUseCase.ejecutar(id);
+  }
+  
+  @Get('aprendices')
+  @Autenticado(PERMISO_ASIGNAR_ACTIVIDADES)
+  listarAprendices(@UsuarioActual() usuario: UsuarioAutenticado, @Query('programaFormacionId') programaFormacionId?: string) {
+    const programa = programaFormacionId ? Number(programaFormacionId) : undefined;
+    return this.administrarUsuarioUseCase.listarAprendices(usuario, Number.isInteger(programa) ? programa : undefined);
   }
 
   @Patch(':id')

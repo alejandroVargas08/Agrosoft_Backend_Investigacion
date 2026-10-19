@@ -6,9 +6,11 @@ import { registrarActividadEvidenciaDto } from "../../aplicattion/dto/registrar-
 import { agregarImagenEvidenciaDto } from "../../aplicattion/dto/crear-actividad-evidencia.dto";
 import { eliminarEvidenciaActividadUseCase } from "../../aplicattion/use-cases/eliminar-actividad.evidencia.use-case";
 import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso-actividad.decorator';
+import { PermitirEjecutor } from '../../../actividades/infrastructure/http/permitir-ejecutor.decorator';
 
 @Controller('actividades/:actividadId/evidencias')
 @AccesoActividad()
+    @PermitirEjecutor()
     export class actividadEvidenciaController {
         constructor(
             private readonly registrarEvidenciaUC: registrarActividadEvidenciaUseCase,
@@ -37,3 +39,4 @@ import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso
             return this.eliminarEvidenciaUC.ejecutar(id);
         }
     } 
+    

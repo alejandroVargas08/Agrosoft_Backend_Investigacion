@@ -3,9 +3,11 @@ import { registrarUsoHerramientaUseCase } from "../../application/use-cases/regi
 import { listarUsoHerramientasUseCase } from "../../application/use-cases/listar-uso-herramienta.use-case";
 import { registrarUsoHerramientaDto } from "../../application/dto/registrar-uso-herramienta.dto";
 import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso-actividad.decorator';
+import { PermitirEjecutor } from "../../../actividades/infrastructure/http/permitir-ejecutor.decorator";
 
 @Controller('actividad/:actividadId/usoHerramienta')
 @AccesoActividad()
+    @PermitirEjecutor()
     export class usoHerramientaController {
         constructor(
             private readonly registrarUsoHerramientaUC: registrarUsoHerramientaUseCase,
