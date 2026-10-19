@@ -90,6 +90,8 @@ import { IamModule } from '../iam/iam.module';
         { provide: MOVIMIENTO_INSUMO_REPOSITORY_PORT, useClass: MovimientoInsumoTypeOrmRepository },
         { provide: RESERVA_REPOSITORY_PORT, useClass: ReservaTypeOrmRepository },
     ],
-    exports: [],
+    exports: [
+        ListarInsumosBajoStockMinimoUseCase,
+    ],
     })
 export class InventarioModule {}

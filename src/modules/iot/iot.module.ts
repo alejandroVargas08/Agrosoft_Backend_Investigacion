@@ -109,6 +109,7 @@ import { EliminarTipoSensorUseCase } from './application/use-cases/tipos-sensore
     TIPO_SENSOR_REPOSITORY_TOKEN,
     SENSOR_LECTURA_REPOSITORY_TOKEN,
     SENSOR_ALERTA_REPOSITORY_TOKEN,
-    IOT_GLOBAL_CONFIG_REPOSITORY_TOKEN,],
+    IOT_GLOBAL_CONFIG_REPOSITORY_TOKEN,
+    ListarSensorAlertasUseCase,],
 })
 export class IotModule {}

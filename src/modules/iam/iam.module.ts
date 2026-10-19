@@ -192,6 +192,7 @@ import { PermisosGuard } from './infrastructure/http/guards/permisos.guard';
     PROGRAMA_FORMACION_REPOSITORY,
     CONTEXTO_ACCESO_TOKEN,
     PermisosGuard,
+    LoginUsuarioUseCase,
   ],
 })
 export class IamModule {}

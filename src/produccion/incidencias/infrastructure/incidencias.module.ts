@@ -23,6 +23,11 @@ import { EliminarIncidenciaUseCase } from '../application/use-cases/eliminar.inc
         CambiarEstadoIncidenciaUseCase,
         EliminarIncidenciaUseCase,
     ],
-    exports: [Incidencia_Repository, AccesoIncidenciasService, ListarIncidenciasUseCase],
+    exports: [
+        Incidencia_Repository,
+        AccesoIncidenciasService,
+        ListarIncidenciasUseCase,
+        CrearIncidenciaUseCase,
+        ],
 })
 export class IncidenciasModule {}
