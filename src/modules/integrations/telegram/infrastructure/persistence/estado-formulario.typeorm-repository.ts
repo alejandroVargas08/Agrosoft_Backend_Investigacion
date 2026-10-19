@@ -14,7 +14,12 @@ export class EstadoFormularioTypeOrmRepository implements EstadoFormularioReposi
     ) {}
 
     async buscarPorTelegramUserId(telegramUserId: string): Promise<EstadoFormulario | null> {
-        const encontrado = await this.repo.findOne({ where: { telegramUserId } });
+        // Cada conversación nueva crea una fila: sin ordenar, `findOne` puede
+        // devolver una antigua ya cerrada. Siempre interesa la más reciente.
+        const encontrado = await this.repo.findOne({
+            where: { telegramUserId },
+            order: { id: 'DESC' },
+        });
         return encontrado ? EstadoFormularioMapper.aDominio(encontrado) : null;
     }
 

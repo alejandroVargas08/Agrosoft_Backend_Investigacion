@@ -13,15 +13,19 @@ import { ObtenerOIniciarConversacionUseCase } from './application/use-cases/obte
 import { AvanzarConversacionUseCase } from './application/use-cases/avanzar-conversacion.use-case';
 import { FinalizarConversacionUseCase } from './application/use-cases/finalizar-conversacion.use-case';
 
+// Módulos de negocio cuyos casos de uso llama el bot
+import { IncidenciasModule } from '../../../produccion/incidencias/infrastructure/incidencias.module';
+
 @Module({
     imports: [
         TypeOrmModule.forFeature([EstadoFormularioOrmEntity]),
+        IncidenciasModule,
         TelegrafModule.forRootAsync({
-        imports: [ConfigModule],
-        inject: [ConfigService],
-        useFactory: (configService: ConfigService) => ({
-            token: configService.get<string>('TELEGRAM_BOT_TOKEN') ?? '',
-        }),
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ({
+                token: configService.get<string>('TELEGRAM_BOT_TOKEN') ?? '',
+            }),
         }),
     ],
     providers: [
@@ -34,5 +38,5 @@ import { FinalizarConversacionUseCase } from './application/use-cases/finalizar-
         { provide: ESTADO_FORMULARIO_REPOSITORY_PORT, useClass: EstadoFormularioTypeOrmRepository },
     ],
     exports: [],
-    })
-    export class TelegramModule {}
+})
+export class TelegramModule {}

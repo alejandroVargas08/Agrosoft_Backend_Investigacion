@@ -22,6 +22,7 @@ import { EliminarIncidenciaUseCase } from '../application/use-cases/eliminar.inc
             useClass: IncidenciaRepositoryImpl,
         },
     ],
-    exports: [Incidencia_Repository, ListarIncidenciasUseCase],
+    // CrearIncidenciaUseCase se exporta para que el bot de Telegram pueda llamarlo
+    exports: [Incidencia_Repository, ListarIncidenciasUseCase, CrearIncidenciaUseCase],
 })
 export class IncidenciasModule {}
