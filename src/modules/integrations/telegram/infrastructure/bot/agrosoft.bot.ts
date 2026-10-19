@@ -6,9 +6,11 @@ import { ObtenerOIniciarConversacionUseCase } from '../../application/use-cases/
 import { AvanzarConversacionUseCase } from '../../application/use-cases/avanzar-conversacion.use-case';
 import { FinalizarConversacionUseCase } from '../../application/use-cases/finalizar-conversacion.use-case';
 import { buscarFlujo } from '../../application/flows';
-import type { Flujo, PasoFlujo } from '../../application/flows';
+import type { Flujo, OpcionPaso, PasoFlujo } from '../../application/flows';
 
 import { CrearIncidenciaUseCase } from '../../../../../produccion/incidencias/application/use-cases/crear.incidencia.use-case';
+import { ListarIncidenciasUseCase } from '../../../../../produccion/incidencias/application/use-cases/listar.incidencias.use-case';
+import { CrearTratamientoUseCase } from '../../../../../produccion/tratamientos/application/use-cases/crear.tratamiento.use-case';
 
 const SIN_DATO = '-';
 
@@ -16,6 +18,7 @@ const MENU = [
     'AgroSoft — esto es lo que puedo hacer:',
     '',
     '/incidencia — registrar una plaga, enfermedad o evento',
+    '/tratamiento — registrar un tratamiento aplicado',
     '/cancelar — cancelar lo que esté en curso',
     '/ayuda — volver a ver esta lista',
 ].join('\n');
@@ -36,6 +39,8 @@ export class AgrosoftBot {
         private readonly avanzarConversacion: AvanzarConversacionUseCase,
         private readonly finalizarConversacion: FinalizarConversacionUseCase,
         private readonly crearIncidencia: CrearIncidenciaUseCase,
+        private readonly listarIncidencias: ListarIncidenciasUseCase,
+        private readonly crearTratamiento: CrearTratamientoUseCase,
     ) {}
 
     // ─── Comandos ────────────────────────────────────────────────────────────
@@ -67,6 +72,11 @@ export class AgrosoftBot {
     @Command('incidencia')
     async alRegistrarIncidencia(@Ctx() ctx: Context) {
         await this.iniciarFlujo(ctx, 'incidencia');
+    }
+
+    @Command('tratamiento')
+    async alRegistrarTratamiento(@Ctx() ctx: Context) {
+        await this.iniciarFlujo(ctx, 'tratamiento');
     }
 
     // ─── Entradas del usuario ────────────────────────────────────────────────
@@ -109,15 +119,38 @@ export class AgrosoftBot {
     }
 
     private async preguntar(ctx: Context, paso: PasoFlujo) {
-        if (!paso.opciones || paso.opciones.length === 0) {
+        const opciones = await this.opcionesDe(paso);
+        if (opciones.length === 0) {
             await ctx.reply(paso.pregunta);
             return;
         }
 
-        const botones = paso.opciones.map((opcion) => [
+        const botones = opciones.map((opcion) => [
             Markup.button.callback(opcion.etiqueta, 'op:' + opcion.valor),
         ]);
         await ctx.reply(paso.pregunta, Markup.inlineKeyboard(botones));
+    }
+
+    /**
+     * Un paso puede traer sus opciones escritas a mano, o pedirlas a un módulo
+     * de negocio en el momento de preguntar (así los botones muestran datos
+     * reales y no un número que el usuario tendría que adivinar).
+     */
+    private async opcionesDe(paso: PasoFlujo): Promise<OpcionPaso[]> {
+        if (paso.opciones && paso.opciones.length > 0) return paso.opciones;
+        if (paso.fuente !== 'incidencias') return [];
+
+        const incidencias = await this.listarIncidencias.ejecutar();
+        const abiertas = incidencias
+            .filter((incidencia) => incidencia.estado !== 'resolved')
+            .slice(0, 10)
+            .map((incidencia) => ({
+                etiqueta: incidencia.titulo,
+                valor: String(incidencia.id ?? ''),
+            }));
+
+        if (abiertas.length === 0) return [];
+        return [...abiertas, { etiqueta: 'Sin incidencia', valor: SIN_DATO }];
     }
 
     private async procesarRespuesta(ctx: Context, valor: string) {
@@ -147,6 +180,13 @@ export class AgrosoftBot {
         const vacia = respuesta.length === 0 || (respuesta === SIN_DATO && !paso.opcional);
         if (vacia) {
             await ctx.reply('Ese dato es obligatorio.');
+            await this.preguntar(ctx, paso);
+            return;
+        }
+
+        const reclamo = this.validar(paso, respuesta);
+        if (reclamo) {
+            await ctx.reply(reclamo);
             await this.preguntar(ctx, paso);
             return;
         }
@@ -193,6 +233,25 @@ export class AgrosoftBot {
                 return;
             }
 
+            if (flujo.comando === 'tratamiento') {
+                const creado = await this.crearTratamiento.ejecutar({
+                    incidenciaId: this.numero(datos.incidenciaId) ?? undefined,
+                    producto: this.texto(datos.producto),
+                    dosis: this.opcional(datos.dosis) ?? undefined,
+                    fecha: this.opcional(datos.fecha) ?? undefined,
+                    costo: this.numero(datos.costo) ?? undefined,
+                    notas: this.opcional(datos.notas) ?? undefined,
+                });
+
+                await this.finalizarConversacion.ejecutar(telegramUserId, true);
+                await ctx.reply(
+                    'Tratamiento registrado.\n\n' +
+                    'N.º ' + String(creado?.id ?? '') + ' — ' + this.texto(datos.producto) + '\n\n' +
+                    'Escribe /ayuda para hacer otra cosa.',
+                );
+                return;
+            }
+
             await ctx.reply('Ese flujo todavía no está conectado a su módulo.');
         } catch (error) {
             this.logger.error('Falló el flujo ' + flujo.comando, error as Error);
@@ -219,6 +278,28 @@ export class AgrosoftBot {
         }
     }
 
+    /** Devuelve null si la respuesta sirve, o el reclamo que hay que mostrar. */
+    private validar(paso: PasoFlujo, respuesta: string): string | null {
+        if (respuesta === SIN_DATO) return null; // el paso opcional se omite
+
+        if (paso.formato === 'numero') {
+            return Number.isFinite(Number(respuesta.replace(/[.\s]/g, '')))
+                ? null
+                : 'Eso no parece un número. Escribe solo dígitos, sin puntos ni letras.';
+        }
+
+        if (paso.formato === 'fecha') {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(respuesta)) {
+                return 'La fecha va en formato AAAA-MM-DD. Ejemplo: 2026-10-19';
+            }
+            return Number.isNaN(Date.parse(respuesta))
+                ? 'Esa fecha no existe. Revísala y escríbela como AAAA-MM-DD.'
+                : null;
+        }
+
+        return null;
+    }
+
     private texto(valor: unknown): string {
         return String(valor ?? '').trim();
     }
@@ -238,7 +319,8 @@ export class AgrosoftBot {
     private numero(valor: unknown): number | null {
         const limpio = this.opcional(valor);
         if (limpio === null) return null;
-        const numero = Number(limpio);
+        // La gente escribe 400.000 o 400 000: se quitan los separadores de miles
+        const numero = Number(limpio.replace(/[.\s]/g, ''));
         return Number.isFinite(numero) ? numero : null;
     }
 }

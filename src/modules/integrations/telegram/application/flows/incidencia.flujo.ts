@@ -32,6 +32,7 @@ export const FLUJO_INCIDENCIA: Flujo = {
         {
             campo: 'cultivoId',
             pregunta: '🌱 ¿Número de la unidad productiva afectada?\n\nEscribe "-" si no aplica.',
+            formato: 'numero',
             opcional: true,
         },
         {

@@ -22,6 +22,7 @@ import { EliminarTratamientoUseCase } from '../application/use-cases/eliminar.tr
             useClass: TratamientoRepositoryImpl,
         },
     ],
-    exports: [Tratamiento_Repository, ListarTratamientosUseCase],
+    // CrearTratamientoUseCase se exporta para que el bot de Telegram pueda llamarlo
+    exports: [Tratamiento_Repository, ListarTratamientosUseCase, CrearTratamientoUseCase],
 })
 export class TratamientosModule {}

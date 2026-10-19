@@ -15,11 +15,13 @@ import { FinalizarConversacionUseCase } from './application/use-cases/finalizar-
 
 // Módulos de negocio cuyos casos de uso llama el bot
 import { IncidenciasModule } from '../../../produccion/incidencias/infrastructure/incidencias.module';
+import { TratamientosModule } from '../../../produccion/tratamientos/infrastructure/tratamientos.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([EstadoFormularioOrmEntity]),
         IncidenciasModule,
+        TratamientosModule,
         TelegrafModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
