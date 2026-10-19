@@ -159,11 +159,12 @@ import { PROGRAMA_FORMACION_REPOSITORY } from './domain/ports/programa-formacion
     VerificarCodigoUseCase,
     RestablecerContrasenaUseCase,
   ],
-  exports: [
+    exports: [
     USUARIO_REPOSITORY, 
     ROL_REPOSITORY, 
     PERMISO_REPOSITORY, 
     PROGRAMA_FORMACION_REPOSITORY, 
+    LoginUsuarioUseCase,
   ],
 })
 export class IamModule {}

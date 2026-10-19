@@ -88,6 +88,8 @@ import { ConfirmarReservaUseCase } from './application/use-cases/reserva/confirm
         { provide: MOVIMIENTO_INSUMO_REPOSITORY_PORT, useClass: MovimientoInsumoTypeOrmRepository },
         { provide: RESERVA_REPOSITORY_PORT, useClass: ReservaTypeOrmRepository },
     ],
-    exports: [],
+    exports: [
+        ListarInsumosBajoStockMinimoUseCase,
+    ],
     })
 export class InventarioModule {}
