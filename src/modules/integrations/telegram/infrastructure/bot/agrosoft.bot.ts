@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, Inject, Injectable, Logger } from '@nestjs/common';
 import { Action, Command, Ctx, On, Start, Update } from 'nestjs-telegraf';
 import { Context, Markup } from 'telegraf';
 
@@ -18,8 +18,13 @@ import { VincularUsuarioUseCase } from '../../application/use-cases/vincular-usu
 import { BuscarVinculoUseCase } from '../../application/use-cases/buscar-vinculo.use-case';
 import { DesvincularUsuarioUseCase } from '../../application/use-cases/desvincular-usuario.use-case';
 import type { VinculoUsuario } from '../../domain/entities/vinculo-usuario.entity';
+import { CONTEXTO_ACCESO_TOKEN } from '../../../../iam/domain/ports/contexto-acceso.token';
+import type { ContextoAccesoPort } from '../../../../iam/domain/ports/contexto-acceso.port';
+import type { UsuarioAutenticado } from '../../../../iam/domain/value-objects/alcance-datos.vo';
 
 const SIN_DATO = '-';
+const PERMISO_GESTIONAR_INCIDENCIAS = 'incidencias.gestionar';
+const PERMISO_VER_INCIDENCIAS = 'incidencias.ver';
 
 // El login no es un flujo de application/flows: tiene su propio camino
 const PASO_CORREO = 'login:correo';
@@ -61,6 +66,7 @@ export class AgrosoftBot {
         private readonly vincularUsuario: VincularUsuarioUseCase,
         private readonly buscarVinculo: BuscarVinculoUseCase,
         private readonly desvincularUsuario: DesvincularUsuarioUseCase,
+        @Inject(CONTEXTO_ACCESO_TOKEN) private readonly contextoAcceso: ContextoAccesoPort,
     ) {}
 
     // ─── Comandos ────────────────────────────────────────────────────────────
@@ -116,13 +122,13 @@ export class AgrosoftBot {
 
     @Command('incidencia')
     async alRegistrarIncidencia(@Ctx() ctx: Context) {
-        if (!(await this.exigirVinculo(ctx))) return;
+        if (!(await this.exigirPermiso(ctx, PERMISO_GESTIONAR_INCIDENCIAS, 'registrar incidencias'))) return;
         await this.iniciarFlujo(ctx, 'incidencia');
     }
 
     @Command('tratamiento')
     async alRegistrarTratamiento(@Ctx() ctx: Context) {
-        if (!(await this.exigirVinculo(ctx))) return;
+        if (!(await this.exigirPermiso(ctx, PERMISO_GESTIONAR_INCIDENCIAS, 'registrar tratamientos'))) return;
         await this.iniciarFlujo(ctx, 'tratamiento');
     }
 
@@ -245,6 +251,29 @@ export class AgrosoftBot {
         return vinculo;
     }
 
+    private async usuarioDe(ctx: Context): Promise<UsuarioAutenticado | null> {
+        const vinculo = await this.exigirVinculo(ctx);
+        if (!vinculo) return null;
+
+        const usuario = await this.contextoAcceso.obtener(vinculo.usuarioId);
+        if (!usuario) {
+            await ctx.reply('Tu usuario de AgroSoft no está activo. Escribe /salir y vuelve a entrar con /start.');
+            return null;
+        }
+        return usuario;
+    }
+
+    private async exigirPermiso(ctx: Context, permiso: string, accion: string): Promise<UsuarioAutenticado | null> {
+        const usuario = await this.usuarioDe(ctx);
+        if (!usuario) return null;
+
+        if (!usuario.permisos.includes(permiso)) {
+            await ctx.reply('Tu rol no tiene permiso para ' + accion + '.');
+            return null;
+        }
+        return usuario;
+    }
+
     private async procesarLogin(
         ctx: Context,
         telegramUserId: string,
@@ -324,7 +353,7 @@ export class AgrosoftBot {
     }
 
     private async preguntar(ctx: Context, paso: PasoFlujo) {
-        const opciones = await this.opcionesDe(paso);
+        const opciones = await this.opcionesDe(ctx, paso);
         if (opciones.length === 0) {
             await ctx.reply(paso.pregunta);
             return;
@@ -341,11 +370,14 @@ export class AgrosoftBot {
      * de negocio en el momento de preguntar (así los botones muestran datos
      * reales y no un número que el usuario tendría que adivinar).
      */
-    private async opcionesDe(paso: PasoFlujo): Promise<OpcionPaso[]> {
+    private async opcionesDe(ctx: Context, paso: PasoFlujo): Promise<OpcionPaso[]> {
         if (paso.opciones && paso.opciones.length > 0) return paso.opciones;
         if (paso.fuente !== 'incidencias') return [];
 
-        const incidencias = await this.listarIncidencias.ejecutar();
+        const usuario = await this.usuarioDe(ctx);
+        if (!usuario || !usuario.permisos.includes(PERMISO_VER_INCIDENCIAS)) return [];
+
+        const incidencias = await this.listarIncidencias.ejecutar(usuario);
         const abiertas = incidencias
             .filter((incidencia) => incidencia.estado !== 'resolved')
             .slice(0, 10)
@@ -428,6 +460,12 @@ export class AgrosoftBot {
         const telegramUserId = this.idDe(ctx);
         if (!telegramUserId) return;
 
+        const usuario = await this.exigirPermiso(ctx, PERMISO_GESTIONAR_INCIDENCIAS, 'guardar esto');
+        if (!usuario) {
+            await this.cancelarSilenciosamente(ctx);
+            return;
+        }
+
         try {
             if (flujo.comando === 'incidencia') {
                 const creada = await this.crearIncidencia.ejecutar({
@@ -436,7 +474,7 @@ export class AgrosoftBot {
                     severidad: this.severidad(datos.severidad),
                     cultivoId: this.numero(datos.cultivoId) ?? undefined,
                     descripcion: this.opcional(datos.descripcion) ?? undefined,
-                });
+                }, usuario);
 
                 await this.finalizarConversacion.ejecutar(telegramUserId, true);
                 await ctx.reply(
@@ -455,7 +493,7 @@ export class AgrosoftBot {
                     fecha: this.opcional(datos.fecha) ?? undefined,
                     costo: this.numero(datos.costo) ?? undefined,
                     notas: this.opcional(datos.notas) ?? undefined,
-                });
+                }, usuario);
 
                 await this.finalizarConversacion.ejecutar(telegramUserId, true);
                 await ctx.reply(
@@ -470,8 +508,9 @@ export class AgrosoftBot {
         } catch (error) {
             this.logger.error('Falló el flujo ' + flujo.comando, error as Error);
             await this.cancelarSilenciosamente(ctx);
+            const motivo = error instanceof HttpException ? '\n\nMotivo: ' + error.message : '';
             await ctx.reply(
-                'No pude guardarlo. Revisa los datos e inténtalo otra vez con /' + flujo.comando,
+                'No pude guardarlo. Revisa los datos e inténtalo otra vez con /' + flujo.comando + motivo,
             );
         }
     }
