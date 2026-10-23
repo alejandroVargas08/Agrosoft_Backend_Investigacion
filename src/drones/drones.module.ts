@@ -39,6 +39,7 @@ import { CrearDronUseCase } from './application/use-cases/drones/crear-dron.use-
 import { ObtenerDronUseCase } from './application/use-cases/drones/obtener-dron.use-case';
 import { ListarDronesUseCase } from './application/use-cases/drones/listar-drones.use-case';
 import { EliminarDronUseCase } from './application/use-cases/drones/eliminar-dron.use-case';
+import { ActualizarDronUseCase } from './application/use-cases/drones/actualizar-dron.use-case';
 
 import { CrearVueloUseCase } from './application/use-cases/vuelos/crear-vuelo.use-case';
 import { ObtenerVueloUseCase } from './application/use-cases/vuelos/obtener-vuelo.use-case';
@@ -47,6 +48,7 @@ import { EliminarVueloUseCase } from './application/use-cases/vuelos/eliminar-vu
 
 import { CargarArchivosVueloUseCase } from './application/use-cases/capturas/cargar-archivos-vuelo.use-case';
 import { ListarCapturasPorVueloUseCase } from './application/use-cases/capturas/listar-capturas-por-vuelo.use-case';
+import { ImagenesCapturaUseCase } from './application/use-cases/capturas/imagenes-captura.use-case';
 
 import { SolicitarAnalisisVueloUseCase } from './application/use-cases/analisis/solicitar-analisis-vuelo.use-case';
 import { ProcesarAnalisisVueloUseCase } from './application/use-cases/analisis/procesar-analisis-vuelo.use-case';
@@ -73,6 +75,7 @@ import { ListarResultadosAnalisisUseCase } from './application/use-cases/analisi
     ObtenerDronUseCase,
     ListarDronesUseCase,
     EliminarDronUseCase,
+    ActualizarDronUseCase,
     { provide: DRON_REPOSITORY_TOKEN, useClass: DronRepository },
 
     CrearVueloUseCase,
@@ -83,6 +86,7 @@ import { ListarResultadosAnalisisUseCase } from './application/use-cases/analisi
 
     CargarArchivosVueloUseCase,
     ListarCapturasPorVueloUseCase,
+    ImagenesCapturaUseCase,
     { provide: CAPTURA_REPOSITORY_TOKEN, useClass: CapturaRepository },
 
     SolicitarAnalisisVueloUseCase,

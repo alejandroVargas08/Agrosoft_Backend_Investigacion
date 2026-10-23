@@ -1,18 +1,4 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  ParseIntPipe,
-  Post,
-  Query,
-  UploadedFiles,
-  UseInterceptors,
-} from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Query, StreamableFile, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { promises as fs } from 'fs';
 import * as os from 'os';
@@ -27,6 +13,15 @@ import { ListarVuelosUseCase } from '../../../application/use-cases/vuelos/lista
 import { EliminarVueloUseCase } from '../../../application/use-cases/vuelos/eliminar-vuelo.use-case';
 import { CargarArchivosVueloUseCase } from '../../../application/use-cases/capturas/cargar-archivos-vuelo.use-case';
 import { ListarCapturasPorVueloUseCase } from '../../../application/use-cases/capturas/listar-capturas-por-vuelo.use-case';
+import {
+  BANDAS_VALIDAS,
+  CAPAS_VALIDAS,
+  ImagenGenerada,
+  ImagenesCapturaUseCase,
+  TamanoImagen,
+} from '../../../application/use-cases/capturas/imagenes-captura.use-case';
+import type { CapaCaptura } from '../../../domain/services/coloreador-capas.service';
+import type { Banda } from '../../../domain/value-objects/archivo-dji.vo';
 import { SolicitarAnalisisVueloUseCase } from '../../../application/use-cases/analisis/solicitar-analisis-vuelo.use-case';
 import { ListarAnalisisPorVueloUseCase } from '../../../application/use-cases/analisis/listar-analisis-por-vuelo.use-case';
 import { CrearVueloDto } from '../../../application/dto/vuelos/crear-vuelo.dto';
@@ -55,6 +50,7 @@ export class VuelosController {
     private readonly listarCapturasPorVueloUseCase: ListarCapturasPorVueloUseCase,
     private readonly solicitarAnalisisVueloUseCase: SolicitarAnalisisVueloUseCase,
     private readonly listarAnalisisPorVueloUseCase: ListarAnalisisPorVueloUseCase,
+    private readonly imagenesCapturaUseCase: ImagenesCapturaUseCase,
   ) {}
 
   @Post()
@@ -117,6 +113,42 @@ export class VuelosController {
     return this.listarCapturasPorVueloUseCase.execute(id, usuario);
   }
 
+  @Get(':id/capturas/:capturaId/imagen')
+  @RequierePermisos(PERMISOS_DRONES.VER_VUELOS)
+  async imagenCaptura(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('capturaId', ParseIntPipe) capturaId: number,
+    @UsuarioActual() usuario: UsuarioAutenticado,
+    @Query('banda') banda = 'RGB',
+    @Query('tamano') tamano = 'miniatura',
+  ) {
+    const bandaNormalizada = banda.toUpperCase() as Banda;
+    if (!BANDAS_VALIDAS.includes(bandaNormalizada)) {
+      throw new BadRequestException(`Banda no válida. Usa: ${BANDAS_VALIDAS.join(', ')}`);
+    }
+    if (tamano !== 'miniatura' && tamano !== 'completa') {
+      throw new BadRequestException('El tamaño debe ser "miniatura" o "completa"');
+    }
+    const imagen = await this.imagenesCapturaUseCase.imagen(id, capturaId, bandaNormalizada, tamano as TamanoImagen, usuario);
+    return this.archivo(imagen);
+  }
+
+  @Get(':id/capturas/:capturaId/capa')
+  @RequierePermisos(PERMISOS_DRONES.VER_VUELOS)
+  async capaCaptura(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('capturaId', ParseIntPipe) capturaId: number,
+    @UsuarioActual() usuario: UsuarioAutenticado,
+    @Query('indice') indice = 'NDVI',
+  ) {
+    const capa = indice.toUpperCase() as CapaCaptura;
+    if (!CAPAS_VALIDAS.includes(capa)) {
+      throw new BadRequestException(`Índice no válido. Usa: ${CAPAS_VALIDAS.join(', ')}`);
+    }
+    const imagen = await this.imagenesCapturaUseCase.capa(id, capturaId, capa, usuario);
+    return this.archivo(imagen);
+  }
+
   @Post(':id/analisis')
   @HttpCode(HttpStatus.ACCEPTED)
   @RequierePermisos(PERMISOS_DRONES.SOLICITAR_ANALISIS)
@@ -132,5 +164,9 @@ export class VuelosController {
   @RequierePermisos(PERMISOS_DRONES.VER_VUELOS)
   listarAnalisis(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
     return this.listarAnalisisPorVueloUseCase.execute(id, usuario);
+  }
+
+  private archivo(imagen: ImagenGenerada): StreamableFile {
+    return new StreamableFile(imagen.contenido, { type: imagen.tipo });
   }
 }
