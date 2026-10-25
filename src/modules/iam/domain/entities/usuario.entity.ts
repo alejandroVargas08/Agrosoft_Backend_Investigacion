@@ -1,4 +1,16 @@
-export type EstadoUsuario = 'activo' | 'inactivo' | 'suspendido';
+export type EstadoUsuario = 'activo' | 'inactivo' | 'suspendido' | 'pendiente' | 'rechazado';
+
+export type RolSolicitado = 'Instructor' | 'Administrador';
+
+export interface SolicitudRegistro {
+  rolSolicitado: RolSolicitado;
+  cargo: string | null;
+  motivo: string | null;
+  fichasACargo: number[];
+  solicitadoEn: string;
+  resueltoEn: string | null;
+  motivoRechazo: string | null;
+}
 
 export class Usuario {
   private constructor(
@@ -19,6 +31,7 @@ export class Usuario {
     private readonly creadoEn: Date,
     private actualizadoEn: Date,
     private eliminadoEn: Date | null,
+    private solicitudRegistro: SolicitudRegistro | null = null,
   ) {}
 
   static crear(props: {
@@ -32,6 +45,8 @@ export class Usuario {
     correo: string;
     contrasenaHash: string;
     rolId: number;
+    estado?: EstadoUsuario;
+    solicitudRegistro?: SolicitudRegistro | null;
   }): Usuario {
     if (!props.nombre || props.nombre.trim().length === 0) {
       throw new Error('El nombre no puede estar vacío');
@@ -62,13 +77,14 @@ export class Usuario {
       props.correo,
       props.contrasenaHash,
       null,
-      'activo',
+      props.estado ?? 'activo',
       null,
       null,
       props.rolId,
       ahora,
       ahora,
       null,
+      props.solicitudRegistro ?? null,
     );
   }
 
@@ -90,6 +106,7 @@ export class Usuario {
     creadoEn: Date;
     actualizadoEn: Date;
     eliminadoEn: Date | null;
+    solicitudRegistro?: SolicitudRegistro | null;
   }): Usuario {
     return new Usuario(
       props.id,
@@ -109,6 +126,7 @@ export class Usuario {
       props.creadoEn,
       props.actualizadoEn,
       props.eliminadoEn,
+      props.solicitudRegistro ?? null,
     );
   }
 
@@ -131,7 +149,25 @@ export class Usuario {
   obtenerActualizadoEn(): Date { return this.actualizadoEn; }
   obtenerEliminadoEn(): Date | null { return this.eliminadoEn; }
   estaActivo(): boolean { return this.estado === 'activo' && this.eliminadoEn === null; }
+  obtenerSolicitudRegistro(): SolicitudRegistro | null { return this.solicitudRegistro; }
+  estaPendiente(): boolean { return this.estado === 'pendiente'; }
   correoEstaVerificado(): boolean { return this.correoVerificadoEn !== null; }
+
+  aprobarRegistro(): void {
+    if (this.estado !== 'pendiente') throw new Error('El usuario no tiene una solicitud pendiente');
+    this.estado = 'activo';
+    if (this.solicitudRegistro) this.solicitudRegistro = { ...this.solicitudRegistro, resueltoEn: new Date().toISOString() };
+    this.actualizadoEn = new Date();
+  }
+
+  rechazarRegistro(motivo: string): void {
+    if (this.estado !== 'pendiente') throw new Error('El usuario no tiene una solicitud pendiente');
+    this.estado = 'rechazado';
+    if (this.solicitudRegistro) {
+      this.solicitudRegistro = { ...this.solicitudRegistro, resueltoEn: new Date().toISOString(), motivoRechazo: motivo };
+    }
+    this.actualizadoEn = new Date();
+  }
 
   activar(): void {
     if (this.estado === 'activo') throw new Error('El usuario ya está activo');

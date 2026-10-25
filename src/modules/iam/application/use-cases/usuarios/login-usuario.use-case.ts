@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import type { UsuarioRepositoryPort } from '../../../domain/ports/usuario.repository.port';
 import { USUARIO_REPOSITORY } from '../../../domain/ports/usuario.repository.token';
 import type { TokenServicePort } from '../../../domain/ports/token.service.port';
@@ -26,8 +26,17 @@ export class LoginUsuarioUseCase {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
+    if (usuario.obtenerEstado() === 'pendiente') {
+      throw new ForbiddenException('Tu cuenta está pendiente de aprobación. Te avisaremos cuando un administrador la apruebe.');
+    }
+
+    if (usuario.obtenerEstado() === 'rechazado') {
+      const motivo = usuario.obtenerSolicitudRegistro()?.motivoRechazo;
+      throw new ForbiddenException(motivo ? `Tu solicitud fue rechazada: ${motivo}` : 'Tu solicitud de registro fue rechazada.');
+    }
+
     if (!usuario.estaActivo()) {
-      throw new UnauthorizedException('El usuario no está activo');
+      throw new ForbiddenException('Tu cuenta está desactivada. Comunícate con el administrador.');
     }
 
     usuario.registrarLogin();

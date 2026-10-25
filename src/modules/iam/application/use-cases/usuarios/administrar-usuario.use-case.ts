@@ -1,10 +1,12 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { UsuarioRepositoryPort } from '../../../domain/ports/usuario.repository.port';
 import { USUARIO_REPOSITORY } from '../../../domain/ports/usuario.repository.token';
 import type { RolRepositoryPort } from '../../../domain/ports/rol.repository.port';
 import { ROL_REPOSITORY } from '../../../domain/ports/rol.repository.token';
 import type { ProgramaFormacionRepositoryPort } from '../../../domain/ports/programa-formacion.repository.port';
 import { PROGRAMA_FORMACION_REPOSITORY } from '../../../domain/ports/programa-formacion.repository.token';
+import type { UsuarioProgramaRepositoryPort } from '../../../domain/ports/usuario-programa.repository.port';
+import { USUARIO_PROGRAMA_REPOSITORY } from '../../../domain/ports/usuario-programa.repository.token';
 import { Usuario } from '../../../domain/entities/usuario.entity';
 import type { AlcanceDatos } from '../../../domain/value-objects/alcance-datos.vo';
 import { aUsuarioPublico, UsuarioPublico } from '../../dto/usuarios/usuario-respuesta.mapper';
@@ -26,7 +28,37 @@ export class AdministrarUsuarioUseCase {
     private readonly rolRepository: RolRepositoryPort,
     @Inject(PROGRAMA_FORMACION_REPOSITORY)
     private readonly programaRepository: ProgramaFormacionRepositoryPort,
+    @Inject(USUARIO_PROGRAMA_REPOSITORY)
+    private readonly usuarioProgramas: UsuarioProgramaRepositoryPort,
   ) {}
+
+  async listarSolicitudes(): Promise<UsuarioPublico[]> {
+    const usuarios = await this.usuarioRepository.obtenerTodos();
+    return usuarios
+      .filter((usuario) => usuario.estaPendiente() && usuario.obtenerEliminadoEn() === null)
+      .sort((a, b) => a.obtenerCreadoEn().getTime() - b.obtenerCreadoEn().getTime())
+      .map(aUsuarioPublico);
+  }
+
+  async aprobarRegistro(usuarioId: number): Promise<UsuarioPublico> {
+    const usuario = await this.obtenerUsuario(usuarioId);
+    if (!usuario.estaPendiente()) throw new ConflictException('Este usuario no tiene una solicitud pendiente');
+    usuario.aprobarRegistro();
+    const actualizado = await this.usuarioRepository.actualizar(usuario);
+    for (const programaId of usuario.obtenerSolicitudRegistro()?.fichasACargo ?? []) {
+      if (!(await this.usuarioProgramas.existe(usuarioId, programaId))) {
+        await this.usuarioProgramas.asignar(usuarioId, programaId);
+      }
+    }
+    return aUsuarioPublico(actualizado);
+  }
+
+  async rechazarRegistro(usuarioId: number, motivo: string): Promise<UsuarioPublico> {
+    const usuario = await this.obtenerUsuario(usuarioId);
+    if (!usuario.estaPendiente()) throw new ConflictException('Este usuario no tiene una solicitud pendiente');
+    usuario.rechazarRegistro(motivo.trim());
+    return aUsuarioPublico(await this.usuarioRepository.actualizar(usuario));
+  }
 
   async listar(): Promise<UsuarioPublico[]> {
     const usuarios = await this.usuarioRepository.obtenerTodos();
