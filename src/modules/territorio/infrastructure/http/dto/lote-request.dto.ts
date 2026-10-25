@@ -1,14 +1,4 @@
-import {
-    IsArray,
-    IsEnum,
-    IsInt,
-    IsNumber,
-    IsOptional,
-    IsString,
-    MinLength,
-    ValidateNested,
-    ArrayMinSize,
-} from 'class-validator';
+import { IsArray, IsEnum, IsInt, IsNumber, IsOptional, IsString, MinLength, ValidateNested, ArrayMinSize, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PuntoDto } from './punto.dto';
 import { EstadoLote } from '../../../domain/entities/lote.entity';
@@ -43,4 +33,11 @@ export class CrearLoteDto {
 export class CambiarEstadoLoteDto {
     @IsEnum(EstadoLote)
     nuevoEstado: EstadoLote;
+}
+
+export class AsignarProgramaLoteDto {
+    @IsOptional()
+    @IsInt()
+    @Min(1)
+    programaFormacionId: number | null;
 }
