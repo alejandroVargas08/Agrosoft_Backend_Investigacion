@@ -29,6 +29,16 @@ export class ProgramaFormacion {
     );
   }
 
+  actualizar(cambios: { nombre?: string; tipo?: string; ficha?: string; fechaInicio?: Date; fechaFin?: Date; estado?: string }): void {
+    if (cambios.nombre !== undefined) this.nombre = cambios.nombre;
+    if (cambios.tipo !== undefined) this.tipo = cambios.tipo;
+    if (cambios.ficha !== undefined) this.ficha = cambios.ficha;
+    if (cambios.fechaInicio !== undefined) this.fechaInicio = cambios.fechaInicio;
+    if (cambios.fechaFin !== undefined) this.fechaFin = cambios.fechaFin;
+    if (cambios.estado !== undefined) this.estado = cambios.estado;
+    if (this.fechaFin < this.fechaInicio) throw new Error('La fecha de fin no puede ser anterior a la fecha de inicio');
+  }
+
   obtenerId(): number { return this.id; }
   obtenerNombre(): string { return this.nombre; }
   obtenerTipo(): string { return this.tipo; }

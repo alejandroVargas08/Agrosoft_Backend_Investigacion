@@ -12,6 +12,8 @@ export interface UsuarioPublico {
   idFicha: string | null;
   estado: string;
   solicitud: SolicitudRegistro | null;
+  ultimoIngreso: Date | null;
+  creadoEn: Date;
 }
 
 export function aUsuarioPublico(usuario: Usuario): UsuarioPublico {
@@ -27,5 +29,7 @@ export function aUsuarioPublico(usuario: Usuario): UsuarioPublico {
     idFicha: usuario.obtenerIdFicha(),
     estado: usuario.obtenerEstado(),
     solicitud: usuario.obtenerSolicitudRegistro(),
+    ultimoIngreso: usuario.obtenerLastLoginAt(),
+    creadoEn: usuario.obtenerCreadoEn(),
   };
 }

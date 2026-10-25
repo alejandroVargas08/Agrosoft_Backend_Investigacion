@@ -14,4 +14,5 @@ export interface ProgramaFormacionRepositoryPort {
   buscarPorFicha(ficha: string): Promise<ProgramaFormacion | null>;
   obtenerTodos(): Promise<ProgramaFormacion[]>;
   guardar(datos: NuevoProgramaFormacion): Promise<ProgramaFormacion>;
+  actualizar(programa: ProgramaFormacion): Promise<ProgramaFormacion>;
 }

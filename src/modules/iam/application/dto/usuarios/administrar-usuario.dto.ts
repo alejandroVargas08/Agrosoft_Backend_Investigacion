@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, MaxLength } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CambiarRolUsuarioDto {
   @IsInt()
@@ -18,4 +18,12 @@ export class RechazarRegistroDto {
   @IsNotEmpty()
   @MaxLength(300)
   readonly motivo: string;
+}
+
+export class RestablecerContrasenaAdminDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(8)
+  @MaxLength(100)
+  readonly nuevaContrasena?: string;
 }

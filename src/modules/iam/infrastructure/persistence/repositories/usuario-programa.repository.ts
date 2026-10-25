@@ -27,4 +27,9 @@ export class UsuarioProgramaRepository implements UsuarioProgramaRepositoryPort 
   async existe(usuarioId: number, programaFormacionId: number): Promise<boolean> {
     return (await this.repo.count({ where: { usuarioId, programaFormacionId } })) > 0;
   }
+
+  async listarTodas(): Promise<{ usuarioId: number; programaFormacionId: number }[]> {
+    const filas = await this.repo.find({ order: { programaFormacionId: 'ASC' } });
+    return filas.map((fila) => ({ usuarioId: fila.usuarioId, programaFormacionId: fila.programaFormacionId }));
+  }
 }

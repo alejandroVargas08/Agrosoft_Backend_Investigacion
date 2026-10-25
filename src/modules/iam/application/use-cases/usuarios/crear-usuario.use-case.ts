@@ -1,4 +1,5 @@
-import { BadRequestException, ConflictException, Inject, Injectable, InternalServerErrorException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Inject, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
+import { ModuleRef } from "@nestjs/core";
 import * as bcrypt from 'bcrypt';
 import { EstadoUsuario, SolicitudRegistro, Usuario } from "../../../domain/entities/usuario.entity";
 import type { UsuarioRepositoryPort } from "../../../domain/ports/usuario.repository.port";
@@ -14,6 +15,9 @@ import { Email } from "../../../domain/value-objects/email.vo";
 import { Password } from "../../../domain/value-objects/password.vo";
 import { CrearUsuarioDto, TipoUsuarioRegistro } from "../../dto/usuarios/crear-usuario.dto";
 import { aUsuarioPublico, UsuarioPublico } from "../../dto/usuarios/usuario-respuesta.mapper";
+import { Notificacion } from "../../../../notificaciones/domain/entities/notificacion.entity";
+import type { NotificacionRepositoryPort } from "../../../../notificaciones/domain/ports/notificacion.repository.port";
+import { NOTIFICACION_REPOSITORY } from "../../../../notificaciones/domain/ports/notificacion.repository.token";
 
 export const ROL_POR_DEFECTO = 'Aprendiz';
 
@@ -29,7 +33,10 @@ export interface UsuarioRegistrado extends UsuarioPublico {
 
 @Injectable()
 export class CrearUsuarioUseCase {
+    private readonly logger = new Logger(CrearUsuarioUseCase.name);
+
     constructor(
+        private readonly moduleRef: ModuleRef,
         @Inject(USUARIO_REPOSITORY)
         private readonly usuarioRepository: UsuarioRepositoryPort,
         @Inject(ROL_REPOSITORY)
@@ -110,6 +117,10 @@ export class CrearUsuarioUseCase {
             }
         }
 
+        if (estado === 'pendiente' && solicitud) {
+            await this.avisarAdministradores(guardado, solicitud.rolSolicitado);
+        }
+
         return { ...aUsuarioPublico(guardado), requiereAprobacion: estado === 'pendiente' };
     }
 
@@ -142,6 +153,28 @@ export class CrearUsuarioUseCase {
             programas.push(programa);
         }
         return programas;
+    }
+
+    private async avisarAdministradores(usuario: Usuario, rolSolicitado: string): Promise<void> {
+        try {
+            const notificaciones = this.moduleRef.get<NotificacionRepositoryPort>(NOTIFICACION_REPOSITORY, { strict: false });
+            const rolAdmin = await this.rolRepository.buscarPorNombre('Administrador');
+            if (!rolAdmin) return;
+            const administradores = (await this.usuarioRepository.obtenerTodos())
+                .filter((u) => u.obtenerRolId() === rolAdmin.obtenerId() && u.estaActivo());
+            for (const admin of administradores) {
+                await notificaciones.guardar(Notificacion.crear({
+                    id: 0,
+                    usuarioId: admin.obtenerId(),
+                    titulo: 'Nueva solicitud de acceso',
+                    mensaje: `${usuario.obtenerNombreCompleto()} pidió acceso como ${rolSolicitado}.`,
+                    tipo: 'solicitud',
+                    metadata: { usuarioId: usuario.obtenerId(), rolSolicitado },
+                }));
+            }
+        } catch (error) {
+            this.logger.warn(`No se pudo avisar a los administradores: ${(error as Error).message}`);
+        }
     }
 
     private nuevaSolicitud(rolSolicitado: SolicitudRegistro['rolSolicitado'], cargo: string | null, motivo: string | null, fichasACargo: number[]): SolicitudRegistro {

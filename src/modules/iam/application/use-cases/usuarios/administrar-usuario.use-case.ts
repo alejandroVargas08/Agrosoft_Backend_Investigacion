@@ -1,4 +1,6 @@
 import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import { randomInt } from 'crypto';
 import type { UsuarioRepositoryPort } from '../../../domain/ports/usuario.repository.port';
 import { USUARIO_REPOSITORY } from '../../../domain/ports/usuario.repository.token';
 import type { RolRepositoryPort } from '../../../domain/ports/rol.repository.port';
@@ -103,6 +105,22 @@ export class AdministrarUsuarioUseCase {
     }
     usuario.asignarProgramaFormacion(programaFormacionId);
     return aUsuarioPublico(await this.usuarioRepository.actualizar(usuario));
+  }
+
+  async restablecerContrasena(usuarioId: number, nuevaContrasena?: string): Promise<{ usuarioId: number; contrasenaTemporal: string | null }> {
+    const usuario = await this.obtenerUsuario(usuarioId);
+    const generada = nuevaContrasena ? null : this.generarContrasena();
+    const hash = await bcrypt.hash(nuevaContrasena ?? generada!, await bcrypt.genSalt(10));
+    usuario.cambiarContrasena(hash);
+    await this.usuarioRepository.actualizar(usuario);
+    return { usuarioId, contrasenaTemporal: generada };
+  }
+
+  private generarContrasena(): string {
+    const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+    let texto = '';
+    for (let i = 0; i < 10; i++) texto += caracteres[randomInt(caracteres.length)];
+    return texto;
   }
 
   private async obtenerUsuario(id: number): Promise<Usuario> {

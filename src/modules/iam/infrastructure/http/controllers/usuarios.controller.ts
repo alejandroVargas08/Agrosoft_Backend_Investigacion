@@ -8,7 +8,7 @@ import { AdministrarUsuarioUseCase } from '../../../application/use-cases/usuari
 import { CrearUsuarioDto } from '../../../application/dto/usuarios/crear-usuario.dto';
 import { ActualizarUsuarioDto } from '../../../application/dto/usuarios/actualizar-usuario.dto';
 import { LoginUsuarioDto } from '../../../application/dto/usuarios/login-usuario.dto';
-import { CambiarProgramaUsuarioDto, CambiarRolUsuarioDto, RechazarRegistroDto } from '../../../application/dto/usuarios/administrar-usuario.dto';
+import { CambiarProgramaUsuarioDto, CambiarRolUsuarioDto, RechazarRegistroDto, RestablecerContrasenaAdminDto } from '../../../application/dto/usuarios/administrar-usuario.dto';
 import { aUsuarioPublico } from '../../../application/dto/usuarios/usuario-respuesta.mapper';
 import type { UsuarioAutenticado } from '../../../domain/value-objects/alcance-datos.vo';
 import { Autenticado } from '../decorators/autenticado.decorator';
@@ -104,6 +104,12 @@ export class UsuarioController {
   @Autenticado(PERMISO_GESTIONAR_USUARIOS)
   rechazarRegistro(@Param('id', ParseIntPipe) id: number, @Body() dto: RechazarRegistroDto) {
     return this.administrarUsuarioUseCase.rechazarRegistro(id, dto.motivo);
+  }
+
+  @Patch(':id/contrasena')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  restablecerContrasena(@Param('id', ParseIntPipe) id: number, @Body() dto: RestablecerContrasenaAdminDto) {
+    return this.administrarUsuarioUseCase.restablecerContrasena(id, dto.nuevaContrasena);
   }
 
   @Delete(':id')
