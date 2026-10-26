@@ -1,0 +1,207 @@
+import { ResumenAprendicesUseCase } from "../aplicattion/use-cases/asignaciones/resumen-aprendices.use-case";
+import { ActividadAsignacion, EstadoAsignacion } from "../domain/entities/actividad-asignacion.entity";
+import type { ActividadAsignacionesRepositoryPort } from "../domain/ports/actividad-asignaciones.repository.port";
+import { Rol } from "../../../modules/iam/domain/entities/rol.entity";
+import { Usuario } from "../../../modules/iam/domain/entities/usuario.entity";
+import type { RolRepositoryPort } from "../../../modules/iam/domain/ports/rol.repository.port";
+import type { UsuarioRepositoryPort } from "../../../modules/iam/domain/ports/usuario.repository.port";
+import type { AlcanceDatos } from "../../../modules/iam/domain/value-objects/alcance-datos.vo";
+import type { AccesoActividadesService } from "../aplicattion/services/acceso-actividades.service";
+
+const ROL_APRENDIZ = 7;
+const ROL_INSTRUCTOR = 8;
+const AYER = new Date(Date.now() - 86400000);
+const MANANA = new Date(Date.now() + 86400000);
+
+const rolAprendiz = Rol.reconstruir({
+    id: ROL_APRENDIZ, nombre: 'Aprendiz', descripcion: '', esSistema: true,
+    estado: 'activo', creadoEn: new Date(), actualizadoEn: new Date(), eliminadoEn: null,
+});
+
+function usuario(id: number, apellido: string, rolId: number, programaFormacionId: number | null, ultimoIngreso: Date | null = null): Usuario {
+    return Usuario.reconstruir({
+        id, nombre: 'Nombre' + id, apellido, identificacion: String(1000 + id),
+        idFicha: null, programaFormacionId, telefono: '300', correo: `u${id}@sena.edu.co`,
+        contrasenaHash: 'hash', correoVerificadoEn: null, estado: 'activo',
+        lastLoginAt: ultimoIngreso, avatarUrl: null, rolId,
+        creadoEn: new Date(), actualizadoEn: new Date(), eliminadoEn: null,
+    });
+}
+
+function asignacion(
+    id: number, actividadId: number, aprendizId: number, estado: EstadoAsignacion,
+    opciones: { horas?: number | null; fechaLimite?: Date | null } = {},
+): ActividadAsignacion {
+    return ActividadAsignacion.desdePersistencia({
+        id, actividadId, aprendizId, asignadoPorId: 99, estado,
+        fechaLimite: opciones.fechaLimite ?? null,
+        horasTrabajadas: opciones.horas ?? null,
+        comentarioAprendiz: null, comentarioInstructor: null,
+        iniciadaEn: null, entregadaEn: null, revisadaEn: null, revisadaPorId: null,
+    });
+}
+
+class FakeUsuarios implements Partial<UsuarioRepositoryPort> {
+    constructor(private readonly usuarios: Usuario[]) {}
+    async obtenerTodos(): Promise<Usuario[]> { return this.usuarios; }
+}
+
+class FakeRoles implements Partial<RolRepositoryPort> {
+    constructor(private readonly rol: Rol | null) {}
+    async buscarPorNombre(): Promise<Rol | null> { return this.rol; }
+}
+
+class FakeAsignaciones implements Partial<ActividadAsignacionesRepositoryPort> {
+    public pedidos: number[][] = [];
+    constructor(private readonly asignaciones: ActividadAsignacion[]) {}
+    async listarPorAprendices(aprendizIds: number[]): Promise<ActividadAsignacion[]> {
+        this.pedidos.push(aprendizIds);
+        return this.asignaciones.filter((a) => aprendizIds.includes(a.aprendizId));
+    }
+}
+
+/** Deja ver solo las actividades de la lista. */
+function fakeAcceso(actividadesVisibles: number[]): AccesoActividadesService {
+    return {
+        async obtenerActividadVisible(id: number) {
+            if (!actividadesVisibles.includes(id)) throw new Error('no visible');
+            return {} as never;
+        },
+    } as unknown as AccesoActividadesService;
+}
+
+function construir(
+    usuarios: Usuario[],
+    asignaciones: ActividadAsignacion[],
+    actividadesVisibles: number[],
+    rol: Rol | null = rolAprendiz,
+) {
+    const repoAsignaciones = new FakeAsignaciones(asignaciones);
+    // Los fakes solo implementan los metodos que el caso de uso usa
+    const useCase = new ResumenAprendicesUseCase(
+        new FakeUsuarios(usuarios) as unknown as UsuarioRepositoryPort,
+        new FakeRoles(rol) as unknown as RolRepositoryPort,
+        repoAsignaciones as unknown as ActividadAsignacionesRepositoryPort,
+        fakeAcceso(actividadesVisibles),
+    );
+    return { useCase, repoAsignaciones };
+}
+
+const VE_TODO: AlcanceDatos = { verTodo: true, programasPermitidos: [] };
+
+describe('ResumenAprendicesUseCase', () => {
+    it('cuenta tareas, aprobadas, entregadas y horas de cada aprendiz', async () => {
+        const { useCase } = construir(
+            [usuario(1, 'Lopez', ROL_APRENDIZ, 10)],
+            [
+                asignacion(1, 100, 1, 'APROBADA', { horas: 4 }),
+                asignacion(2, 100, 1, 'APROBADA', { horas: 2.5 }),
+                asignacion(3, 101, 1, 'ENTREGADA', { horas: 3 }),
+                asignacion(4, 101, 1, 'ASIGNADA'),
+            ],
+            [100, 101],
+        );
+
+        const [resumen] = await useCase.ejecutar(VE_TODO);
+
+        expect(resumen.tareas).toBe(4);
+        expect(resumen.aprobadas).toBe(2);
+        expect(resumen.entregadas).toBe(1);
+        expect(resumen.horas).toBe(9.5);
+    });
+
+    it('solo cuenta vencidas las que siguen activas con el plazo pasado', async () => {
+        const { useCase } = construir(
+            [usuario(1, 'Lopez', ROL_APRENDIZ, 10)],
+            [
+                asignacion(1, 100, 1, 'ASIGNADA', { fechaLimite: AYER }),    // vencida
+                asignacion(2, 100, 1, 'DEVUELTA', { fechaLimite: AYER }),    // vencida
+                asignacion(3, 100, 1, 'ENTREGADA', { fechaLimite: AYER }),   // ya entregó: no cuenta
+                asignacion(4, 100, 1, 'APROBADA', { fechaLimite: AYER }),    // ya aprobada: no cuenta
+                asignacion(5, 100, 1, 'ASIGNADA', { fechaLimite: MANANA }),  // todavía tiene plazo
+            ],
+            [100],
+        );
+
+        const [resumen] = await useCase.ejecutar(VE_TODO);
+
+        expect(resumen.vencidas).toBe(2);
+        expect(resumen.tareas).toBe(5);
+    });
+
+    it('ignora las asignaciones de actividades que el instructor no puede ver', async () => {
+        const { useCase } = construir(
+            [usuario(1, 'Lopez', ROL_APRENDIZ, 10)],
+            [
+                asignacion(1, 100, 1, 'APROBADA', { horas: 4 }),
+                asignacion(2, 999, 1, 'APROBADA', { horas: 8 }), // actividad de otra ficha
+            ],
+            [100],
+        );
+
+        const [resumen] = await useCase.ejecutar(VE_TODO);
+
+        expect(resumen.tareas).toBe(1);
+        expect(resumen.horas).toBe(4);
+    });
+
+    it('deja fuera a quien no es aprendiz, no tiene programa, o es de otra ficha', async () => {
+        const { useCase } = construir(
+            [
+                usuario(1, 'Lopez', ROL_APRENDIZ, 10),
+                usuario(2, 'Diaz', ROL_INSTRUCTOR, 10),   // no es aprendiz
+                usuario(3, 'Mora', ROL_APRENDIZ, null),   // sin programa
+                usuario(4, 'Ruiz', ROL_APRENDIZ, 20),     // ficha fuera del alcance
+            ],
+            [],
+            [],
+        );
+
+        const resumen = await useCase.ejecutar({ verTodo: false, programasPermitidos: [10] });
+
+        expect(resumen.map((r) => r.id)).toEqual([1]);
+    });
+
+    it('filtra por ficha cuando se pide una en concreto', async () => {
+        const { useCase } = construir(
+            [usuario(1, 'Lopez', ROL_APRENDIZ, 10), usuario(2, 'Diaz', ROL_APRENDIZ, 20)],
+            [],
+            [],
+        );
+
+        const resumen = await useCase.ejecutar(VE_TODO, 20);
+
+        expect(resumen.map((r) => r.id)).toEqual([2]);
+    });
+
+    it('pide las asignaciones de todos los aprendices en una sola consulta', async () => {
+        const { useCase, repoAsignaciones } = construir(
+            [usuario(1, 'Lopez', ROL_APRENDIZ, 10), usuario(2, 'Diaz', ROL_APRENDIZ, 10)],
+            [],
+            [],
+        );
+
+        await useCase.ejecutar(VE_TODO);
+
+        expect(repoAsignaciones.pedidos).toHaveLength(1);
+        expect(repoAsignaciones.pedidos[0].sort()).toEqual([1, 2]);
+    });
+
+    it('ordena por apellido', async () => {
+        const { useCase } = construir(
+            [usuario(1, 'Zapata', ROL_APRENDIZ, 10), usuario(2, 'Alvarez', ROL_APRENDIZ, 10)],
+            [],
+            [],
+        );
+
+        const resumen = await useCase.ejecutar(VE_TODO);
+
+        expect(resumen.map((r) => r.apellido)).toEqual(['Alvarez', 'Zapata']);
+    });
+
+    it('devuelve vacío si no existe el rol Aprendiz', async () => {
+        const { useCase } = construir([usuario(1, 'Lopez', ROL_APRENDIZ, 10)], [], [], null);
+
+        expect(await useCase.ejecutar(VE_TODO)).toEqual([]);
+    });
+});

@@ -7,7 +7,7 @@ import { CultivosModule } from '../../cultivos/infrastructure/cultivos.module';
 import { actividadesOrmEntity } from './persistence/actividades.orm-entity';
 import { ActividadAsignacionOrmEntity } from './persistence/actividad-asignacion.orm-entity';
 import { ActividadesController } from './http/actividades.controller';
-import { ActividadAsignacionesController, MisTareasController, RevisionAsignacionesController } from './http/asignaciones.controller';
+import { ActividadAsignacionesController, MisTareasController, ResumenAprendicesController, RevisionAsignacionesController } from './http/asignaciones.controller';
 import { actividades_repository } from '../domain/ports/actividades.repository.port';
 import { ACTIVIDAD_ASIGNACIONES_REPOSITORY } from '../domain/ports/actividad-asignaciones.repository.port';
 import { actividadesRepositoryImpl } from './persistence/actividades.repository.impl';
@@ -24,6 +24,7 @@ import { eliminarActividadesUseCase } from '../aplicattion/use-cases/eliminar-ac
 import { GestionarAsignacionesUseCase } from '../aplicattion/use-cases/asignaciones/gestionar-asignaciones.use-case';
 import { MisTareasUseCase } from '../aplicattion/use-cases/asignaciones/mis-tareas.use-case';
 import { RevisarAsignacionesUseCase } from '../aplicattion/use-cases/asignaciones/revisar-asignaciones.use-case';
+import { ResumenAprendicesUseCase } from '../aplicattion/use-cases/asignaciones/resumen-aprendices.use-case';
 
 @Module({
     imports: [
@@ -38,6 +39,7 @@ import { RevisarAsignacionesUseCase } from '../aplicattion/use-cases/asignacione
         ActividadAsignacionesController,
         MisTareasController,
         RevisionAsignacionesController,
+        ResumenAprendicesController,
     ],
     providers: [
         { provide: actividades_repository, useClass: actividadesRepositoryImpl },
@@ -54,6 +56,7 @@ import { RevisarAsignacionesUseCase } from '../aplicattion/use-cases/asignacione
         GestionarAsignacionesUseCase,
         MisTareasUseCase,
         RevisarAsignacionesUseCase,
+        ResumenAprendicesUseCase,
     ],
     exports: [actividades_repository, ACTIVIDAD_ASIGNACIONES_REPOSITORY, AccesoActividadesService, ActividadVisibleGuard],
 })

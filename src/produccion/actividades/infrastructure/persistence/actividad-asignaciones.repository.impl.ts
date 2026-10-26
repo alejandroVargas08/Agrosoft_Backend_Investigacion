@@ -55,6 +55,15 @@ export class ActividadAsignacionesRepositoryImpl implements ActividadAsignacione
         return filas.map((fila) => this.aDominio(fila));
     }
 
+    async listarPorAprendices(aprendizIds: number[]): Promise<ActividadAsignacion[]> {
+        if (aprendizIds.length === 0) return [];
+        const filas = await this.repo.find({
+            where: { aprendizId: In(aprendizIds) },
+            order: { aprendizId: 'ASC', id: 'ASC' },
+        });
+        return filas.map((fila) => this.aDominio(fila));
+    }
+
     async listarPorEstado(estado: EstadoAsignacion): Promise<ActividadAsignacion[]> {
         const filas = await this.repo.find({ where: { estado }, order: { entregadaEn: 'ASC' } });
         return filas.map((fila) => this.aDominio(fila));

@@ -8,6 +8,8 @@ export interface ActividadAsignacionesRepositoryPort {
     buscarPorActividadYAprendiz(actividadId: number, aprendizId: number): Promise<ActividadAsignacion | null>;
     listarPorActividad(actividadId: number): Promise<ActividadAsignacion[]>;
     listarPorAprendiz(aprendizId: number, estados?: EstadoAsignacion[]): Promise<ActividadAsignacion[]>;
+    /** Todas las asignaciones de un grupo de aprendices, en una sola consulta. */
+    listarPorAprendices(aprendizIds: number[]): Promise<ActividadAsignacion[]>;
     listarPorEstado(estado: EstadoAsignacion): Promise<ActividadAsignacion[]>;
     eliminar(id: number): Promise<void>;
 }

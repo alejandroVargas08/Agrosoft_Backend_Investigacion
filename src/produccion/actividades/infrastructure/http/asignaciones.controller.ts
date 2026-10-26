@@ -8,6 +8,7 @@ import { AprobarTareaDto, AsignarActividadDto, DevolverTareaDto, EntregarTareaDt
 import { GestionarAsignacionesUseCase } from "../../aplicattion/use-cases/asignaciones/gestionar-asignaciones.use-case";
 import { MisTareasUseCase } from "../../aplicattion/use-cases/asignaciones/mis-tareas.use-case";
 import { RevisarAsignacionesUseCase } from "../../aplicattion/use-cases/asignaciones/revisar-asignaciones.use-case";
+import { ResumenAprendicesUseCase } from "../../aplicattion/use-cases/asignaciones/resumen-aprendices.use-case";
 
 @Controller('actividades/:actividadId/asignaciones')
 @Autenticado()
@@ -98,5 +99,24 @@ export class RevisionAsignacionesController {
         @UsuarioActual() usuario: UsuarioAutenticado,
     ) {
         return this.revisar.devolver(id, usuario.id, dto.comentario, usuario);
+    }
+}
+
+/**
+ * El resumen de cada aprendiz para el instructor: cuántas tareas tiene, cuántas
+ * le aprobaron, cuántas se le vencieron y cuántas horas lleva.
+ */
+@Controller('aprendices')
+@Autenticado(PERMISOS_PRODUCCION.ASIGNAR_ACTIVIDADES)
+export class ResumenAprendicesController {
+    constructor(private readonly resumen: ResumenAprendicesUseCase) {}
+
+    @Get('resumen')
+    listar(
+        @UsuarioActual() usuario: UsuarioAutenticado,
+        @Query('programaFormacionId') programaFormacionId?: string,
+    ) {
+        const programa = programaFormacionId ? Number(programaFormacionId) : undefined;
+        return this.resumen.ejecutar(usuario, Number.isInteger(programa) ? programa : undefined);
     }
 }
