@@ -68,6 +68,14 @@ actualizarEstado(nuevoEstado: EstadoLote): void {
     this._updatedAt = new Date();
 }
 
+asignarProgramaFormacion(programaFormacionId: number | null): void {
+    if (this._deletedAt) {
+        throw new Error('No se puede cambiar la ficha de un lote eliminado');
+    }
+    this._programaFormacionId = programaFormacionId;
+    this._updatedAt = new Date();
+}
+
 renombrar(nuevoNombre: string): void {
     if (!nuevoNombre || nuevoNombre.trim().length === 0) {
         throw new Error('El nombre del lote no puede quedar vacío');

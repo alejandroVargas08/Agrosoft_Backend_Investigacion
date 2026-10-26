@@ -8,7 +8,7 @@ import { AdministrarUsuarioUseCase } from '../../../application/use-cases/usuari
 import { CrearUsuarioDto } from '../../../application/dto/usuarios/crear-usuario.dto';
 import { ActualizarUsuarioDto } from '../../../application/dto/usuarios/actualizar-usuario.dto';
 import { LoginUsuarioDto } from '../../../application/dto/usuarios/login-usuario.dto';
-import { CambiarProgramaUsuarioDto, CambiarRolUsuarioDto } from '../../../application/dto/usuarios/administrar-usuario.dto';
+import { CambiarProgramaUsuarioDto, CambiarRolUsuarioDto, RechazarRegistroDto, RestablecerContrasenaAdminDto } from '../../../application/dto/usuarios/administrar-usuario.dto';
 import { aUsuarioPublico } from '../../../application/dto/usuarios/usuario-respuesta.mapper';
 import type { UsuarioAutenticado } from '../../../domain/value-objects/alcance-datos.vo';
 import { Autenticado } from '../decorators/autenticado.decorator';
@@ -57,10 +57,10 @@ export class UsuarioController {
   }
 
   /** Solicitudes de acceso: los que esperan aprobación. */
-  @Get('pendientes')
+  @Get('solicitudes')
   @Autenticado(PERMISO_GESTIONAR_USUARIOS)
-  listarPendientes() {
-    return this.administrarUsuarioUseCase.listarPendientes();
+  listarSolicitudes() {
+    return this.administrarUsuarioUseCase.listarSolicitudes();
   }
 
   @Get(':id')
@@ -84,18 +84,6 @@ export class UsuarioController {
     return aUsuarioPublico(await this.actualizarUsuarioUseCase.ejecutar(id, dto));
   }
 
-  @Patch(':id/aprobar')
-  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
-  aprobar(@Param('id', ParseIntPipe) id: number) {
-    return this.administrarUsuarioUseCase.aprobar(id);
-  }
-
-  @Patch(':id/rechazar')
-  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
-  rechazar(@Param('id', ParseIntPipe) id: number) {
-    return this.administrarUsuarioUseCase.rechazar(id);
-  }
-
   @Patch(':id/rol')
   @Autenticado(PERMISO_GESTIONAR_USUARIOS)
   cambiarRol(@Param('id', ParseIntPipe) id: number, @Body() dto: CambiarRolUsuarioDto) {
@@ -106,6 +94,24 @@ export class UsuarioController {
   @Autenticado(PERMISO_GESTIONAR_USUARIOS)
   cambiarPrograma(@Param('id', ParseIntPipe) id: number, @Body() dto: CambiarProgramaUsuarioDto) {
     return this.administrarUsuarioUseCase.cambiarPrograma(id, dto.programaFormacionId ?? null);
+  }
+
+  @Patch(':id/aprobar')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  aprobarRegistro(@Param('id', ParseIntPipe) id: number) {
+    return this.administrarUsuarioUseCase.aprobarRegistro(id);
+  }
+
+  @Patch(':id/rechazar')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  rechazarRegistro(@Param('id', ParseIntPipe) id: number, @Body() dto: RechazarRegistroDto) {
+    return this.administrarUsuarioUseCase.rechazarRegistro(id, dto.motivo);
+  }
+
+  @Patch(':id/contrasena')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  restablecerContrasena(@Param('id', ParseIntPipe) id: number, @Body() dto: RestablecerContrasenaAdminDto) {
+    return this.administrarUsuarioUseCase.restablecerContrasena(id, dto.nuevaContrasena);
   }
 
   @Delete(':id')

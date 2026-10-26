@@ -1,4 +1,4 @@
-import { Usuario } from '../../../domain/entities/usuario.entity';
+import { SolicitudRegistro, Usuario } from '../../../domain/entities/usuario.entity';
 
 export interface UsuarioPublico {
   id: number;
@@ -11,6 +11,9 @@ export interface UsuarioPublico {
   programaFormacionId: number | null;
   idFicha: string | null;
   estado: string;
+  solicitud: SolicitudRegistro | null;
+  ultimoIngreso: Date | null;
+  creadoEn: Date;
 }
 
 export function aUsuarioPublico(usuario: Usuario): UsuarioPublico {
@@ -25,5 +28,8 @@ export function aUsuarioPublico(usuario: Usuario): UsuarioPublico {
     programaFormacionId: usuario.obtenerProgramaFormacionId(),
     idFicha: usuario.obtenerIdFicha(),
     estado: usuario.obtenerEstado(),
+    solicitud: usuario.obtenerSolicitudRegistro(),
+    ultimoIngreso: usuario.obtenerLastLoginAt(),
+    creadoEn: usuario.obtenerCreadoEn(),
   };
 }

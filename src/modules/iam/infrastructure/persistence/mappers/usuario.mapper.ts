@@ -21,6 +21,7 @@ export class UsuarioMapper {
       creadoEn: orm.creadoEn,
       actualizadoEn: orm.actualizadoEn,
       eliminadoEn: orm.eliminadoEn,
+      solicitudRegistro: orm.solicitudRegistro ?? null,
     });
   }
 
@@ -43,6 +44,7 @@ export class UsuarioMapper {
     orm.creadoEn = dominio.obtenerCreadoEn();
     orm.actualizadoEn = dominio.obtenerActualizadoEn();
     orm.eliminadoEn = dominio.obtenerEliminadoEn();
+    orm.solicitudRegistro = dominio.obtenerSolicitudRegistro();
     return orm;
   }
 }

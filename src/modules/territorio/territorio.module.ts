@@ -20,6 +20,7 @@ import { ListarLotesUseCase } from './application/use-cases/listar-lotes.use-cas
 import { ObtenerLotePorIdUseCase } from './application/use-cases/obtener-lote-por-id.use-case';
 import { CambiarEstadoLoteUseCase } from './application/use-cases/cambiar-estado-lote.use-case';
 import { EliminarLoteUseCase } from './application/use-cases/eliminar-lote.use-case';
+import { AsignarProgramaLoteUseCase } from './application/use-cases/asignar-programa-lote.use-case';
 import { CrearSubLoteUseCase } from './application/use-cases/crear-sublote.use-case';
 import { ListarSubLotesPorLoteUseCase } from './application/use-cases/listar-sublotes-por-lote.use-case';
 import { CambiarEstadoSubLoteUseCase } from './application/use-cases/cambiar-estado-sublote.use-case';
@@ -34,6 +35,7 @@ import { EliminarSubLoteUseCase } from './application/use-cases/eliminar-sublote
         ObtenerLotePorIdUseCase,
         CambiarEstadoLoteUseCase,
         EliminarLoteUseCase,
+        AsignarProgramaLoteUseCase,
         CrearSubLoteUseCase,
         ListarSubLotesPorLoteUseCase,
         CambiarEstadoSubLoteUseCase,

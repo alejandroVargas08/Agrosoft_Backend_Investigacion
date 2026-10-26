@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
 import { Autenticado } from '../../../../modules/iam/infrastructure/http/decorators/autenticado.decorator';
 import { RequierePermisos } from '../../../../modules/iam/infrastructure/http/decorators/requiere-permisos.decorator';
 import { UsuarioActual } from '../../../../modules/iam/infrastructure/http/decorators/usuario-actual.decorator';
@@ -7,7 +7,9 @@ import { CrearDronUseCase } from '../../../application/use-cases/drones/crear-dr
 import { ObtenerDronUseCase } from '../../../application/use-cases/drones/obtener-dron.use-case';
 import { ListarDronesUseCase } from '../../../application/use-cases/drones/listar-drones.use-case';
 import { EliminarDronUseCase } from '../../../application/use-cases/drones/eliminar-dron.use-case';
+import { ActualizarDronUseCase } from '../../../application/use-cases/drones/actualizar-dron.use-case';
 import { CrearDronDto } from '../../../application/dto/drones/crear-dron.dto';
+import { ActualizarDronDto } from '../../../application/dto/drones/actualizar-dron.dto';
 import { PERMISOS_DRONES } from '../permisos-drones';
 
 @Controller('drones')
@@ -18,6 +20,7 @@ export class DronesController {
     private readonly obtenerDronUseCase: ObtenerDronUseCase,
     private readonly listarDronesUseCase: ListarDronesUseCase,
     private readonly eliminarDronUseCase: EliminarDronUseCase,
+    private readonly actualizarDronUseCase: ActualizarDronUseCase,
   ) {}
 
   @Post()
@@ -36,6 +39,12 @@ export class DronesController {
   @RequierePermisos(PERMISOS_DRONES.VER_DRONES)
   obtener(@Param('id', ParseIntPipe) id: number) {
     return this.obtenerDronUseCase.execute(id);
+  }
+
+  @Patch(':id')
+  @RequierePermisos(PERMISOS_DRONES.GESTIONAR_DRONES)
+  actualizar(@Param('id', ParseIntPipe) id: number, @Body() dto: ActualizarDronDto) {
+    return this.actualizarDronUseCase.execute(id, dto);
   }
 
   @Delete(':id')

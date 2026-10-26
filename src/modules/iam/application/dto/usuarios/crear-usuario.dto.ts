@@ -1,4 +1,7 @@
-import { IsEmail, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, MinLength } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsEmail, IsIn, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, MaxLength, MinLength } from 'class-validator';
+
+export const TIPOS_USUARIO_REGISTRO = ['aprendiz', 'instructor', 'administrador'] as const;
+export type TipoUsuarioRegistro = (typeof TIPOS_USUARIO_REGISTRO)[number];
 
 export class CrearUsuarioDto {
   @IsString()
@@ -37,9 +40,28 @@ export class CrearUsuarioDto {
   @IsOptional()
   rolId?: number;
 
-  /** Nombre del rol que pide el usuario al registrarse. Cualquiera distinto
-   *  del rol por defecto deja la cuenta pendiente de aprobación. */
-  @IsString()
   @IsOptional()
-  rolSolicitado?: string;
+  @IsIn(TIPOS_USUARIO_REGISTRO)
+  tipoUsuario?: TipoUsuarioRegistro;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  codigoInstructor?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(20)
+  @IsString({ each: true })
+  fichasACargo?: string[];
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  cargo?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  motivoSolicitud?: string;
 }

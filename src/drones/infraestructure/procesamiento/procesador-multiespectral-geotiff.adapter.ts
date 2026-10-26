@@ -1,11 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { fromFile } from 'geotiff';
-import type {
-  BandaParaProcesar,
-  BandasParaProcesar,
-  ProcesadorMultiespectralPort,
-  ResultadoProcesamiento,
-} from '../../domain/ports/procesador-multiespectral.port';
+import type { BandaParaProcesar, BandasParaProcesar, IndiceMapa, MapaIndice, ProcesadorMultiespectralPort, ResultadoProcesamiento } from '../../domain/ports/procesador-multiespectral.port';
+import type { BandaMultiespectral } from '../../domain/value-objects/archivo-dji.vo';
 import { EstadisticasIndice, redondear } from '../../domain/value-objects/estadisticas-indice.vo';
 import { ClaseCobertura, CombinadorCobertura } from '../../domain/value-objects/cobertura.vo';
 import { BINS_HISTOGRAMA_NDVI } from '../../domain/value-objects/umbrales-ndvi.vo';
@@ -18,6 +14,19 @@ const UMBRAL_VEGETACION_REFERENCIA = 0.5;
 const MINIMO_PIXELES_REFERENCIA = 500;
 const FACTOR_OSCURIDAD_AGUA = 0.3;
 const UMBRAL_AGUA_NDWI_SIN_REFERENCIA = 0.2;
+
+const BANDAS_POR_INDICE: Record<IndiceMapa, [BandaMultiespectral, BandaMultiespectral]> = {
+  NDVI: ['NIR', 'R'],
+  NDRE: ['NIR', 'RE'],
+  GNDVI: ['NIR', 'G'],
+  NDWI: ['G', 'NIR'],
+};
+
+interface Reflectancia {
+  datos: Float32Array;
+  ancho: number;
+  alto: number;
+}
 
 class AcumuladorEstadisticas {
   private n = 0;
@@ -62,13 +71,25 @@ function mediana(valores: number[]): number {
 
 @Injectable()
 export class ProcesadorMultiespectralGeotiffAdapter implements ProcesadorMultiespectralPort {
+  async generarMapa(bandas: BandasParaProcesar, indice: IndiceMapa): Promise<MapaIndice> {
+    const [bandaA, bandaB] = BANDAS_POR_INDICE[indice];
+    const [a, b] = await Promise.all([this.leerReflectancia(bandas[bandaA]), this.leerReflectancia(bandas[bandaB])]);
+    const total = Math.min(a.datos.length, b.datos.length);
+    const valores = new Float32Array(total);
+    for (let i = 0; i < total; i++) {
+      valores[i] = indiceNormalizado(a.datos[i], b.datos[i]) ?? NaN;
+    }
+    return { ancho: a.ancho, alto: Math.floor(total / a.ancho), valores };
+  }
+
   async procesar(bandas: BandasParaProcesar): Promise<ResultadoProcesamiento> {
-    const [verde, rojo, bordeRojo, nir] = await Promise.all([
+    const lecturas = await Promise.all([
       this.leerReflectancia(bandas.G),
       this.leerReflectancia(bandas.R),
       this.leerReflectancia(bandas.RE),
       this.leerReflectancia(bandas.NIR),
     ]);
+    const [verde, rojo, bordeRojo, nir] = lecturas.map((l) => l.datos);
 
     const total = Math.min(verde.length, rojo.length, bordeRojo.length, nir.length);
     const ndviPorPixel = new Float32Array(total);
@@ -133,7 +154,7 @@ export class ProcesadorMultiespectralGeotiffAdapter implements ProcesadorMulties
     return esAgua ? 'AGUA' : 'SIN_VEGETACION';
   }
 
-  private async leerReflectancia(banda: BandaParaProcesar): Promise<Float32Array> {
+  private async leerReflectancia(banda: BandaParaProcesar): Promise<Reflectancia> {
     const tiff = await fromFile(banda.rutaLocal);
     try {
       const imagen = await tiff.getImage();
@@ -200,7 +221,7 @@ export class ProcesadorMultiespectralGeotiffAdapter implements ProcesadorMulties
 
         reflectancia[i] = (valor - negro) * correccion * escala;
       }
-      return reflectancia;
+      return { datos: reflectancia, ancho: anchoSalida, alto: altoSalida };
     } finally {
       await tiff.close();
     }

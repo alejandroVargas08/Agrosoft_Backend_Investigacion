@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import type { UsuarioRepositoryPort } from '../../../domain/ports/usuario.repository.port';
 import { USUARIO_REPOSITORY } from '../../../domain/ports/usuario.repository.token';
 import type { TokenServicePort } from '../../../domain/ports/token.service.port';
@@ -34,12 +34,31 @@ export class LoginUsuarioUseCase {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
+    // En los tres casos se devuelve el estado aparte del mensaje, para que el
+    // frontend lo muestre como aviso de cuenta y no como error de credenciales.
+    if (usuario.obtenerEstado() === 'pendiente') {
+      throw new ForbiddenException({
+        statusCode: 403,
+        error: 'Forbidden',
+        estado: 'pendiente',
+        message: MENSAJE_POR_ESTADO.pendiente,
+      });
+    }
+
+    if (usuario.obtenerEstado() === 'rechazado') {
+      const motivo = usuario.obtenerSolicitudRegistro()?.motivoRechazo;
+      throw new ForbiddenException({
+        statusCode: 403,
+        error: 'Forbidden',
+        estado: 'rechazado',
+        message: motivo ? `Tu solicitud fue rechazada: ${motivo}` : MENSAJE_POR_ESTADO.rechazado,
+      });
+    }
+
     if (!usuario.estaActivo()) {
-      // Se devuelve el estado aparte del mensaje para que el frontend lo
-      // muestre como aviso y no como error de credenciales.
-      throw new UnauthorizedException({
-        statusCode: 401,
-        error: 'Unauthorized',
+      throw new ForbiddenException({
+        statusCode: 403,
+        error: 'Forbidden',
         estado: usuario.obtenerEstado(),
         message: MENSAJE_POR_ESTADO[usuario.obtenerEstado()] ?? 'Tu cuenta no está activa.',
       });

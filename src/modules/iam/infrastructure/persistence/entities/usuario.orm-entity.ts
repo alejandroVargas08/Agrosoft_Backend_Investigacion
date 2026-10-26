@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
-import type { EstadoUsuario } from '../../../domain/entities/usuario.entity';
+import type { EstadoUsuario, SolicitudRegistro } from '../../../domain/entities/usuario.entity';
 
 @Entity('usuarios')
 export class UsuarioOrmEntity {
@@ -9,7 +9,7 @@ export class UsuarioOrmEntity {
   @Column({ type: 'varchar' })
   nombre: string;
 
-  @Column({ name: 'apellido', type: 'varchar', nullable: true }) 
+  @Column({ name: 'apellido', type: 'varchar', nullable: true })
   apellido: string;
 
   @Column({ type: 'varchar', unique: true })
@@ -53,4 +53,7 @@ export class UsuarioOrmEntity {
 
   @DeleteDateColumn({ name: 'eliminado_en' })
   eliminadoEn: Date | null;
+
+  @Column({ type: 'jsonb', name: 'solicitud_registro', nullable: true })
+  solicitudRegistro: SolicitudRegistro | null;
 }

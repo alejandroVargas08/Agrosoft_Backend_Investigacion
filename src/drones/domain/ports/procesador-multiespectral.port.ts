@@ -19,6 +19,15 @@ export interface ResultadoProcesamiento {
   histogramaNdvi: number[];
 }
 
+export type IndiceMapa = 'NDVI' | 'NDRE' | 'GNDVI' | 'NDWI';
+
+export interface MapaIndice {
+  ancho: number;
+  alto: number;
+  valores: Float32Array;
+}
+
 export interface ProcesadorMultiespectralPort {
   procesar(bandas: BandasParaProcesar): Promise<ResultadoProcesamiento>;
+  generarMapa(bandas: BandasParaProcesar, indice: IndiceMapa): Promise<MapaIndice>;
 }

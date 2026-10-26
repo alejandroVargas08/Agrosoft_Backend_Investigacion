@@ -32,6 +32,18 @@ export class ProgramaFormacionRepository implements ProgramaFormacionRepositoryP
     return this.aDominio(guardado);
   }
 
+  async actualizar(programa: ProgramaFormacion): Promise<ProgramaFormacion> {
+    await this.repo.update(programa.obtenerId(), {
+      nombre: programa.obtenerNombre(),
+      tipo: programa.obtenerTipo(),
+      ficha: programa.obtenerFicha(),
+      fechaInicio: programa.obtenerFechaInicio(),
+      fechaFin: programa.obtenerFechaFin(),
+      estado: programa.obtenerEstado(),
+    });
+    return (await this.buscarPorId(programa.obtenerId())) ?? programa;
+  }
+
   private aDominio(registro: ProgramaFormacionOrmEntity): ProgramaFormacion {
     return ProgramaFormacion.crear({
       id: registro.id,
@@ -44,3 +56,4 @@ export class ProgramaFormacionRepository implements ProgramaFormacionRepositoryP
     });
   }
 }
+  

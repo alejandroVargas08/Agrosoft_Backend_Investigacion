@@ -25,6 +25,10 @@ export class Dron {
     return new Dron(props);
   }
 
+  actualizar(cambios: Partial<Pick<DronProps, 'nombre' | 'modelo' | 'numeroSerie' | 'tipoCamara' | 'tieneRtk'>>): void {
+    this.props = { ...this.props, ...cambios };
+  }
+
   activar(): void { this.props.activo = true; }
   desactivar(): void { this.props.activo = false; }
 
