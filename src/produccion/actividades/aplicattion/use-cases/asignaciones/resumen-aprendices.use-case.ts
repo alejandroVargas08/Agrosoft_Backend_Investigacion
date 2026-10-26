@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { AlcanceDatos } from "../../../../../modules/iam/domain/value-objects/alcance-datos.vo";
 import { ROL_REPOSITORY } from "../../../../../modules/iam/domain/ports/rol.repository.token";
 import type { RolRepositoryPort } from "../../../../../modules/iam/domain/ports/rol.repository.port";
@@ -7,6 +7,8 @@ import type { UsuarioRepositoryPort } from "../../../../../modules/iam/domain/po
 import { ACTIVIDAD_ASIGNACIONES_REPOSITORY } from "../../../domain/ports/actividad-asignaciones.repository.port";
 import type { ActividadAsignacionesRepositoryPort } from "../../../domain/ports/actividad-asignaciones.repository.port";
 import { AccesoActividadesService } from "../../services/acceso-actividades.service";
+import { ActividadAsignacion } from "../../../domain/entities/actividad-asignacion.entity";
+import { AsignacionRespuesta, PresentadorAsignacionesService } from "../../services/presentador-asignaciones.service";
 
 const ROL_APRENDIZ = 'Aprendiz';
 
@@ -14,7 +16,10 @@ export interface ResumenAprendiz {
     id: number;
     nombre: string;
     apellido: string;
+    identificacion: string;
     correo: string;
+    telefono: string;
+    idFicha: string | null;
     programaFormacionId: number | null;
     /** Asignaciones del aprendiz en actividades que el instructor puede ver. */
     tareas: number;
@@ -41,6 +46,7 @@ export class ResumenAprendicesUseCase {
         @Inject(ROL_REPOSITORY) private readonly roles: RolRepositoryPort,
         @Inject(ACTIVIDAD_ASIGNACIONES_REPOSITORY) private readonly asignaciones: ActividadAsignacionesRepositoryPort,
         private readonly accesoActividades: AccesoActividadesService,
+        private readonly presentador: PresentadorAsignacionesService,
     ) {}
 
     async ejecutar(alcance: AlcanceDatos, programaFormacionId?: number): Promise<ResumenAprendiz[]> {
@@ -74,7 +80,10 @@ export class ResumenAprendicesUseCase {
                 id: usuario.obtenerId(),
                 nombre: usuario.obtenerNombre(),
                 apellido: usuario.obtenerApellido(),
+                identificacion: usuario.obtenerIdentificacion(),
                 correo: usuario.obtenerCorreo(),
+                telefono: usuario.obtenerTelefono(),
+                idFicha: usuario.obtenerIdFicha(),
                 programaFormacionId: usuario.obtenerProgramaFormacionId(),
                 tareas: 0,
                 aprobadas: 0,
@@ -104,6 +113,31 @@ export class ResumenAprendicesUseCase {
         return [...porAprendiz.values()].sort((a, b) =>
             `${a.apellido} ${a.nombre}`.localeCompare(`${b.apellido} ${b.nombre}`, 'es'),
         );
+    }
+
+    /**
+     * Las tareas de un aprendiz, para la línea de tiempo de su detalle. Solo
+     * las de actividades que el instructor puede ver, y solo si el aprendiz
+     * está dentro de su alcance.
+     */
+    async tareasDeAprendiz(aprendizId: number, alcance: AlcanceDatos): Promise<AsignacionRespuesta[]> {
+        const suyos = await this.ejecutar(alcance);
+        if (!suyos.some((resumen) => resumen.id === aprendizId)) {
+            throw new NotFoundException(`Aprendiz ${aprendizId} no encontrado`);
+        }
+
+        const asignaciones = await this.asignaciones.listarPorAprendices([aprendizId]);
+        const visibles: ActividadAsignacion[] = [];
+        const visibilidad = new Map<number, boolean>();
+
+        for (const asignacion of asignaciones) {
+            if (!visibilidad.has(asignacion.actividadId)) {
+                visibilidad.set(asignacion.actividadId, await this.esVisible(asignacion.actividadId, alcance));
+            }
+            if (visibilidad.get(asignacion.actividadId)) visibles.push(asignacion);
+        }
+
+        return this.presentador.presentar(visibles);
     }
 
     private async esVisible(actividadId: number, alcance: AlcanceDatos): Promise<boolean> {

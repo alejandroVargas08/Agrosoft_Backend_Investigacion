@@ -7,6 +7,7 @@ import type { RolRepositoryPort } from "../../../modules/iam/domain/ports/rol.re
 import type { UsuarioRepositoryPort } from "../../../modules/iam/domain/ports/usuario.repository.port";
 import type { AlcanceDatos } from "../../../modules/iam/domain/value-objects/alcance-datos.vo";
 import type { AccesoActividadesService } from "../aplicattion/services/acceso-actividades.service";
+import type { PresentadorAsignacionesService } from "../aplicattion/services/presentador-asignaciones.service";
 
 const ROL_APRENDIZ = 7;
 const ROL_INSTRUCTOR = 8;
@@ -70,6 +71,15 @@ function fakeAcceso(actividadesVisibles: number[]): AccesoActividadesService {
     } as unknown as AccesoActividadesService;
 }
 
+/** Solo necesita devolver algo identificable por asignación. */
+function fakePresentador(): PresentadorAsignacionesService {
+    return {
+        async presentar(asignaciones: ActividadAsignacion[]) {
+            return asignaciones.map((a) => ({ id: a.id, estado: a.estado }));
+        },
+    } as unknown as PresentadorAsignacionesService;
+}
+
 function construir(
     usuarios: Usuario[],
     asignaciones: ActividadAsignacion[],
@@ -83,6 +93,7 @@ function construir(
         new FakeRoles(rol) as unknown as RolRepositoryPort,
         repoAsignaciones as unknown as ActividadAsignacionesRepositoryPort,
         fakeAcceso(actividadesVisibles),
+        fakePresentador(),
     );
     return { useCase, repoAsignaciones };
 }
@@ -203,5 +214,44 @@ describe('ResumenAprendicesUseCase', () => {
         const { useCase } = construir([usuario(1, 'Lopez', ROL_APRENDIZ, 10)], [], [], null);
 
         expect(await useCase.ejecutar(VE_TODO)).toEqual([]);
+    });
+
+    it('trae los datos de contacto, que el instructor no puede leer de GET /usuarios/:id', async () => {
+        const { useCase } = construir([usuario(1, 'Lopez', ROL_APRENDIZ, 10)], [], []);
+
+        const [resumen] = await useCase.ejecutar(VE_TODO);
+
+        expect(resumen.identificacion).toBe('1001');
+        expect(resumen.telefono).toBe('300');
+        expect(resumen.correo).toBe('u1@sena.edu.co');
+    });
+
+    describe('tareasDeAprendiz', () => {
+        it('devuelve solo las tareas de actividades visibles', async () => {
+            const { useCase } = construir(
+                [usuario(1, 'Lopez', ROL_APRENDIZ, 10)],
+                [
+                    asignacion(1, 100, 1, 'APROBADA'),
+                    asignacion(2, 999, 1, 'APROBADA'), // actividad de otra ficha
+                ],
+                [100],
+            );
+
+            const tareas = await useCase.tareasDeAprendiz(1, VE_TODO);
+
+            expect(tareas.map((t) => t.id)).toEqual([1]);
+        });
+
+        it('rechaza un aprendiz que no está en el alcance del instructor', async () => {
+            const { useCase } = construir(
+                [usuario(1, 'Lopez', ROL_APRENDIZ, 10), usuario(2, 'Ruiz', ROL_APRENDIZ, 20)],
+                [asignacion(1, 100, 2, 'APROBADA')],
+                [100],
+            );
+
+            await expect(
+                useCase.tareasDeAprendiz(2, { verTodo: false, programasPermitidos: [10] }),
+            ).rejects.toThrow(/no encontrado/i);
+        });
     });
 });

@@ -119,4 +119,10 @@ export class ResumenAprendicesController {
         const programa = programaFormacionId ? Number(programaFormacionId) : undefined;
         return this.resumen.ejecutar(usuario, Number.isInteger(programa) ? programa : undefined);
     }
+
+    // Va despues de 'resumen' pero no lo tapa: son dos segmentos, no uno
+    @Get(':id/tareas')
+    tareas(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
+        return this.resumen.tareasDeAprendiz(id, usuario);
+    }
 }
