@@ -11,6 +11,7 @@ export class Incidencia {
         public cultivoId: number | null,
         public fecha: Date,
         public descripcion: string | null,
+        public readonly creadoPorUsuarioId: number | null = null,
     ) {}
 
     cambiarEstado(nuevoEstado: EstadoIncidencia) {

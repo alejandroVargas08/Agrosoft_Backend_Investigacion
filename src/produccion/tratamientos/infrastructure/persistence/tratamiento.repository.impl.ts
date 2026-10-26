@@ -72,6 +72,7 @@ export class TratamientoRepositoryImpl implements TratamientoRepositoryPort {
             Number(row.costo),
             row.notas ?? null,
             row.estado as any,
+            row.creadoPorUsuarioId ?? null,
         );
     }
 
@@ -84,6 +85,7 @@ export class TratamientoRepositoryImpl implements TratamientoRepositoryPort {
             costo: t.costo,
             notas: t.notas ?? undefined,
             estado: t.estado,
+            creadoPorUsuarioId: t.creadoPorUsuarioId,
         };
     }
 }

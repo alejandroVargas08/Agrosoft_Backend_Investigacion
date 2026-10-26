@@ -10,6 +10,8 @@ export class TratamientoOrmEntity {
     @Column('double precision', { default: 0 }) costo: number;
     @Column({ type: 'text', nullable: true }) notas: string;
     @Column() estado: string;
+    // Quien lo registro. Nullable por las filas que ya existian.
+    @Column({ name: 'creado_por_usuario_id', type: 'int', nullable: true }) creadoPorUsuarioId: number | null;
 
     @CreateDateColumn({ name: 'created_at' }) createdAt: Date;
     @UpdateDateColumn({ name: 'updated_at' }) updatedAt: Date;

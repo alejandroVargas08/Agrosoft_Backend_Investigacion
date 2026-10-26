@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import type { AlcanceDatos } from "../../../../modules/iam/domain/value-objects/alcance-datos.vo";
+import type { UsuarioAutenticado } from "../../../../modules/iam/domain/value-objects/alcance-datos.vo";
 import { Incidencia } from "../../domain/entities/incidencia.entity";
 import { Incidencia_Repository } from "../../domain/ports/incidencia.repository.port";
 import { type IncidenciaRepositoryPort } from "../../domain/ports/incidencia.repository.port";
@@ -13,8 +13,8 @@ export class CrearIncidenciaUseCase {
         private readonly accesoIncidencias: AccesoIncidenciasService,
     ) {}
 
-    async ejecutar(dto: CrearIncidenciaDto, alcance: AlcanceDatos): Promise<Incidencia> {
-        await this.accesoIncidencias.validarCultivo(dto.cultivoId ?? null, alcance);
+    async ejecutar(dto: CrearIncidenciaDto, usuario: UsuarioAutenticado): Promise<Incidencia> {
+        await this.accesoIncidencias.validarCultivo(dto.cultivoId ?? null, usuario);
 
         const incidencia = new Incidencia(
             null,
@@ -25,6 +25,7 @@ export class CrearIncidenciaUseCase {
             dto.cultivoId ?? null,
             dto.fecha ? new Date(dto.fecha) : new Date(),
             dto.descripcion ?? null,
+            usuario.id,
         );
         return this.incidenciaRepo.crear(incidencia);
     }

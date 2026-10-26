@@ -81,6 +81,7 @@ export class IncidenciaRepositoryImpl implements IncidenciaRepositoryPort {
             row.cultivoId ?? null,
             row.fecha,
             row.descripcion ?? null,
+            row.creadoPorUsuarioId ?? null,
         );
     }
 
@@ -93,6 +94,7 @@ export class IncidenciaRepositoryImpl implements IncidenciaRepositoryPort {
             cultivoId: i.cultivoId ?? undefined,
             fecha: i.fecha,
             descripcion: i.descripcion ?? undefined,
+            creadoPorUsuarioId: i.creadoPorUsuarioId,
         };
     }
 }

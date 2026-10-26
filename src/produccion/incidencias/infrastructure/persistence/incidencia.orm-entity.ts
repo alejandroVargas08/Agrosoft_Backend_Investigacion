@@ -10,6 +10,8 @@ export class IncidenciaOrmEntity {
     @Column({ name: 'cultivo_id', nullable: true }) cultivoId: number;
     @Column({ type: 'date' }) fecha: Date;
     @Column({ type: 'text', nullable: true }) descripcion: string;
+    // Quien la registro. Nullable por las filas que ya existian.
+    @Column({ name: 'creado_por_usuario_id', type: 'int', nullable: true }) creadoPorUsuarioId: number | null;
 
     @CreateDateColumn({ name: 'created_at' }) createdAt: Date;
     @UpdateDateColumn({ name: 'updated_at' }) updatedAt: Date;

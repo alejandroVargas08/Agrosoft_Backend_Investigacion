@@ -10,6 +10,7 @@ export class Tratamiento {
         public costo: number,
         public notas: string | null,
         public estado: EstadoTratamiento,
+        public readonly creadoPorUsuarioId: number | null = null,
     ) {}
 
     cambiarEstado(nuevoEstado: EstadoTratamiento) {
