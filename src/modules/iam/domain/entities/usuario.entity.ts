@@ -1,4 +1,6 @@
-export type EstadoUsuario = 'activo' | 'inactivo' | 'suspendido';
+// 'pendiente' y 'rechazado' son el ciclo de una solicitud de acceso:
+// quien pide ser instructor o administrador nace pendiente y un admin decide.
+export type EstadoUsuario = 'activo' | 'inactivo' | 'suspendido' | 'pendiente' | 'rechazado';
 
 export class Usuario {
   private constructor(
@@ -32,6 +34,7 @@ export class Usuario {
     correo: string;
     contrasenaHash: string;
     rolId: number;
+    estado?: EstadoUsuario;
   }): Usuario {
     if (!props.nombre || props.nombre.trim().length === 0) {
       throw new Error('El nombre no puede estar vacío');
@@ -62,7 +65,7 @@ export class Usuario {
       props.correo,
       props.contrasenaHash,
       null,
-      'activo',
+      props.estado ?? 'activo',
       null,
       null,
       props.rolId,
@@ -142,6 +145,20 @@ export class Usuario {
   desactivar(): void {
     if (this.estado === 'inactivo') throw new Error('El usuario ya está inactivo');
     this.estado = 'inactivo';
+    this.actualizadoEn = new Date();
+  }
+
+  estaPendiente(): boolean { return this.estado === 'pendiente'; }
+
+  aprobar(): void {
+    if (this.estado !== 'pendiente') throw new Error('Solo se puede aprobar una solicitud pendiente');
+    this.estado = 'activo';
+    this.actualizadoEn = new Date();
+  }
+
+  rechazar(): void {
+    if (this.estado !== 'pendiente') throw new Error('Solo se puede rechazar una solicitud pendiente');
+    this.estado = 'rechazado';
     this.actualizadoEn = new Date();
   }
 

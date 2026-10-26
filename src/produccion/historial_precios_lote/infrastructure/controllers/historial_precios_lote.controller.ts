@@ -19,15 +19,17 @@ export class HistorialPreciosLoteController {
     return this.historialService.findAll();
   }
 
+  // Las rutas con texto fijo van antes de :id, si no Nest las captura con el id
+  @Get('lote/:loteId')
+  findByLote(@Param('loteId', ParseIntPipe) loteId: number) {
+    return this.historialService.findByLote(loteId);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.historialService.findOne(id);
   }
 
-  @Get('lote/:loteId')
-  findByLote(@Param('loteId', ParseIntPipe) loteId: number) {
-    return this.historialService.findByLote(loteId);
-  }
 
   @Patch(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateHistorialPreciosLoteDto) {

@@ -6,7 +6,7 @@ export class asignarActividadHerramientaDto {
 
     @IsOptional()
     @IsInt()
-    activoFijoId: number;
+    activoFijoId?: number;
 
     @IsNumber()
     @Min(0.01)

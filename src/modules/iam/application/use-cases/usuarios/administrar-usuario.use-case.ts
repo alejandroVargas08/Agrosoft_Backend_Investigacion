@@ -33,6 +33,35 @@ export class AdministrarUsuarioUseCase {
     return usuarios.map(aUsuarioPublico);
   }
 
+  /** Las solicitudes de acceso: usuarios que esperan aprobación. */
+  async listarPendientes(): Promise<UsuarioPublico[]> {
+    const usuarios = await this.usuarioRepository.obtenerTodos();
+    return usuarios
+      .filter((usuario) => usuario.estaPendiente())
+      .sort((a, b) => b.obtenerCreadoEn().getTime() - a.obtenerCreadoEn().getTime())
+      .map(aUsuarioPublico);
+  }
+
+  async aprobar(usuarioId: number): Promise<UsuarioPublico> {
+    const usuario = await this.obtenerUsuario(usuarioId);
+    try {
+      usuario.aprobar();
+    } catch (error) {
+      throw new BadRequestException((error as Error).message);
+    }
+    return aUsuarioPublico(await this.usuarioRepository.actualizar(usuario));
+  }
+
+  async rechazar(usuarioId: number): Promise<UsuarioPublico> {
+    const usuario = await this.obtenerUsuario(usuarioId);
+    try {
+      usuario.rechazar();
+    } catch (error) {
+      throw new BadRequestException((error as Error).message);
+    }
+    return aUsuarioPublico(await this.usuarioRepository.actualizar(usuario));
+  }
+
   async listarAprendices(alcance: AlcanceDatos, programaFormacionId?: number): Promise<AprendizResumen[]> {
     const rol = await this.rolRepository.buscarPorNombre('Aprendiz');
     if (!rol) return [];

@@ -48,18 +48,26 @@ export class UsuarioController {
     return this.administrarUsuarioUseCase.listar();
   }
 
-  @Get(':id')
-  @Autenticado()
-  obtener(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
-    validarPropioOAdministrador(usuario, id);
-    return this.obtenerUsuarioUseCase.ejecutar(id);
-  }
-  
+  // Las rutas con texto fijo van ANTES de :id, si no Nest las captura con el id
   @Get('aprendices')
   @Autenticado(PERMISO_ASIGNAR_ACTIVIDADES)
   listarAprendices(@UsuarioActual() usuario: UsuarioAutenticado, @Query('programaFormacionId') programaFormacionId?: string) {
     const programa = programaFormacionId ? Number(programaFormacionId) : undefined;
     return this.administrarUsuarioUseCase.listarAprendices(usuario, Number.isInteger(programa) ? programa : undefined);
+  }
+
+  /** Solicitudes de acceso: los que esperan aprobación. */
+  @Get('pendientes')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  listarPendientes() {
+    return this.administrarUsuarioUseCase.listarPendientes();
+  }
+
+  @Get(':id')
+  @Autenticado()
+  obtener(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
+    validarPropioOAdministrador(usuario, id);
+    return this.obtenerUsuarioUseCase.ejecutar(id);
   }
 
   @Patch(':id')
@@ -74,6 +82,18 @@ export class UsuarioController {
       throw new ForbiddenException('Solo un administrador puede cambiar el estado de un usuario');
     }
     return aUsuarioPublico(await this.actualizarUsuarioUseCase.ejecutar(id, dto));
+  }
+
+  @Patch(':id/aprobar')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  aprobar(@Param('id', ParseIntPipe) id: number) {
+    return this.administrarUsuarioUseCase.aprobar(id);
+  }
+
+  @Patch(':id/rechazar')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  rechazar(@Param('id', ParseIntPipe) id: number) {
+    return this.administrarUsuarioUseCase.rechazar(id);
   }
 
   @Patch(':id/rol')

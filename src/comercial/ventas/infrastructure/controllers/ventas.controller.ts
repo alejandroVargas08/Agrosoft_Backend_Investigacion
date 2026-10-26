@@ -29,6 +29,11 @@ export class VentasController {
     return this.ventasService.update(id, dto);
   }
 
+  @Patch(':id/pagar')
+  marcarPagada(@Param('id', ParseIntPipe) id: number) {
+    return this.ventasService.marcarPagada(id);
+  }
+
   @Patch(':id/anular')
   anular(
     @Param('id', ParseIntPipe) id: number,

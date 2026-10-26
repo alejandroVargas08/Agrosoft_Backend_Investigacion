@@ -6,6 +6,14 @@ import { TOKEN_SERVICE } from '../../../domain/ports/token.service.port';
 import { LoginUsuarioDto } from '../../dto/usuarios/login-usuario.dto';
 import * as bcrypt from 'bcrypt';
 
+// Lo que ve quien intenta entrar y su cuenta todavía no puede
+const MENSAJE_POR_ESTADO: Record<string, string> = {
+  pendiente: 'Tu cuenta está pendiente de aprobación. Te avisaremos por correo cuando un administrador la apruebe.',
+  rechazado: 'Tu solicitud de acceso fue rechazada. Comunícate con el administrador.',
+  inactivo: 'Tu cuenta está desactivada. Comunícate con el administrador.',
+  suspendido: 'Tu cuenta está suspendida. Comunícate con el administrador.',
+};
+
 @Injectable()
 export class LoginUsuarioUseCase {
   constructor(
@@ -27,7 +35,14 @@ export class LoginUsuarioUseCase {
     }
 
     if (!usuario.estaActivo()) {
-      throw new UnauthorizedException('El usuario no está activo');
+      // Se devuelve el estado aparte del mensaje para que el frontend lo
+      // muestre como aviso y no como error de credenciales.
+      throw new UnauthorizedException({
+        statusCode: 401,
+        error: 'Unauthorized',
+        estado: usuario.obtenerEstado(),
+        message: MENSAJE_POR_ESTADO[usuario.obtenerEstado()] ?? 'Tu cuenta no está activa.',
+      });
     }
 
     usuario.registrarLogin();

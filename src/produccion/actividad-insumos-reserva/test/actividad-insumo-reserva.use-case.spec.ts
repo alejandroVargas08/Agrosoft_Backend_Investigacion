@@ -2,7 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 import { actividadInsumoReserva } from '../domain/entities/actividad-insumos-reserva.entity';
 import { actividadInsumoReservaRepositoryPort } from '../domain/ports/actividad-insumos-reserva.repository.ports';
 import { reservarActividadInsumoReservaUseCase } from '../application/use-cases/reservar-actividad-insumo-reserva.use-case';
-import { listarActividadInsumosUseCase } from '../../actividad-insumos/aplicattion/use-case/listar-actividad-insumos.use-case';
+import { listarActividadInsumoReservaUseCase } from '../application/use-cases/listar-actividad-insumo-reserva.use-case';
 import { ajustarCantidadActividadInsumoReservaUseCase } from '../application/use-cases/ajustar-cantidad-actividad-insumo-reserva.use-case';
 import { liberarActividadInsumoReservaUseCase } from '../application/use-cases/liberar-actividad-insumo-reserva.use-case';
 import { consumirActividadInsumoReservaUseCase } from '../application/use-cases/consumir-actividad-insumo-reserva.use-case';
@@ -33,7 +33,7 @@ class FakeActividadInsumoReservaRepository implements actividadInsumoReservaRepo
         return item || null;
     }
 
-    async listarPorActividad(actividadId: number): Promise<actividadInsumoReserva[]> {
+    async listarActividad(actividadId: number): Promise<actividadInsumoReserva[]> {
     return this.items.filter((i) => i.actividadId === actividadId);
     }
 
@@ -54,7 +54,7 @@ class FakeActividadInsumoReservaRepository implements actividadInsumoReservaRepo
 describe('Actividad Insumo Reserva - Casos de Uso', () => {
     let repo: FakeActividadInsumoReservaRepository;
     let reservarUC: reservarActividadInsumoReservaUseCase;
-    let listarUC: listarActividadInsumosUseCase;
+    let listarUC: listarActividadInsumoReservaUseCase;
     let ajustarUC: ajustarCantidadActividadInsumoReservaUseCase;
     let liberarUC: liberarActividadInsumoReservaUseCase;
     let consumirUC: consumirActividadInsumoReservaUseCase;
@@ -62,7 +62,7 @@ describe('Actividad Insumo Reserva - Casos de Uso', () => {
     beforeEach(() => {
         repo = new FakeActividadInsumoReservaRepository();
         reservarUC = new reservarActividadInsumoReservaUseCase(repo);
-        listarUC = new listarActividadInsumosUseCase(repo);
+        listarUC = new listarActividadInsumoReservaUseCase(repo);
         ajustarUC = new ajustarCantidadActividadInsumoReservaUseCase(repo);
         liberarUC = new liberarActividadInsumoReservaUseCase(repo);
         consumirUC = new consumirActividadInsumoReservaUseCase(repo);

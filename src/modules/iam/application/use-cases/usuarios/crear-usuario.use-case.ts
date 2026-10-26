@@ -40,8 +40,16 @@ export class CrearUsuarioUseCase {
             }
         }
 
-        const rol = await this.rolRepository.buscarPorNombre(ROL_POR_DEFECTO);
+        // Un rol distinto del de por defecto es una solicitud: la cuenta nace
+        // pendiente y un administrador decide si la aprueba.
+        const nombreRol = dto.rolSolicitado?.trim() || ROL_POR_DEFECTO;
+        const esSolicitud = nombreRol.toLowerCase() !== ROL_POR_DEFECTO.toLowerCase();
+
+        const rol = await this.rolRepository.buscarPorNombre(nombreRol);
         if (!rol) {
+            if (esSolicitud) {
+                throw new BadRequestException(`El rol "${nombreRol}" no existe`);
+            }
             throw new InternalServerErrorException(`No existe el rol "${ROL_POR_DEFECTO}" en la base de datos`);
         }
 
@@ -59,6 +67,7 @@ export class CrearUsuarioUseCase {
             correo: dto.email,
             contrasenaHash,
             rolId: rol.obtenerId(),
+            estado: esSolicitud ? 'pendiente' : 'activo',
         });
 
         const guardado = await this.usuarioRepository.guardar(usuario);

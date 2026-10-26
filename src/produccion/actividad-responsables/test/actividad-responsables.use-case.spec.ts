@@ -27,7 +27,7 @@ class FakeActividadResponsableRepo implements actividadResponsableRepositoryPort
         return this.items.find(i => i.id === id) || null;
     }
 
-    async existePorActividadUsuario(actividadId: number, usuarioId: number): Promise<boolean> {
+    async existePorActividadYUsuario(actividadId: number, usuarioId: number): Promise<boolean> {
         return this.items.some(i => i.actividadId === actividadId && i.usuarioId === usuarioId);
     }
 

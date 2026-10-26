@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { actividadesRepositoryPort } from "../../domain/ports/actividades.repository.port";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { FindOptionsWhere, In, Repository } from "typeorm";
 import { actividadesOrmEntity } from "./actividades.orm-entity";
 import { Actividades } from "../../domain/entities/actividades.entity";
 
@@ -44,6 +44,25 @@ export class actividadesRepositoryImpl implements actividadesRepositoryPort {
     async listarPorCultivo(cultivoId: number): Promise<Actividades[]> {
         const ormEntities = await this.repository.find({ where: { cultivoId } });
         return ormEntities.map((entity) => this.toDomain(entity));
+    }
+
+    async listarVisibles(loteIdsPermitidos: number[] | null, cultivoId?: number): Promise<Actividades[]> {
+        const ormEntities = await this.repository.find({
+            where: this.filtroVisibles(loteIdsPermitidos, cultivoId),
+            order: { fecha: 'DESC', id: 'DESC' },
+        });
+        return ormEntities.map((entity) => this.toDomain(entity));
+    }
+
+    // loteIdsPermitidos en null significa "ve todo"; un arreglo vacio, que no ve nada
+    private filtroVisibles(
+        loteIdsPermitidos: number[] | null,
+        cultivoId?: number,
+    ): FindOptionsWhere<actividadesOrmEntity> {
+        const filtro: FindOptionsWhere<actividadesOrmEntity> = {};
+        if (cultivoId !== undefined) filtro.cultivoId = cultivoId;
+        if (loteIdsPermitidos !== null) filtro.loteId = In(loteIdsPermitidos);
+        return filtro;
     }
 
     async actualizar(actividad: Actividades): Promise<Actividades> {

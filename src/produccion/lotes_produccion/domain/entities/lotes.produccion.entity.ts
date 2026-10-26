@@ -23,6 +23,17 @@ export class loteProduccion{
         }
         this.stockDisponibleKg -= kg;
     }
+    /** Devuelve kilos al lote, por ejemplo cuando se anula una venta. */
+    reponerStock(kg: number) {
+        if (kg <= 0) {
+            throw new Error('la cantidad a reponer debe de ser mayor a cero');
+        }
+        if (this.stockDisponibleKg + kg > this.cantidadKg) {
+            throw new Error('El stock disponible no puede superar lo cosechado');
+        }
+        this.stockDisponibleKg += kg;
+    }
+
     recalcularCostoTotal() {
         this.costoTotal = this.cantidadKg * this.costoUnitarioKg;
     }

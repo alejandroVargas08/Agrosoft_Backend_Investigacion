@@ -33,4 +33,11 @@ export class AccesoActividadesService {
     async validarCultivo(cultivoId: number, alcance: AlcanceDatos): Promise<void> {
         await this.accesoCultivos.obtenerCultivoVisible(cultivoId, alcance);
     }
+
+    /** Sin cultivoId devuelve todas las actividades de los lotes que el usuario alcanza. */
+    async listar(alcance: AlcanceDatos, cultivoId?: number): Promise<Actividades[]> {
+        if (cultivoId !== undefined) await this.validarCultivo(cultivoId, alcance);
+        const loteIds = await this.accesoLotes.idsAccesibles(alcance);
+        return this.actividadesRepository.listarVisibles(loteIds, cultivoId);
+    }
 }

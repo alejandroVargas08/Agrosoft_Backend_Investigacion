@@ -49,13 +49,19 @@ export class ActividadesController {
         );
     }
 
+    @Get()
+    @RequierePermisos(PERMISOS_PRODUCCION.VER_ACTIVIDADES)
+    listar(@UsuarioActual() usuario: UsuarioAutenticado) {
+        return this.listarActividadesUC.execute(usuario);
+    }
+
     @Get('cultivo/:cultivoId')
     @RequierePermisos(PERMISOS_PRODUCCION.VER_ACTIVIDADES)
     listarPorCultivo(
         @Param('cultivoId', ParseIntPipe) cultivoId: number,
         @UsuarioActual() usuario: UsuarioAutenticado,
     ) {
-        return this.listarActividadesUC.execute(cultivoId, usuario);
+        return this.listarActividadesUC.execute(usuario, cultivoId);
     }
 
     @Get(':id')

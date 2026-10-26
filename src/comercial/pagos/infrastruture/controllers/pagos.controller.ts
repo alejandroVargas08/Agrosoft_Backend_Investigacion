@@ -19,15 +19,17 @@ export class PagosController {
     return this.pagosService.findAll();
   }
 
+  // Las rutas con texto fijo van antes de :id, si no Nest las captura con el id
+  @Get('venta/:ventaId')
+  findByVenta(@Param('ventaId', ParseIntPipe) ventaId: number) {
+    return this.pagosService.findByVenta(ventaId);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.pagosService.findOne(id);
   }
 
-  @Get('venta/:ventaId')
-  findByVenta(@Param('ventaId', ParseIntPipe) ventaId: number) {
-    return this.pagosService.findByVenta(ventaId);
-  }
 
   @Patch(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdatePagoDto) {

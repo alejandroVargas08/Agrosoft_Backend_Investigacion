@@ -18,6 +18,6 @@ export class ActualizarUsuarioDto {
   readonly telefono?: string;
 
   @IsOptional()
-  @IsIn(['activo', 'inactivo', 'suspendido'])
+  @IsIn(['activo', 'inactivo', 'suspendido', 'pendiente', 'rechazado'])
   readonly estado?: string;
 }

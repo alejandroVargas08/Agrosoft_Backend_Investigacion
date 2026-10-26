@@ -2,6 +2,8 @@ import { Actividades } from "../domain/entities/actividades.entity";
 import { actividadesRepositoryPort } from "../domain/ports/actividades.repository.port";
 import { crearActividadesUseCase } from "../aplicattion/use-cases/crear-actividades.use-case";
 import { eliminarActividadesUseCase } from "../aplicattion/use-cases/eliminar-actividades.use-case";
+import type { AlcanceDatos } from "../../../modules/iam/domain/value-objects/alcance-datos.vo";
+import type { AccesoActividadesService } from "../aplicattion/services/acceso-actividades.service";
 
 
 class FakeactividadesRepo implements actividadesRepositoryPort {
@@ -21,6 +23,14 @@ class FakeactividadesRepo implements actividadesRepositoryPort {
         return this.actividades.filter(a => a.cultivoId === cultivoId);
     }
 
+    async listarVisibles(loteIdsPermitidos: number[] | null, cultivoId?: number): Promise<Actividades[]> {
+        return this.actividades.filter(
+            a =>
+                (loteIdsPermitidos === null || loteIdsPermitidos.includes(a.loteId)) &&
+                (cultivoId === undefined || a.cultivoId === cultivoId),
+        );
+    }
+
     async actualizar(actividad: Actividades): Promise<Actividades> {
         const index = this.actividades.findIndex(a => a.id === actividad.id);
         if (index >= 0) {
@@ -34,6 +44,16 @@ class FakeactividadesRepo implements actividadesRepositoryPort {
     }
 }
 
+// Un alcance que lo ve todo: aquí se prueban crear y eliminar, no los permisos
+const ALCANCE_TOTAL: AlcanceDatos = { verTodo: true, programasPermitidos: [] };
+const USUARIO_ID = 1;
+
+// El servicio de acceso se reemplaza por uno que siempre deja pasar
+const accesoQueSiempreDejaPasar = {
+    validarCultivoDelLote: async () => {},
+    obtenerActividadVisible: async () => ({}) as Actividades,
+} as unknown as AccesoActividadesService;
+
 describe('Prueba de actividades', () => {
     let fakeRepo: FakeactividadesRepo;
 
@@ -42,7 +62,7 @@ describe('Prueba de actividades', () => {
     });
 
     it('Crea una actividad éxitosa', async () => {
-        const crearUC = new crearActividadesUseCase(fakeRepo);
+        const crearUC = new crearActividadesUseCase(fakeRepo, accesoQueSiempreDejaPasar);
 
         const dto = {
             nombre: 'Fumigación',
@@ -60,15 +80,15 @@ describe('Prueba de actividades', () => {
             productoAgroId: null,
         };
 
-        const resultado = await crearUC.execute(dto as any);
+        const resultado = await crearUC.execute(dto as any, USUARIO_ID, ALCANCE_TOTAL);
 
         expect(resultado).toBeDefined();
         expect(resultado.nombre).toBe('Fumigación');
     });
 
     it('eliminar una actividad existente', async () => {
-        const crearUC = new crearActividadesUseCase(fakeRepo);
-        const eliminarUC = new eliminarActividadesUseCase(fakeRepo);
+        const crearUC = new crearActividadesUseCase(fakeRepo, accesoQueSiempreDejaPasar);
+        const eliminarUC = new eliminarActividadesUseCase(fakeRepo, accesoQueSiempreDejaPasar);
 
         const creada = await crearUC.execute({
             nombre: 'Riego',
@@ -79,14 +99,14 @@ describe('Prueba de actividades', () => {
             horasActividad: 2,
             precioHoraActividad: 10000,
             creadoPorUsuarioId: 1,
-        } as any);
+        } as any, USUARIO_ID, ALCANCE_TOTAL);
 
-        const encontradaAntes = await fakeRepo.buscarPorId(creada.id);
+        const encontradaAntes = await fakeRepo.buscarPorId(creada.id!);
         expect(encontradaAntes).not.toBeNull();
 
-        await eliminarUC.execute(creada.id);
+        await eliminarUC.execute(creada.id!, ALCANCE_TOTAL);
 
-        const encontradaDespues = await fakeRepo.buscarPorId(creada.id);
+        const encontradaDespues = await fakeRepo.buscarPorId(creada.id!);
         expect(encontradaDespues).toBeNull();
     });
 });

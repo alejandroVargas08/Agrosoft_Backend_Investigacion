@@ -10,7 +10,7 @@ export class actividadHerramienta {
     static crear(props: {
         actividadId: number;
         insumoId: number;
-        activoFijoId: number | null;
+        activoFijoId?: number | null;
         horasEstimadas: number;
     }): actividadHerramienta {
         if(props.horasEstimadas <= 0) {

@@ -1,11 +1,12 @@
 import { NotFoundException } from '@nestjs/common';
 import { actividadHerramienta } from '../domain/entities/actividad-herramientas.entity';
+import type { actividad_HerramientasRepositoryPort } from '../domain/ports/actividad-herramientas.repository.port';
 import { asignarActividadHerramientaUseCase } from '../application/use-cases/asignar-actividad-herramienta.use-case';
 import { listarActividadHerramientaUseCase } from '../application/use-cases/listar-actividad-herramienta.use-case';
 import { reEstimarActividadHerramientaUseCase } from '../application/use-cases/reestimar-actividad-herramienta.use.case';
 import { quitarActividadHerramientaUseCase } from '../application/use-cases/quitar-actividad-herramienra.use-case';
 
-class FakeActividadHerramientaRepo implements actividadHerramientaRepositoryPort {
+class FakeActividadHerramientaRepo implements actividad_HerramientasRepositoryPort {
   private items: actividadHerramienta[] = [];
   private nextId = 1;
 

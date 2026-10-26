@@ -36,4 +36,10 @@ export class CrearUsuarioDto {
   @IsInt()
   @IsOptional()
   rolId?: number;
+
+  /** Nombre del rol que pide el usuario al registrarse. Cualquiera distinto
+   *  del rol por defecto deja la cuenta pendiente de aprobación. */
+  @IsString()
+  @IsOptional()
+  rolSolicitado?: string;
 }
