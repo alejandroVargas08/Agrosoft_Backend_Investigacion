@@ -4,6 +4,8 @@ import { ListarPermisosPorRolUseCase } from '../../../application/use-cases/rol-
 import { EliminarRolPermisoUseCase } from '../../../application/use-cases/rol-permisos/eliminar-rol-permiso.use-case';
 import { AsignarRolPermisoDto } from '../../../application/dto/rol-permisos/asignar-rol-permiso.dto';
 import { Autenticado } from '../decorators/autenticado.decorator';
+import { UsuarioActual } from '../decorators/usuario-actual.decorator';
+import type { UsuarioAutenticado } from '../../../domain/value-objects/alcance-datos.vo';
 import { PERMISO_GESTIONAR_USUARIOS } from '../permisos-iam';
 
 @Controller('rol-permisos')
@@ -32,7 +34,10 @@ export class RolPermisosController {
   async eliminar(
     @Param('rolId', ParseIntPipe) rolId: number,
     @Param('permisoId', ParseIntPipe) permisoId: number,
+    @UsuarioActual() usuario: UsuarioAutenticado,
   ) {
-    await this.eliminarUseCase.ejecutar(rolId, permisoId);
+    // Se pasa el rol de quien pide el cambio para que el caso de uso pueda
+    // impedir que se quite a sí mismo el permiso de administrar
+    await this.eliminarUseCase.ejecutar(rolId, permisoId, usuario.rolId);
   }
 }
