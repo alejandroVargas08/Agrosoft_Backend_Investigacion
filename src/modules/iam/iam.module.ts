@@ -16,6 +16,7 @@ import { USUARIO_REPOSITORY } from './domain/ports/usuario.repository.token';
 import { ListarUsuariosUseCase } from './application/use-cases/usuarios/listar-usuarios.use-case';
 import { ObtenerUsuarioUseCase } from './application/use-cases/usuarios/obtener-usuario.use-case';
 import { AdministrarUsuarioUseCase } from './application/use-cases/usuarios/administrar-usuario.use-case';
+import { AccesoAprendicesService } from './application/services/acceso-aprendices.service';
 
 // Rol
 import { RolOrmEntity } from './infrastructure/persistence/entities/rol.orm-entity';
@@ -152,6 +153,8 @@ import { PermisosGuard } from './infrastructure/http/guards/permisos.guard';
     ListarPermisosUseCase,
     { provide: PERMISO_REPOSITORY, useClass: PermisoRepository },
 
+    AccesoAprendicesService,
+
     // RolPermiso
     AsignarRolPermisoUseCase,
     ListarPermisosPorRolUseCase,
@@ -186,6 +189,7 @@ import { PermisosGuard } from './infrastructure/http/guards/permisos.guard';
     PermisosGuard,
   ],
   exports: [
+    AccesoAprendicesService,
     USUARIO_REPOSITORY,
     ROL_REPOSITORY,
     PERMISO_REPOSITORY,

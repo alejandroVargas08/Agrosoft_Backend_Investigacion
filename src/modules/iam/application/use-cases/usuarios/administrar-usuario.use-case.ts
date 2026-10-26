@@ -12,6 +12,7 @@ import { USUARIO_PROGRAMA_REPOSITORY } from '../../../domain/ports/usuario-progr
 import { Usuario } from '../../../domain/entities/usuario.entity';
 import type { AlcanceDatos } from '../../../domain/value-objects/alcance-datos.vo';
 import { aUsuarioPublico, UsuarioPublico } from '../../dto/usuarios/usuario-respuesta.mapper';
+import { AccesoAprendicesService } from '../../services/acceso-aprendices.service';
 
 export interface AprendizResumen {
   id: number;
@@ -28,6 +29,7 @@ export class AdministrarUsuarioUseCase {
     private readonly usuarioRepository: UsuarioRepositoryPort,
     @Inject(ROL_REPOSITORY)
     private readonly rolRepository: RolRepositoryPort,
+    private readonly accesoAprendices: AccesoAprendicesService,
     @Inject(PROGRAMA_FORMACION_REPOSITORY)
     private readonly programaRepository: ProgramaFormacionRepositoryPort,
     @Inject(USUARIO_PROGRAMA_REPOSITORY)
@@ -68,25 +70,16 @@ export class AdministrarUsuarioUseCase {
   }
 
   async listarAprendices(alcance: AlcanceDatos, programaFormacionId?: number): Promise<AprendizResumen[]> {
-    const rol = await this.rolRepository.buscarPorNombre('Aprendiz');
-    if (!rol) return [];
-    const usuarios = await this.usuarioRepository.obtenerTodos();
-    return usuarios
-      .filter((usuario) => usuario.estaActivo() && usuario.obtenerRolId() === rol.obtenerId())
-      .filter((usuario) => {
-        const programa = usuario.obtenerProgramaFormacionId();
-        if (programa === null) return false;
-        if (programaFormacionId !== undefined && programa !== programaFormacionId) return false;
-        return alcance.verTodo || alcance.programasPermitidos.includes(programa);
-      })
-      .map((usuario) => ({
-        id: usuario.obtenerId(),
-        nombre: usuario.obtenerNombre(),
-        apellido: usuario.obtenerApellido(),
-        correo: usuario.obtenerCorreo(),
-        programaFormacionId: usuario.obtenerProgramaFormacionId(),
-      }))
-      .sort((a, b) => `${a.apellido} ${a.nombre}`.localeCompare(`${b.apellido} ${b.nombre}`, 'es'));
+    // La regla de "quien es aprendiz de este alcance" vive en el servicio, que
+    // tambien usa el resumen del instructor y el modulo de novedades
+    const aprendices = await this.accesoAprendices.listar(alcance, programaFormacionId);
+    return aprendices.map((usuario) => ({
+      id: usuario.obtenerId(),
+      nombre: usuario.obtenerNombre(),
+      apellido: usuario.obtenerApellido(),
+      correo: usuario.obtenerCorreo(),
+      programaFormacionId: usuario.obtenerProgramaFormacionId(),
+    }));
   }
 
   async cambiarRol(usuarioId: number, rolId: number): Promise<UsuarioPublico> {

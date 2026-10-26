@@ -1,16 +1,11 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { AlcanceDatos } from "../../../../../modules/iam/domain/value-objects/alcance-datos.vo";
-import { ROL_REPOSITORY } from "../../../../../modules/iam/domain/ports/rol.repository.token";
-import type { RolRepositoryPort } from "../../../../../modules/iam/domain/ports/rol.repository.port";
-import { USUARIO_REPOSITORY } from "../../../../../modules/iam/domain/ports/usuario.repository.token";
-import type { UsuarioRepositoryPort } from "../../../../../modules/iam/domain/ports/usuario.repository.port";
 import { ACTIVIDAD_ASIGNACIONES_REPOSITORY } from "../../../domain/ports/actividad-asignaciones.repository.port";
 import type { ActividadAsignacionesRepositoryPort } from "../../../domain/ports/actividad-asignaciones.repository.port";
 import { AccesoActividadesService } from "../../services/acceso-actividades.service";
+import { AccesoAprendicesService } from "../../../../../modules/iam/application/services/acceso-aprendices.service";
 import { ActividadAsignacion } from "../../../domain/entities/actividad-asignacion.entity";
 import { AsignacionRespuesta, PresentadorAsignacionesService } from "../../services/presentador-asignaciones.service";
-
-const ROL_APRENDIZ = 'Aprendiz';
 
 export interface ResumenAprendiz {
     id: number;
@@ -42,27 +37,16 @@ export interface ResumenAprendiz {
 @Injectable()
 export class ResumenAprendicesUseCase {
     constructor(
-        @Inject(USUARIO_REPOSITORY) private readonly usuarios: UsuarioRepositoryPort,
-        @Inject(ROL_REPOSITORY) private readonly roles: RolRepositoryPort,
         @Inject(ACTIVIDAD_ASIGNACIONES_REPOSITORY) private readonly asignaciones: ActividadAsignacionesRepositoryPort,
         private readonly accesoActividades: AccesoActividadesService,
+        private readonly accesoAprendices: AccesoAprendicesService,
         private readonly presentador: PresentadorAsignacionesService,
     ) {}
 
     async ejecutar(alcance: AlcanceDatos, programaFormacionId?: number): Promise<ResumenAprendiz[]> {
-        const rol = await this.roles.buscarPorNombre(ROL_APRENDIZ);
-        if (!rol) return [];
-
-        const todos = await this.usuarios.obtenerTodos();
-        const aprendices = todos
-            .filter((usuario) => usuario.estaActivo() && usuario.obtenerRolId() === rol.obtenerId())
-            .filter((usuario) => {
-                const programa = usuario.obtenerProgramaFormacionId();
-                if (programa === null) return false;
-                if (programaFormacionId !== undefined && programa !== programaFormacionId) return false;
-                return alcance.verTodo || alcance.programasPermitidos.includes(programa);
-            });
-
+        // Quien es aprendiz de este instructor lo decide el servicio de iam,
+        // que es el mismo que usa GET /usuarios/aprendices
+        const aprendices = await this.accesoAprendices.listar(alcance, programaFormacionId);
         if (aprendices.length === 0) return [];
 
         // Una sola consulta para todos, no una por aprendiz
@@ -110,9 +94,9 @@ export class ResumenAprendicesUseCase {
             resumen.horas += asignacion.horasTrabajadas ?? 0;
         }
 
-        return [...porAprendiz.values()].sort((a, b) =>
-            `${a.apellido} ${a.nombre}`.localeCompare(`${b.apellido} ${b.nombre}`, 'es'),
-        );
+        // El servicio ya los devuelve ordenados por apellido, y el Map conserva
+        // el orden de insercion
+        return [...porAprendiz.values()];
     }
 
     /**

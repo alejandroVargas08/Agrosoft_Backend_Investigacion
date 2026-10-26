@@ -3,8 +3,7 @@ import { ActividadAsignacion, EstadoAsignacion } from "../domain/entities/activi
 import type { ActividadAsignacionesRepositoryPort } from "../domain/ports/actividad-asignaciones.repository.port";
 import { Rol } from "../../../modules/iam/domain/entities/rol.entity";
 import { Usuario } from "../../../modules/iam/domain/entities/usuario.entity";
-import type { RolRepositoryPort } from "../../../modules/iam/domain/ports/rol.repository.port";
-import type { UsuarioRepositoryPort } from "../../../modules/iam/domain/ports/usuario.repository.port";
+import type { AccesoAprendicesService } from "../../../modules/iam/application/services/acceso-aprendices.service";
 import type { AlcanceDatos } from "../../../modules/iam/domain/value-objects/alcance-datos.vo";
 import type { AccesoActividadesService } from "../aplicattion/services/acceso-actividades.service";
 import type { PresentadorAsignacionesService } from "../aplicattion/services/presentador-asignaciones.service";
@@ -42,14 +41,33 @@ function asignacion(
     });
 }
 
-class FakeUsuarios implements Partial<UsuarioRepositoryPort> {
-    constructor(private readonly usuarios: Usuario[]) {}
-    async obtenerTodos(): Promise<Usuario[]> { return this.usuarios; }
-}
+/**
+ * Replica la regla real del servicio de iam: rol Aprendiz, activo, con
+ * programa, y el programa dentro del alcance.
+ */
+class FakeAccesoAprendices {
+    constructor(private readonly usuarios: Usuario[], private readonly rol: Rol | null) {}
 
-class FakeRoles implements Partial<RolRepositoryPort> {
-    constructor(private readonly rol: Rol | null) {}
-    async buscarPorNombre(): Promise<Rol | null> { return this.rol; }
+    async listar(alcance: AlcanceDatos, programaFormacionId?: number): Promise<Usuario[]> {
+        if (!this.rol) return [];
+        const rolId = this.rol.obtenerId();
+        return this.usuarios
+            .filter((u) => u.estaActivo() && u.obtenerRolId() === rolId)
+            .filter((u) => {
+                const programa = u.obtenerProgramaFormacionId();
+                if (programa === null) return false;
+                if (programaFormacionId !== undefined && programa !== programaFormacionId) return false;
+                return alcance.verTodo || alcance.programasPermitidos.includes(programa);
+            })
+            .sort((a, b) =>
+                `${a.obtenerApellido()} ${a.obtenerNombre()}`.localeCompare(
+                    `${b.obtenerApellido()} ${b.obtenerNombre()}`, 'es'),
+            );
+    }
+
+    async idsVisibles(alcance: AlcanceDatos): Promise<number[]> {
+        return (await this.listar(alcance)).map((u) => u.obtenerId());
+    }
 }
 
 class FakeAsignaciones implements Partial<ActividadAsignacionesRepositoryPort> {
@@ -89,10 +107,9 @@ function construir(
     const repoAsignaciones = new FakeAsignaciones(asignaciones);
     // Los fakes solo implementan los metodos que el caso de uso usa
     const useCase = new ResumenAprendicesUseCase(
-        new FakeUsuarios(usuarios) as unknown as UsuarioRepositoryPort,
-        new FakeRoles(rol) as unknown as RolRepositoryPort,
         repoAsignaciones as unknown as ActividadAsignacionesRepositoryPort,
         fakeAcceso(actividadesVisibles),
+        new FakeAccesoAprendices(usuarios, rol) as unknown as AccesoAprendicesService,
         fakePresentador(),
     );
     return { useCase, repoAsignaciones };

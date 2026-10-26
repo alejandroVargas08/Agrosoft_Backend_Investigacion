@@ -16,6 +16,7 @@ import { ActividadInsumosUsoModule } from './actividad-insumos-uso/infrastructur
 import { MovimientosProduccionModule } from './movimientos-produccion/infrastructure/movimientos-produccion.module';
 import { IncidenciasModule } from './incidencias/infrastructure/incidencias.module';
 import { TratamientosModule } from './tratamientos/infrastructure/tratamientos.module';
+import { NovedadesModule } from './novedades/infrastructure/novedades.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { TratamientosModule } from './tratamientos/infrastructure/tratamientos.m
     MovimientosProduccionModule,
     IncidenciasModule,
     TratamientosModule,
+    NovedadesModule,
   ],
 })
 export class ProduccionModule {}
