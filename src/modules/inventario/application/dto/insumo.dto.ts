@@ -42,6 +42,14 @@ export interface CrearInsumoInput {
     proveedorId: number;
     categoriaId: number;
     valorInventario: number;
+    // Solo tienen valor en las herramientas. Estaban en la base y en el
+    // dominio, pero este DTO las dejaba caer, asi que la vida util y la
+    // depreciacion parecian no existir.
+    costoAdquisicion?: number;
+    valorResidual?: number;
+    vidaUtilHoras?: number;
+    horasUsadas?: number;
+    depreciacionAcumulada?: number;
     }
 
     export function toInsumoOutput(insumo: Insumo): InsumoOutput {
@@ -62,5 +70,10 @@ export interface CrearInsumoInput {
         proveedorId: insumo.proveedorId,
         categoriaId: insumo.categoriaId,
         valorInventario: insumo.valorInventario(),
+        costoAdquisicion: insumo.costoAdquisicion,
+        valorResidual: insumo.valorResidual,
+        vidaUtilHoras: insumo.vidaUtilHoras,
+        horasUsadas: insumo.horasUsadas,
+        depreciacionAcumulada: insumo.depreciacionAcumulada,
     };
 }
