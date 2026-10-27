@@ -23,6 +23,9 @@ export class CrearLoteProduccionUseCase {
             dto.costoUnitarioKg,
             dto.costoTotal,
             dto.precioSugeridoKg,
+            dto.destino ?? null,
+            dto.responsable ?? null,
+            dto.observaciones ?? null,
         );
         nuevoLote.recalcularCostoTotal();
         return this.loteProduccionRepo.crear(nuevoLote);

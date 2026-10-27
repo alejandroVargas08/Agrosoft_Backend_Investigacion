@@ -12,6 +12,10 @@ export class loteProduccion{
         public costoUnitarioKg: number,
         public costoTotal: number,
         public precioSugeridoKg: number,
+        // Trazabilidad de la cosecha: a donde fue, quien la hizo y notas
+        public destino: string | null = null,
+        public responsable: string | null = null,
+        public observaciones: string | null = null,
     ) {}
 
     descontarStock(kg: number) {

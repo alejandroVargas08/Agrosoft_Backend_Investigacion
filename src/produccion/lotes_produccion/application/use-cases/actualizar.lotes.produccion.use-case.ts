@@ -25,6 +25,9 @@ export class ActualizarLoteProduccionUseCase {
         loteExistente.costoUnitarioKg = dto.costoUnitarioKg ?? loteExistente.costoUnitarioKg;
         loteExistente.costoTotal = dto.costoTotal ?? loteExistente.costoTotal;
         loteExistente.precioSugeridoKg = dto.precioSugeridoKg ?? loteExistente.precioSugeridoKg;
+        loteExistente.destino = dto.destino ?? loteExistente.destino;
+        loteExistente.responsable = dto.responsable ?? loteExistente.responsable;
+        loteExistente.observaciones = dto.observaciones ?? loteExistente.observaciones;
 
         loteExistente.recalcularCostoTotal();
 

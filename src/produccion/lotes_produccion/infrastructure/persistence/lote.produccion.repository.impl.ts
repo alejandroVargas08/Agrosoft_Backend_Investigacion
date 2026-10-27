@@ -55,7 +55,10 @@ export class LoteProduccionRepositoryImpl implements loteProduccionRepositoryPor
             row.stockDisponibleKg,
             row.costoUnitarioKg,
             row.costoTotal,
-            row.precioSugeridoKg
+            row.precioSugeridoKg,
+            row.destino ?? null,
+            row.responsable ?? null,
+            row.observaciones ?? null
         );
     }
 
@@ -71,7 +74,10 @@ export class LoteProduccionRepositoryImpl implements loteProduccionRepositoryPor
             stockDisponibleKg: l.stockDisponibleKg,
             costoUnitarioKg: l.costoUnitarioKg,
             costoTotal: l.costoTotal,
-            precioSugeridoKg: l.precioSugeridoKg
+            precioSugeridoKg: l.precioSugeridoKg,
+            destino: l.destino,
+            responsable: l.responsable,
+            observaciones: l.observaciones
         };
     }
 }

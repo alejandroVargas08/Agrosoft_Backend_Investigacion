@@ -1,3 +1,4 @@
-import { CrearLoteProduccionDto } from "./crear-lote.produccion.dto";
+import { PartialType } from '@nestjs/mapped-types';
+import { CrearLoteProduccionDto } from './crear-lote.produccion.dto';
 
-export interface ActualizarLoteProduccionDto extends Partial<CrearLoteProduccionDto> {}
+export class ActualizarLoteProduccionDto extends PartialType(CrearLoteProduccionDto) {}
