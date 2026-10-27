@@ -14,8 +14,10 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedCol
         @Column('double precision', { name: 'costo_unitario_kg' }) costoUnitarioKg: number;
         @Column('double precision', { name: 'costo_total' }) costoTotal: number;
         @Column('double precision', { name: 'precio_sugerido_kg' }) precioSugeridoKg: number;
-        @Column({ nullable: true }) destino: string | null;
-        @Column({ nullable: true }) responsable: string | null;
+        // El tipo va explicito: con `string | null` TypeScript emite Object como
+        // metadata y TypeORM no sabe que columna crear en Postgres
+        @Column({ type: 'varchar', length: 60, nullable: true }) destino: string | null;
+        @Column({ type: 'varchar', length: 120, nullable: true }) responsable: string | null;
         @Column({ type: 'text', nullable: true }) observaciones: string | null;
 
         @CreateDateColumn({ name: 'created_at' })
