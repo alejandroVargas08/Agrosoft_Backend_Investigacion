@@ -2,6 +2,8 @@ import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import type { UsuarioRepositoryPort } from '../../../domain/ports/usuario.repository.port';
 import { PROGRAMA_FORMACION_REPOSITORY } from '../../../domain/ports/programa-formacion.repository.token';
 import type { ProgramaFormacionRepositoryPort } from '../../../domain/ports/programa-formacion.repository.port';
+import { ROL_REPOSITORY } from '../../../domain/ports/rol.repository.token';
+import type { RolRepositoryPort } from '../../../domain/ports/rol.repository.port';
 import { PerfilUsuarioResponseDto } from '../../dto/usuarios/perfil-usuario.response-dto';
 
 @Injectable()
@@ -11,6 +13,8 @@ export class ObtenerUsuarioUseCase {
     private readonly usuarioRepository: UsuarioRepositoryPort,
     @Inject(PROGRAMA_FORMACION_REPOSITORY)
     private readonly programaFormacionRepository: ProgramaFormacionRepositoryPort,
+    @Inject(ROL_REPOSITORY)
+    private readonly rolRepository: RolRepositoryPort,
   ) {}
 
   async ejecutar(id: number): Promise<PerfilUsuarioResponseDto> {
@@ -24,13 +28,19 @@ export class ObtenerUsuarioUseCase {
       ? await this.programaFormacionRepository.buscarPorId(programaFormacionId)
       : null;
 
+    const rol = await this.rolRepository.buscarPorId(usuario.obtenerRolId());
+
     return {
       id: usuario.obtenerId(),
       nombre: usuario.obtenerNombre(),
       apellido: usuario.obtenerApellido(),
-      email: usuario.obtenerCorreo(),
+      identificacion: usuario.obtenerIdentificacion(),
+      correo: usuario.obtenerCorreo(),
       telefono: usuario.obtenerTelefono(),
+      estado: usuario.obtenerEstado(),
+      correoVerificado: usuario.correoEstaVerificado(),
       rolId: usuario.obtenerRolId(),
+      rol: rol ? rol.obtenerNombre() : null,
       programaFormacion: programa
         ? {
             nombre: programa.obtenerNombre(),
