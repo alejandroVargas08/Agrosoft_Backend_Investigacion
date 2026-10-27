@@ -58,7 +58,8 @@ export class LoteProduccionRepositoryImpl implements loteProduccionRepositoryPor
             row.precioSugeridoKg,
             row.destino ?? null,
             row.responsable ?? null,
-            row.observaciones ?? null
+            row.observaciones ?? null,
+            row.createdAt ?? null
         );
     }
 

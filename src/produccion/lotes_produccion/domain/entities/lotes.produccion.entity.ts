@@ -16,6 +16,8 @@ export class loteProduccion{
         public destino: string | null = null,
         public responsable: string | null = null,
         public observaciones: string | null = null,
+        // Fecha en que se registro la cosecha (created_at en la tabla)
+        public readonly fechaCosecha: Date | null = null,
     ) {}
 
     descontarStock(kg: number) {
