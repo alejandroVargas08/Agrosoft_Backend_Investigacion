@@ -5,4 +5,6 @@ export const actividad_HistorialRepository = Symbol('actividad_HistorialReposito
 export interface actividadHistorialRepositoryPort {
     crear(historial: actividadHistorial): Promise<actividadHistorial>;
     listarActividad(actividadId: number): Promise<actividadHistorial[]>;
+    /** Historial de varias actividades a la vez, lo mas reciente primero. */
+    listarDeActividades(actividadIds: number[], limite: number): Promise<actividadHistorial[]>;
 }

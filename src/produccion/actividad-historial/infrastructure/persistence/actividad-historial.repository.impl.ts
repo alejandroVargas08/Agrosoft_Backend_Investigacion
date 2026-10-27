@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { actividadHistorialRepositoryPort } from "../../domain/ports/actividad-historial.repository.port";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { actividadHistorialOrmEntity } from "./actividad-historial.orm-entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { actividadHistorial } from "../../domain/entities/actividad-historial.entity";
@@ -27,6 +27,19 @@ import { actividadHistorial } from "../../domain/entities/actividad-historial.en
 
         async listarActividad(actividadId: number): Promise<actividadHistorial[]> {
             const entities = await this.repository.find({where: { actividadId}});
+            return entities.map((e) => this.toDomain(e));
+        }
+
+        async listarDeActividades(actividadIds: number[], limite: number): Promise<actividadHistorial[]> {
+            // Sin actividades visibles no hay nada que mostrar, y un In([]) vacio
+            // en TypeORM trae toda la tabla
+            if (actividadIds.length === 0) return [];
+
+            const entities = await this.repository.find({
+                where: { actividadId: In(actividadIds) },
+                order: { fecha: 'DESC' },
+                take: limite,
+            });
             return entities.map((e) => this.toDomain(e));
         }
 

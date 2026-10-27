@@ -2,6 +2,7 @@ import { actividadHistorial } from "../domain/entities/actividad-historial.entit
 import { actividadHistorialRepositoryPort } from "../domain/ports/actividad-historial.repository.port";
 import { registrarActividadHistorialUseCase } from "../aplicattion/use-cases/registrar-actividad-historial.use-case";
 import { listarActividadHistorialUseCase } from "../aplicattion/use-cases/listar-actividad.historial.use-case";
+import { ListarHistorialVisibleUseCase } from "../aplicattion/use-cases/listar-historial-visible.use-case";
 
 class FakeActividadHistorialRepo implements actividadHistorialRepositoryPort {
     private historiales: actividadHistorial[] = [];
@@ -13,6 +14,14 @@ class FakeActividadHistorialRepo implements actividadHistorialRepositoryPort {
 
     async listarActividad(actividadId: number): Promise<actividadHistorial[]> {
         return this.historiales.filter(h => h.actividadId === actividadId);
+    }
+
+    async listarDeActividades(actividadIds: number[], limite: number): Promise<actividadHistorial[]> {
+        if (actividadIds.length === 0) return [];
+        return this.historiales
+            .filter(h => actividadIds.includes(h.actividadId))
+            .sort((a, b) => b.fechaCreacion.getTime() - a.fechaCreacion.getTime())
+            .slice(0, limite);
     }
 }
 
@@ -82,5 +91,53 @@ describe('Prueba de Actividad Historial', () => {
         const historialActividad = await listarUC.ejecutar(5);
         expect(historialActividad.length).toBe(2);
         expect(historialActividad[0].motivo).toBe('Ajuste 1');
+    });
+
+    describe('ListarHistorialVisibleUseCase', () => {
+        const alcance = { verTodo: true, programasPermitidos: [] as number[] };
+
+        const sembrar = async (actividadId: number) => {
+            await fakeRepo.crear(actividadHistorial.crear({
+                actividadId,
+                cultivoId: 1,
+                usuarioId: 1,
+                motivo: 'cambio en la actividad ' + actividadId,
+                cambios: { estado: { anterior: 'Pendiente', nuevo: 'Completada' } },
+            }));
+        };
+
+        const accesoCon = (ids: number[]) =>
+            ({ listar: async () => ids.map((id) => ({ id })) }) as never;
+
+        it('solo devuelve el historial de las actividades visibles', async () => {
+            await sembrar(1);
+            await sembrar(2);
+            await sembrar(3);
+
+            const uc = new ListarHistorialVisibleUseCase(fakeRepo, accesoCon([1, 3]));
+            const resultado = await uc.ejecutar(alcance);
+
+            expect(resultado).toHaveLength(2);
+            expect(resultado.map((h) => h.actividadId).sort()).toEqual([1, 3]);
+        });
+
+        it('devuelve vacio si el usuario no ve ninguna actividad', async () => {
+            await sembrar(1);
+
+            const uc = new ListarHistorialVisibleUseCase(fakeRepo, accesoCon([]));
+
+            // Sin este caso, un In([]) vacio en TypeORM traeria toda la tabla
+            expect(await uc.ejecutar(alcance)).toEqual([]);
+        });
+
+        it('respeta el limite', async () => {
+            await sembrar(1);
+            await sembrar(1);
+            await sembrar(1);
+
+            const uc = new ListarHistorialVisibleUseCase(fakeRepo, accesoCon([1]));
+
+            expect(await uc.ejecutar(alcance, 2)).toHaveLength(2);
+        });
     });
 });

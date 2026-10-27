@@ -6,6 +6,7 @@ import { actividad_HistorialRepository } from '../domain/ports/actividad-histori
 import { actividadHistorialRepositoryImpl } from './persistence/actividad-historial.repository.impl';
 import { registrarActividadHistorialUseCase } from '../aplicattion/use-cases/registrar-actividad-historial.use-case';
 import { listarActividadHistorialUseCase } from '../aplicattion/use-cases/listar-actividad.historial.use-case';
+import { ListarHistorialVisibleUseCase } from '../aplicattion/use-cases/listar-historial-visible.use-case';
 import { ActividadesModule } from '../../actividades/infrastructure/actividades.module';
 import { IamModule } from '../../../modules/iam/iam.module';
 
@@ -25,6 +26,7 @@ import { IamModule } from '../../../modules/iam/iam.module';
 
         registrarActividadHistorialUseCase,
         listarActividadHistorialUseCase,
+        ListarHistorialVisibleUseCase,
     ],
 
     exports: [registrarActividadHistorialUseCase],
