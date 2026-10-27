@@ -32,4 +32,7 @@ export class SensorLectura {
   get eliminadoEn() { return this.props.eliminadoEn; }
 
   toProps(): SensorLecturaProps { return { ...this.props }; }
+
+  // Sin esto, Nest serializa la entidad como {"props":{...}}
+  toJSON() { return this.toProps(); }
 }

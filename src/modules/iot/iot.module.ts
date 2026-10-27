@@ -49,6 +49,7 @@ import { TIPO_SENSOR_REPOSITORY_TOKEN } from './domain/ports/tipo-sensor.reposit
 import { CrearSensorUseCase } from './application/use-cases/sensores/crear-sensor.use-case';
 import { ObtenerSensorUseCase } from './application/use-cases/sensores/obtener-sensor.use-case';
 import { ListarSensoresUseCase } from './application/use-cases/sensores/listar-sensores.use-case';
+import { ObtenerSensorPublicoUseCase } from './application/use-cases/sensores/obtener-sensor-publico.use-case';
 import { ActualizarSensorUseCase } from './application/use-cases/sensores/actualizar-sensor.use-case';
 import { EliminarSensorUseCase } from './application/use-cases/sensores/eliminar-sensor.use-case';
 
@@ -73,6 +74,7 @@ import { EliminarTipoSensorUseCase } from './application/use-cases/tipos-sensore
     CrearSensorUseCase,
     ObtenerSensorUseCase,
     ListarSensoresUseCase,
+    ObtenerSensorPublicoUseCase,
     ActualizarSensorUseCase,
     EliminarSensorUseCase,
     { provide: SENSOR_REPOSITORY_TOKEN, useClass: SensorRepository },

@@ -17,6 +17,7 @@ import { ListarInsumosBajoStockMinimoUseCase } from '../../../../inventario/appl
 import { VincularUsuarioUseCase } from '../../application/use-cases/vincular-usuario.use-case';
 import { BuscarVinculoUseCase } from '../../application/use-cases/buscar-vinculo.use-case';
 import { DesvincularUsuarioUseCase } from '../../application/use-cases/desvincular-usuario.use-case';
+import { VincularConCodigoUseCase } from '../../application/use-cases/vincular-con-codigo.use-case';
 import type { VinculoUsuario } from '../../domain/entities/vinculo-usuario.entity';
 import { CONTEXTO_ACCESO_TOKEN } from '../../../../iam/domain/ports/contexto-acceso.token';
 import type { ContextoAccesoPort } from '../../../../iam/domain/ports/contexto-acceso.port';
@@ -66,6 +67,7 @@ export class AgrosoftBot {
         private readonly vincularUsuario: VincularUsuarioUseCase,
         private readonly buscarVinculo: BuscarVinculoUseCase,
         private readonly desvincularUsuario: DesvincularUsuarioUseCase,
+        private readonly vincularConCodigo: VincularConCodigoUseCase,
         @Inject(CONTEXTO_ACCESO_TOKEN) private readonly contextoAcceso: ContextoAccesoPort,
     ) {}
 
@@ -82,6 +84,25 @@ export class AgrosoftBot {
         if (vinculo) {
             await ctx.reply('Hola ' + vinculo.nombre + '.\n\n' + MENU);
             return;
+        }
+
+        // /start ABC-123: el codigo lo genero la pantalla de Configuracion.
+        // Asi la persona no tiene que escribir su contrasena en el chat.
+        const codigo = this.codigoDe(ctx);
+        if (codigo) {
+            try {
+                const nuevoVinculo = await this.vincularConCodigo.ejecutar(telegramUserId, codigo);
+                await ctx.reply('Listo, ' + nuevoVinculo.nombre + '. Tu cuenta quedo vinculada.\n\n' + MENU);
+                return;
+            } catch {
+                await ctx.reply(
+                    'Ese codigo no sirve o ya expiro. Genera uno nuevo en AgroSoft, ' +
+                    'en Configuracion > Vincular con Telegram.\n\n' +
+                    'Tambien puedes entrar con tu correo: escribelo ahora.',
+                );
+                await this.obtenerOIniciarConversacion.ejecutar(telegramUserId, PASO_CORREO);
+                return;
+            }
         }
 
         // Sin vinculo no se puede hacer nada: lo primero es saber quien escribe
@@ -239,6 +260,13 @@ export class AgrosoftBot {
     // ─── Vinculación de cuenta ───────────────────────────────────────────────
 
     /** Devuelve el usuario vinculado, o null después de avisarle que use /start. */
+    /** Lee el payload de "/start ABC-123" */
+    private codigoDe(ctx: Context): string | null {
+        const texto = (ctx.message as { text?: string } | undefined)?.text ?? '';
+        const partes = texto.trim().split(/\s+/);
+        return partes.length > 1 && partes[1].length > 0 ? partes[1] : null;
+    }
+
     private async exigirVinculo(ctx: Context): Promise<VinculoUsuario | null> {
         const telegramUserId = this.idDe(ctx);
         if (!telegramUserId) return null;

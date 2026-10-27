@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Patch, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
 import { CrearSensorUseCase } from '../../../application/use-cases/sensores/crear-sensor.use-case';
-import { ObtenerSensorUseCase } from '../../../application/use-cases/sensores/obtener-sensor.use-case';
+import { ObtenerSensorPublicoUseCase } from '../../../application/use-cases/sensores/obtener-sensor-publico.use-case';
 import { ListarSensoresUseCase } from '../../../application/use-cases/sensores/listar-sensores.use-case';
 import { ActualizarSensorUseCase } from '../../../application/use-cases/sensores/actualizar-sensor.use-case';
 import { EliminarSensorUseCase } from '../../../application/use-cases/sensores/eliminar-sensor.use-case';
@@ -11,7 +11,7 @@ import { ActualizarSensorDto } from '../../../application/dto/sensores/actualiza
 export class SensoresController {
   constructor(
     private readonly crearSensorUseCase: CrearSensorUseCase,
-    private readonly obtenerSensorUseCase: ObtenerSensorUseCase,
+    private readonly obtenerSensorPublicoUseCase: ObtenerSensorPublicoUseCase,
     private readonly listarSensoresUseCase: ListarSensoresUseCase,
     private readonly actualizarSensorUseCase: ActualizarSensorUseCase,
     private readonly eliminarSensorUseCase: EliminarSensorUseCase,
@@ -29,7 +29,7 @@ export class SensoresController {
 
   @Get(':id')
   obtener(@Param('id', ParseIntPipe) id: number) {
-    return this.obtenerSensorUseCase.execute(id);
+    return this.obtenerSensorPublicoUseCase.execute(id);
   }
 
   @Patch(':id')

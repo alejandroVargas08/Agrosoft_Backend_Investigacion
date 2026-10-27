@@ -18,6 +18,12 @@ export class VinculoUsuarioTypeOrmRepository implements VinculoUsuarioRepository
         return new VinculoUsuario(fila.telegramUserId, fila.usuarioId, fila.nombre, fila.correo, fila.id);
     }
 
+    async buscarPorUsuarioId(usuarioId: number): Promise<VinculoUsuario | null> {
+        const fila = await this.repo.findOne({ where: { usuarioId }, order: { id: 'DESC' } });
+        if (!fila) return null;
+        return new VinculoUsuario(fila.telegramUserId, fila.usuarioId, fila.nombre, fila.correo, fila.id);
+    }
+
     async guardar(vinculo: VinculoUsuario): Promise<VinculoUsuario> {
         // Si el chat ya estaba vinculado se reemplaza, no se duplica
         const existente = await this.repo.findOne({
@@ -37,5 +43,9 @@ export class VinculoUsuarioTypeOrmRepository implements VinculoUsuarioRepository
 
     async eliminar(telegramUserId: string): Promise<void> {
         await this.repo.delete({ telegramUserId });
+    }
+
+    async eliminarPorUsuarioId(usuarioId: number): Promise<void> {
+        await this.repo.delete({ usuarioId });
     }
 }
