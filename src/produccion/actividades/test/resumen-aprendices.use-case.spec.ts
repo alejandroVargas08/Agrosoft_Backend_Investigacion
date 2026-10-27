@@ -79,12 +79,13 @@ class FakeAsignaciones implements Partial<ActividadAsignacionesRepositoryPort> {
     }
 }
 
-/** Deja ver solo las actividades de la lista. */
-function fakeAcceso(actividadesVisibles: number[]): AccesoActividadesService {
+/** Deja ver solo las actividades de la lista. El precio por hora se puede
+ *  fijar por actividad, porque cada una trae el suyo. */
+function fakeAcceso(actividadesVisibles: number[], precios: Record<number, number> = {}): AccesoActividadesService {
     return {
         async obtenerActividadVisible(id: number) {
             if (!actividadesVisibles.includes(id)) throw new Error('no visible');
-            return {} as never;
+            return { id, precioHoraActividad: precios[id] ?? 0 } as never;
         },
     } as unknown as AccesoActividadesService;
 }
@@ -103,12 +104,13 @@ function construir(
     asignaciones: ActividadAsignacion[],
     actividadesVisibles: number[],
     rol: Rol | null = rolAprendiz,
+    precios: Record<number, number> = {},
 ) {
     const repoAsignaciones = new FakeAsignaciones(asignaciones);
     // Los fakes solo implementan los metodos que el caso de uso usa
     const useCase = new ResumenAprendicesUseCase(
         repoAsignaciones as unknown as ActividadAsignacionesRepositoryPort,
-        fakeAcceso(actividadesVisibles),
+        fakeAcceso(actividadesVisibles, precios),
         new FakeAccesoAprendices(usuarios, rol) as unknown as AccesoAprendicesService,
         fakePresentador(),
     );
@@ -136,6 +138,43 @@ describe('ResumenAprendicesUseCase', () => {
         expect(resumen.aprobadas).toBe(2);
         expect(resumen.entregadas).toBe(1);
         expect(resumen.horas).toBe(9.5);
+    });
+
+    it('suma el costo de las horas con el precio de CADA actividad, no uno solo', async () => {
+        const { useCase } = construir(
+            [usuario(1, 'Lopez', ROL_APRENDIZ, 10)],
+            [
+                asignacion(1, 100, 1, 'APROBADA', { horas: 4 }),   // 4h x 25000 = 100000
+                asignacion(2, 101, 1, 'APROBADA', { horas: 2 }),   // 2h x 30000 =  60000
+                asignacion(3, 101, 1, 'ASIGNADA'),                 // sin horas, no suma
+            ],
+            [100, 101],
+            rolAprendiz,
+            { 100: 25000, 101: 30000 },
+        );
+
+        const [resumen] = await useCase.ejecutar(VE_TODO);
+
+        expect(resumen.horas).toBe(6);
+        expect(resumen.costoHoras).toBe(160000);
+    });
+
+    it('no cobra las horas de una actividad que el instructor no puede ver', async () => {
+        const { useCase } = construir(
+            [usuario(1, 'Lopez', ROL_APRENDIZ, 10)],
+            [
+                asignacion(1, 100, 1, 'APROBADA', { horas: 4 }),
+                asignacion(2, 999, 1, 'APROBADA', { horas: 10 }),  // actividad invisible
+            ],
+            [100],
+            rolAprendiz,
+            { 100: 25000, 999: 50000 },
+        );
+
+        const [resumen] = await useCase.ejecutar(VE_TODO);
+
+        expect(resumen.horas).toBe(4);
+        expect(resumen.costoHoras).toBe(100000);
     });
 
     it('solo cuenta vencidas las que siguen activas con el plazo pasado', async () => {

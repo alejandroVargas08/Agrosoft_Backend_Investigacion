@@ -5,6 +5,7 @@ import type { ActividadAsignacionesRepositoryPort } from "../../../domain/ports/
 import { AccesoActividadesService } from "../../services/acceso-actividades.service";
 import { AccesoAprendicesService } from "../../../../../modules/iam/application/services/acceso-aprendices.service";
 import { ActividadAsignacion } from "../../../domain/entities/actividad-asignacion.entity";
+import type { Actividades } from "../../../domain/entities/actividades.entity";
 import { AsignacionRespuesta, PresentadorAsignacionesService } from "../../services/presentador-asignaciones.service";
 
 export interface ResumenAprendiz {
@@ -24,6 +25,9 @@ export interface ResumenAprendiz {
     /** Con el plazo encima y todavía sin entregar. */
     vencidas: number;
     horas: number;
+    /** Horas trabajadas x precio por hora de cada actividad. El precio no es
+     *  uno solo: cada actividad trae el suyo, asi que se suma por asignacion. */
+    costoHoras: number;
     ultimoIngreso: Date | null;
 }
 
@@ -56,7 +60,9 @@ export class ResumenAprendicesUseCase {
 
         // La visibilidad se resuelve por actividad y se cachea: varias
         // asignaciones comparten la misma actividad
-        const visibilidad = new Map<number, boolean>();
+        // Se guarda la actividad entera, no solo si es visible: se traia igual,
+        // y asi se tiene el precio por hora sin una consulta extra
+        const actividadesVistas = new Map<number, Actividades | null>();
         const porAprendiz = new Map<number, ResumenAprendiz>();
 
         for (const usuario of aprendices) {
@@ -74,24 +80,29 @@ export class ResumenAprendicesUseCase {
                 entregadas: 0,
                 vencidas: 0,
                 horas: 0,
+                costoHoras: 0,
                 ultimoIngreso: usuario.obtenerLastLoginAt(),
             });
         }
 
         for (const asignacion of asignaciones) {
-            if (!visibilidad.has(asignacion.actividadId)) {
-                visibilidad.set(asignacion.actividadId, await this.esVisible(asignacion.actividadId, alcance));
+            if (!actividadesVistas.has(asignacion.actividadId)) {
+                actividadesVistas.set(asignacion.actividadId, await this.actividadVisible(asignacion.actividadId, alcance));
             }
-            if (!visibilidad.get(asignacion.actividadId)) continue;
+            const actividad = actividadesVistas.get(asignacion.actividadId);
+            if (!actividad) continue;
 
             const resumen = porAprendiz.get(asignacion.aprendizId);
             if (!resumen) continue;
+
+            const horas = asignacion.horasTrabajadas ?? 0;
 
             resumen.tareas += 1;
             if (asignacion.estado === 'APROBADA') resumen.aprobadas += 1;
             if (asignacion.estado === 'ENTREGADA') resumen.entregadas += 1;
             if (asignacion.estaVencida()) resumen.vencidas += 1;
-            resumen.horas += asignacion.horasTrabajadas ?? 0;
+            resumen.horas += horas;
+            resumen.costoHoras += horas * (actividad.precioHoraActividad ?? 0);
         }
 
         // El servicio ya los devuelve ordenados por apellido, y el Map conserva
@@ -112,24 +123,25 @@ export class ResumenAprendicesUseCase {
 
         const asignaciones = await this.asignaciones.listarPorAprendices([aprendizId]);
         const visibles: ActividadAsignacion[] = [];
-        const visibilidad = new Map<number, boolean>();
+        const vistas = new Map<number, Actividades | null>();
 
         for (const asignacion of asignaciones) {
-            if (!visibilidad.has(asignacion.actividadId)) {
-                visibilidad.set(asignacion.actividadId, await this.esVisible(asignacion.actividadId, alcance));
+            if (!vistas.has(asignacion.actividadId)) {
+                vistas.set(asignacion.actividadId, await this.actividadVisible(asignacion.actividadId, alcance));
             }
-            if (visibilidad.get(asignacion.actividadId)) visibles.push(asignacion);
+            if (vistas.get(asignacion.actividadId)) visibles.push(asignacion);
         }
 
         return this.presentador.presentar(visibles);
     }
 
-    private async esVisible(actividadId: number, alcance: AlcanceDatos): Promise<boolean> {
+    /** La actividad si el alcance la deja ver, o null. Devolver la entidad en
+     *  vez de un booleano no cuesta nada: ya se traia igual. */
+    private async actividadVisible(actividadId: number, alcance: AlcanceDatos): Promise<Actividades | null> {
         try {
-            await this.accesoActividades.obtenerActividadVisible(actividadId, alcance);
-            return true;
+            return await this.accesoActividades.obtenerActividadVisible(actividadId, alcance);
         } catch {
-            return false;
+            return null;
         }
     }
 }
