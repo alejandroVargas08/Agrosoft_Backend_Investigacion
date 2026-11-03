@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 import { SensorLectura } from '../../../domain/entities/sensor-lectura.entity';
 import type { SensorLecturaRepositoryPort } from '../../../domain/ports/sensor-lectura.repository.port';
 import { SensorLecturaOrmEntity } from '../entities/sensor-lectura.orm-entity';
@@ -35,6 +35,14 @@ export class SensorLecturaRepository implements SensorLecturaRepositoryPort {
 
   async listarPorSensorId(sensorId: number): Promise<SensorLectura[]> {
     const filas = await this.ormRepository.find({ where: { sensorId } });
+    return filas.map(SensorLecturaMapper.toDomain);
+  }
+
+  async listarDesde(sensorId: number, desde: Date): Promise<SensorLectura[]> {
+    const filas = await this.ormRepository.find({
+      where: { sensorId, fechaLectura: MoreThanOrEqual(desde) },
+      order: { fechaLectura: 'ASC' },
+    });
     return filas.map(SensorLecturaMapper.toDomain);
   }
 }

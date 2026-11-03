@@ -48,6 +48,6 @@ import { IA_PROVIDER_TOKEN } from './domain/ports/ia-provider.token';
       useClass: MensajeIARepository,
     },
   ],
-  exports: [EnviarMensajeConversacionUseCase, EnviarImagenesConversacionUseCase, IA_PROVIDER_TOKEN],
+  exports: [EnviarMensajeConversacionUseCase, EnviarImagenesConversacionUseCase, IA_PROVIDER_TOKEN, CONVERSACION_IA_REPOSITORY],
 })
 export class iaModule {}

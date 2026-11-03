@@ -19,6 +19,7 @@ export class EnviarMensajeConversacionUseCase {
     conversacionId: number;
     mensaje: string;
     cantidadImagenes?: number;
+    contexto?: string;
   }): Promise<{ respuesta: string }> {
     const conversacion = await this.conversaciones.buscarPorId(props.conversacionId);
     if (!conversacion) throw new NotFoundException('Conversación no encontrada');
@@ -35,7 +36,7 @@ export class EnviarMensajeConversacionUseCase {
 
     const historialPrevio = await this.mensajes.listarPorConversacion(props.conversacionId);
     const historial: MensajeHistorial[] = [
-      { role: 'system', content: CONTEXTO_SISTEMA },
+      { role: 'system', content: props.contexto ? `${CONTEXTO_SISTEMA}\n\n${props.contexto}` : CONTEXTO_SISTEMA },
       ...historialPrevio.map((m) => ({
         role: m.obtenerRol(),
         content: m.tieneImagenesAdjuntas()

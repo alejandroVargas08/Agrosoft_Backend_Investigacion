@@ -46,6 +46,6 @@ import { EliminarSubLoteUseCase } from './application/use-cases/eliminar-sublote
         AccesoLotesService,
         { provide: ACCESO_LOTES_PORT, useExisting: AccesoLotesService },
     ],
-    exports: [ACCESO_LOTES_PORT],
+    exports: [ACCESO_LOTES_PORT, LOTE_REPOSITORY_PORT],
 })
 export class TerritorioModule {}

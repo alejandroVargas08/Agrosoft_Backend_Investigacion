@@ -6,4 +6,5 @@ export interface SensorLecturaRepositoryPort {
   buscarPorId(id: number): Promise<SensorLectura | null>;
   listarTodos(): Promise<SensorLectura[]>;
   listarPorSensorId(sensorId: number): Promise<SensorLectura[]>;
+  listarDesde(sensorId: number, desde: Date): Promise<SensorLectura[]>;
 }
