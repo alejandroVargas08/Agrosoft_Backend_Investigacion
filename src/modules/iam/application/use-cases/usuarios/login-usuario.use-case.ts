@@ -1,4 +1,4 @@
-import { ForbiddenException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import type { UsuarioRepositoryPort } from '../../../domain/ports/usuario.repository.port';
 import { USUARIO_REPOSITORY } from '../../../domain/ports/usuario.repository.token';
 import type { TokenServicePort } from '../../../domain/ports/token.service.port';
@@ -18,6 +18,8 @@ const MENSAJE_POR_ESTADO: Record<string, string> = {
 
 @Injectable()
 export class LoginUsuarioUseCase {
+  private readonly logger = new Logger(LoginUsuarioUseCase.name);
+
   constructor(
     @Inject(USUARIO_REPOSITORY)
     private readonly usuarioRepository: UsuarioRepositoryPort,
@@ -71,7 +73,18 @@ export class LoginUsuarioUseCase {
     // al correo y el frontend lo pide. El login queda sin registrar hasta que
     // ese codigo se verifique.
     if (usuario.tieneDosPasos()) {
-      await this.generarCodigo.ejecutar(usuario.obtenerCorreo(), TipoCodigo.DOS_PASOS);
+      // El codigo queda guardado antes de enviarse, asi que si el correo
+      // falla el usuario igual puede completar el paso. Lo que no puede
+      // pasar es que un fallo del SMTP tumbe el login entero con un 500.
+      try {
+        await this.generarCodigo.ejecutar(usuario.obtenerCorreo(), TipoCodigo.DOS_PASOS);
+      } catch (error) {
+        this.logger.error(
+          `No se pudo enviar el codigo de dos pasos a ${usuario.obtenerCorreo()}`,
+          error instanceof Error ? error.stack : String(error),
+        );
+      }
+
       return {
         requiereDosPasos: true,
         correo: usuario.obtenerCorreo(),

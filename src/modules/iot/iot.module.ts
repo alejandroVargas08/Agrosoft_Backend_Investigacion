@@ -33,6 +33,7 @@ import { EliminarSensorLecturaUseCase } from './application/use-cases/sensor-lec
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { IamModule } from '../iam/iam.module';
 
 import { SensoresController } from './infraestructure/http/controllers/sensores.controller';
 import { TiposSensoresController } from './infraestructure/http/controllers/tipos-sensores.controller';
@@ -60,7 +61,10 @@ import { ActualizarTipoSensorUseCase } from './application/use-cases/tipos-senso
 import { EliminarTipoSensorUseCase } from './application/use-cases/tipos-sensores/eliminar-tipo-sensor.use-case';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SensorOrmEntity,
+  // IamModule trae JwtAuthGuard y PermisosGuard, que usan los @Autenticado
+  // de estos controllers. Sin el, Nest no arranca.
+  imports: [IamModule,
+    TypeOrmModule.forFeature([SensorOrmEntity,
       TipoSensorOrmEntity,
       SensorLecturaOrmEntity,
       SensorAlertaOrmEntity,
