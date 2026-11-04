@@ -8,6 +8,8 @@ export class PerfilUsuarioResponseDto {
   telefono: string;
   estado: string;
   correoVerificado: boolean;
+  /** Verificacion en dos pasos al iniciar sesion. */
+  dosPasosActivo: boolean;
   rolId: number;
   /** El nombre del rol, para no obligar al frontend a resolverlo. */
   rol: string | null;

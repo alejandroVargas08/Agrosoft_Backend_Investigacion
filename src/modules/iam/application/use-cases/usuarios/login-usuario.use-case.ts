@@ -4,6 +4,8 @@ import { USUARIO_REPOSITORY } from '../../../domain/ports/usuario.repository.tok
 import type { TokenServicePort } from '../../../domain/ports/token.service.port';
 import { TOKEN_SERVICE } from '../../../domain/ports/token.service.port';
 import { LoginUsuarioDto } from '../../dto/usuarios/login-usuario.dto';
+import { GenerarCodigoUseCase } from '../email-codes/generar-codigo.usecase';
+import { TipoCodigo } from '../../../domain/entities/email-code.entity';
 import * as bcrypt from 'bcrypt';
 
 // Lo que ve quien intenta entrar y su cuenta todavía no puede
@@ -21,6 +23,7 @@ export class LoginUsuarioUseCase {
     private readonly usuarioRepository: UsuarioRepositoryPort,
     @Inject(TOKEN_SERVICE)
     private readonly tokenService: TokenServicePort,
+    private readonly generarCodigo: GenerarCodigoUseCase,
   ) {}
 
   async ejecutar(dto: LoginUsuarioDto) {
@@ -62,6 +65,18 @@ export class LoginUsuarioUseCase {
         estado: usuario.obtenerEstado(),
         message: MENSAJE_POR_ESTADO[usuario.obtenerEstado()] ?? 'Tu cuenta no está activa.',
       });
+    }
+
+    // Con dos pasos activo no se entrega el token todavia: se manda un codigo
+    // al correo y el frontend lo pide. El login queda sin registrar hasta que
+    // ese codigo se verifique.
+    if (usuario.tieneDosPasos()) {
+      await this.generarCodigo.ejecutar(usuario.obtenerCorreo(), TipoCodigo.DOS_PASOS);
+      return {
+        requiereDosPasos: true,
+        correo: usuario.obtenerCorreo(),
+        message: 'Te enviamos un código a tu correo para completar el inicio de sesión.',
+      };
     }
 
     usuario.registrarLogin();

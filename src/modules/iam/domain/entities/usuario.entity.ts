@@ -34,6 +34,9 @@ export class Usuario {
     private actualizadoEn: Date,
     private eliminadoEn: Date | null,
     private solicitudRegistro: SolicitudRegistro | null = null,
+    // Cuando esta en true, el login no entrega el token de una: manda un
+    // codigo al correo y lo exige en un segundo paso.
+    private dosPasosActivo: boolean = false,
   ) {}
 
   static crear(props: {
@@ -109,6 +112,7 @@ export class Usuario {
     actualizadoEn: Date;
     eliminadoEn: Date | null;
     solicitudRegistro?: SolicitudRegistro | null;
+    dosPasosActivo?: boolean;
   }): Usuario {
     return new Usuario(
       props.id,
@@ -129,6 +133,7 @@ export class Usuario {
       props.actualizadoEn,
       props.eliminadoEn,
       props.solicitudRegistro ?? null,
+      props.dosPasosActivo ?? false,
     );
   }
 
@@ -232,6 +237,13 @@ export class Usuario {
 
   registrarLogin(): void {
     this.lastLoginAt = new Date();
+  }
+
+  tieneDosPasos(): boolean { return this.dosPasosActivo; }
+
+  cambiarDosPasos(activo: boolean): void {
+    this.dosPasosActivo = activo;
+    this.actualizadoEn = new Date();
   }
 
   cambiarAvatar(url: string | null): void {

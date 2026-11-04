@@ -33,6 +33,12 @@ export class ActualizarUsuarioUseCase {
       usuarioExistente.cambiarTelefono(dto.telefono);
     }
 
+    // Se compara contra undefined a proposito: false es un valor valido y con
+    // un if normal nunca se podria apagar.
+    if (dto.dosPasosActivo !== undefined) {
+      usuarioExistente.cambiarDosPasos(dto.dosPasosActivo);
+    }
+
     if (dto.estado) {
       if (dto.estado === 'activo') usuarioExistente.activar();
       if (dto.estado === 'inactivo') usuarioExistente.desactivar();

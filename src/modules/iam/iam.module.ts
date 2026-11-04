@@ -11,6 +11,7 @@ import { UsuarioController } from './infrastructure/http/controllers/usuarios.co
 import { CrearUsuarioUseCase } from './application/use-cases/usuarios/crear-usuario.use-case';
 import { ActualizarUsuarioUseCase } from './application/use-cases/usuarios/actualizar-usuario.use-case';
 import { LoginUsuarioUseCase } from './application/use-cases/usuarios/login-usuario.use-case';
+import { VerificarLoginDosPasosUseCase } from './application/use-cases/usuarios/verificar-login-dos-pasos.use-case';
 import { EliminarUsuarioUseCase } from './application/use-cases/usuarios/eliminar-usuario.use-case';
 import { USUARIO_REPOSITORY } from './domain/ports/usuario.repository.token';
 import { ListarUsuariosUseCase } from './application/use-cases/usuarios/listar-usuarios.use-case';
@@ -133,6 +134,7 @@ import { PermisosGuard } from './infrastructure/http/guards/permisos.guard';
     CrearUsuarioUseCase,
     ActualizarUsuarioUseCase,
     LoginUsuarioUseCase,
+    VerificarLoginDosPasosUseCase,
     EliminarUsuarioUseCase,
     ListarUsuariosUseCase,
     ObtenerUsuarioUseCase,

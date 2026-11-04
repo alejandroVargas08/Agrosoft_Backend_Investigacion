@@ -39,6 +39,7 @@ export class ObtenerUsuarioUseCase {
       telefono: usuario.obtenerTelefono(),
       estado: usuario.obtenerEstado(),
       correoVerificado: usuario.correoEstaVerificado(),
+      dosPasosActivo: usuario.tieneDosPasos(),
       rolId: usuario.obtenerRolId(),
       rol: rol ? rol.obtenerNombre() : null,
       programaFormacion: programa

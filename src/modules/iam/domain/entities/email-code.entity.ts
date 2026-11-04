@@ -1,6 +1,7 @@
 export enum TipoCodigo {
   VERIFICACION_EMAIL = 'verificacion_email',
   RESTABLECER_CONTRASENA = 'restablecer_contrasena',
+  DOS_PASOS = 'dos_pasos',
 }
 
 export class EmailCode {

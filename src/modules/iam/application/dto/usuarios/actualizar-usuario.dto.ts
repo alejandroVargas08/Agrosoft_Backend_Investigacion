@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsEmail, IsIn } from 'class-validator';
+import { IsOptional, IsString, IsEmail, IsIn, IsBoolean } from 'class-validator';
 
 export class ActualizarUsuarioDto {
   @IsOptional()
@@ -20,4 +20,9 @@ export class ActualizarUsuarioDto {
   @IsOptional()
   @IsIn(['activo', 'inactivo', 'suspendido', 'pendiente', 'rechazado'])
   readonly estado?: string;
+
+  // Verificacion en dos pasos. El controller ya valida que seas tu o un admin.
+  @IsOptional()
+  @IsBoolean()
+  readonly dosPasosActivo?: boolean;
 }

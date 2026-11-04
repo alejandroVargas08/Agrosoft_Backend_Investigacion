@@ -54,6 +54,11 @@ export class UsuarioOrmEntity {
   @DeleteDateColumn({ name: 'eliminado_en' })
   eliminadoEn: Date | null;
 
+  // Verificacion en dos pasos. Apagada por defecto: mientras nadie la
+  // encienda, el login se comporta igual que antes.
+  @Column({ type: 'boolean', name: 'dos_pasos_activo', default: false })
+  dosPasosActivo: boolean;
+
   @Column({ type: 'jsonb', name: 'solicitud_registro', nullable: true })
   solicitudRegistro: SolicitudRegistro | null;
 }
