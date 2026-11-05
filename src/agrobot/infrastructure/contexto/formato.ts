@@ -5,3 +5,7 @@ export function formatoFecha(fecha: Date | null): string {
 export function promedio(valores: number[]): number {
   return Math.round((valores.reduce((suma, v) => suma + v, 0) / valores.length) * 10) / 10;
 }
+
+export function pesos(valor: number): string {
+  return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(valor);
+}

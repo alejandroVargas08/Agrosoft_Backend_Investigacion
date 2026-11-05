@@ -33,7 +33,7 @@ export class ProveedorContextoSensores implements ProveedorContextoPort {
       this.tipos.listarTodos(),
     ]);
 
-    const visibles = sensores.filter((s) => s.activo && (s.loteId === null || lotes.has(s.loteId)));
+    const visibles = sensores.filter((s) => s.activo && (s.loteId === null ? usuario.verTodo : lotes.has(s.loteId)));
     if (visibles.length === 0) return 'SENSORES: no hay estaciones activas en los lotes de este usuario.';
 
     const tipoPorId = new Map(tipos.map((t) => [t.id, t]));

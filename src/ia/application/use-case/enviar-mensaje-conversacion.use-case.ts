@@ -20,7 +20,8 @@ export class EnviarMensajeConversacionUseCase {
     mensaje: string;
     cantidadImagenes?: number;
     contexto?: string;
-  }): Promise<{ respuesta: string }> {
+    tuvoDatos?: boolean;
+  }): Promise<{ respuesta: string, guardado: boolean }> {
     const conversacion = await this.conversaciones.buscarPorId(props.conversacionId);
     if (!conversacion) throw new NotFoundException('Conversación no encontrada');
 
@@ -56,6 +57,6 @@ export class EnviarMensajeConversacionUseCase {
     conversacion.tocar();
     await this.conversaciones.guardar(conversacion);
 
-    return { respuesta };
+    return { respuesta, guardado: true };
   }
 }

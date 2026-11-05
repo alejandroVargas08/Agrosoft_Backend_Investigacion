@@ -15,9 +15,11 @@ import { ProveedorContextoSensores } from './infrastructure/contexto/proveedor-c
 import { ProveedorContextoInventario } from './infrastructure/contexto/proveedor-contexto-inventario';
 import { ProveedorContextoDrones } from './infrastructure/contexto/proveedor-contexto-drones';
 import { AgrobotController } from './infrastructure/http/agrobot.controller';
+import { ReportesModule } from '../reportes/infrastructure/reportes.module';
+import { ProveedorContextoFinanzas } from './infrastructure/contexto/proveedor-contexto-finanzas';
 
 @Module({
-  imports: [IamModule, iaModule, IotModule, InventarioModule, TerritorioModule, DronesModule],
+  imports: [IamModule, iaModule, IotModule, InventarioModule, TerritorioModule, DronesModule, ReportesModule],
   controllers: [AgrobotController],
   providers: [
     EnrutadorConsultasService,
@@ -27,10 +29,11 @@ import { AgrobotController } from './infrastructure/http/agrobot.controller';
     ProveedorContextoSensores,
     ProveedorContextoInventario,
     ProveedorContextoDrones,
+    ProveedorContextoFinanzas,
     {
-      provide: PROVEEDORES_CONTEXTO_TOKEN,
-      useFactory: (...proveedores: ProveedorContextoPort[]) => proveedores,
-      inject: [ProveedorContextoSensores, ProveedorContextoInventario, ProveedorContextoDrones],
+    provide: PROVEEDORES_CONTEXTO_TOKEN,
+    useFactory: (...proveedores: ProveedorContextoPort[]) => proveedores,
+    inject: [ProveedorContextoSensores, ProveedorContextoInventario, ProveedorContextoDrones, ProveedorContextoFinanzas],
     },
   ],
 })

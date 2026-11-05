@@ -74,8 +74,8 @@ export class IaController {
     await this.validarPropietario(id, usuario);
     return this.enviarImagenesConversacionUseCase.ejecutar({
       conversacionId: id,
-      imagenes: dto.imagenes,
-      prompt: dto.prompt,
+      cantidadImagenes: dto.imagenes?.length ?? 0,
+      mensaje: dto.prompt,
     });
   }
 
