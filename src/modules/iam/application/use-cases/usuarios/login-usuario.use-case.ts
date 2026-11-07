@@ -1,9 +1,11 @@
-import { ForbiddenException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import type { UsuarioRepositoryPort } from '../../../domain/ports/usuario.repository.port';
 import { USUARIO_REPOSITORY } from '../../../domain/ports/usuario.repository.token';
 import type { TokenServicePort } from '../../../domain/ports/token.service.port';
 import { TOKEN_SERVICE } from '../../../domain/ports/token.service.port';
 import { LoginUsuarioDto } from '../../dto/usuarios/login-usuario.dto';
+import { GenerarCodigoUseCase } from '../email-codes/generar-codigo.usecase';
+import { TipoCodigo } from '../../../domain/entities/email-code.entity';
 import * as bcrypt from 'bcrypt';
 
 // Lo que ve quien intenta entrar y su cuenta todavía no puede
@@ -16,11 +18,14 @@ const MENSAJE_POR_ESTADO: Record<string, string> = {
 
 @Injectable()
 export class LoginUsuarioUseCase {
+  private readonly logger = new Logger(LoginUsuarioUseCase.name);
+
   constructor(
     @Inject(USUARIO_REPOSITORY)
     private readonly usuarioRepository: UsuarioRepositoryPort,
     @Inject(TOKEN_SERVICE)
     private readonly tokenService: TokenServicePort,
+    private readonly generarCodigo: GenerarCodigoUseCase,
   ) {}
 
   async ejecutar(dto: LoginUsuarioDto) {
@@ -62,6 +67,29 @@ export class LoginUsuarioUseCase {
         estado: usuario.obtenerEstado(),
         message: MENSAJE_POR_ESTADO[usuario.obtenerEstado()] ?? 'Tu cuenta no está activa.',
       });
+    }
+
+    // Con dos pasos activo no se entrega el token todavia: se manda un codigo
+    // al correo y el frontend lo pide. El login queda sin registrar hasta que
+    // ese codigo se verifique.
+    if (usuario.tieneDosPasos()) {
+      // El codigo queda guardado antes de enviarse, asi que si el correo
+      // falla el usuario igual puede completar el paso. Lo que no puede
+      // pasar es que un fallo del SMTP tumbe el login entero con un 500.
+      try {
+        await this.generarCodigo.ejecutar(usuario.obtenerCorreo(), TipoCodigo.DOS_PASOS);
+      } catch (error) {
+        this.logger.error(
+          `No se pudo enviar el codigo de dos pasos a ${usuario.obtenerCorreo()}`,
+          error instanceof Error ? error.stack : String(error),
+        );
+      }
+
+      return {
+        requiereDosPasos: true,
+        correo: usuario.obtenerCorreo(),
+        message: 'Te enviamos un código a tu correo para completar el inicio de sesión.',
+      };
     }
 
     usuario.registrarLogin();

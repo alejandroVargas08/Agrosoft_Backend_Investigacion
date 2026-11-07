@@ -7,6 +7,8 @@ import { ObtenerUsuarioUseCase } from '../../../application/use-cases/usuarios/o
 import { AdministrarUsuarioUseCase } from '../../../application/use-cases/usuarios/administrar-usuario.use-case';
 import { CrearUsuarioDto } from '../../../application/dto/usuarios/crear-usuario.dto';
 import { ActualizarUsuarioDto } from '../../../application/dto/usuarios/actualizar-usuario.dto';
+import { VerificarLoginDosPasosDto } from '../../../application/dto/usuarios/verificar-login-dos-pasos.dto';
+import { VerificarLoginDosPasosUseCase } from '../../../application/use-cases/usuarios/verificar-login-dos-pasos.use-case';
 import { LoginUsuarioDto } from '../../../application/dto/usuarios/login-usuario.dto';
 import { CambiarProgramaUsuarioDto, CambiarRolUsuarioDto, RechazarRegistroDto, RestablecerContrasenaAdminDto } from '../../../application/dto/usuarios/administrar-usuario.dto';
 import { aUsuarioPublico } from '../../../application/dto/usuarios/usuario-respuesta.mapper';
@@ -27,6 +29,7 @@ export class UsuarioController {
     private readonly crearUsuarioUseCase: CrearUsuarioUseCase,
     private readonly actualizarUsuarioUseCase: ActualizarUsuarioUseCase,
     private readonly loginUsuarioUseCase: LoginUsuarioUseCase,
+    private readonly verificarLoginDosPasosUseCase: VerificarLoginDosPasosUseCase,
     private readonly eliminarUsuarioUseCase: EliminarUsuarioUseCase,
     private readonly obtenerUsuarioUseCase: ObtenerUsuarioUseCase,
     private readonly administrarUsuarioUseCase: AdministrarUsuarioUseCase,
@@ -35,6 +38,13 @@ export class UsuarioController {
   @Post()
   crear(@Body() dto: CrearUsuarioDto) {
     return this.crearUsuarioUseCase.ejecutar(dto);
+  }
+
+  // Segundo paso del login, para quien tiene la verificacion en dos pasos.
+  // Va antes de @Get(':id') y demas para que 'login' no se lea como un id.
+  @Post('login/dos-pasos')
+  verificarLoginDosPasos(@Body() dto: VerificarLoginDosPasosDto) {
+    return this.verificarLoginDosPasosUseCase.ejecutar(dto);
   }
 
   @Post('login')

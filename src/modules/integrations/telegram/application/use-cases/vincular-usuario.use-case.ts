@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { VINCULO_USUARIO_REPOSITORY_PORT } from '../../domain/ports/vinculo-usuario.repository.port';
 import type { VinculoUsuarioRepositoryPort } from '../../domain/ports/vinculo-usuario.repository.port';
 import { VinculoUsuario } from '../../domain/entities/vinculo-usuario.entity';
@@ -19,6 +19,15 @@ export class VincularUsuarioUseCase {
     async ejecutar(telegramUserId: string, correo: string, password: string): Promise<VinculoUsuario> {
         // Lanza UnauthorizedException si el correo o la contraseña no sirven
         const resultado = await this.loginUsuario.ejecutar({ correo, password });
+
+        // Con dos pasos activo el login no entrega usuario: devuelve que hace
+        // falta el codigo. Por el chat no se puede completar ese paso, asi que
+        // se vincula desde la app, que usa el codigo de vinculacion.
+        if (!resultado.usuario) {
+            throw new UnauthorizedException(
+                'Tu cuenta tiene verificación en dos pasos. Vincula Telegram desde Configuración en la app.',
+            );
+        }
 
         return this.repositorio.guardar(
             new VinculoUsuario(

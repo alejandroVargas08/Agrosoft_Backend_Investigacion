@@ -6,9 +6,14 @@ import { liberarActividadInsumoReservaUseCase } from "../../application/use-case
 import { reservaActividadInsumoDto } from "../../application/dto/reservar-actividad-insumo-reserva.dto";
 import { ajustarCantidadActividadInsumoReservaUseCase } from "../../application/use-cases/ajustar-cantidad-actividad-insumo-reserva.use-case";
 import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso-actividad.decorator';
+import { PermitirEjecutor } from '../../../actividades/infrastructure/http/permitir-ejecutor.decorator';
 
 @Controller('actividad/:actividadId/insumoReserva')
 @AccesoActividad()
+// El aprendiz aparta insumos de la tarea que esta ejecutando, igual que ya
+// hacen evidencias, insumos usados y herramientas. El guard ademas exige que
+// tenga una asignacion activa en esa actividad.
+@PermitirEjecutor()
     export class actividadInsumoReservaController {
         constructor(
             private readonly reservaInsumoUC: reservarActividadInsumoReservaUseCase,

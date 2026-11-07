@@ -5,6 +5,13 @@ import { eliminarActividadResponsablesUseCase } from "../application/use-cases/e
 import { actualizarActividadResponsablesUseCase } from "../application/use-cases/actualizar-actividad-resposables.use-case";
 import { listarActividadResponsablesUseCase } from "../application/use-cases/listar-actividad-responsables.use-case";
 import { registrarActividadResponsableUseCase } from "../application/use-cases/registrar-actividad-responsables.use-case";
+import type { UsuarioRepositoryPort } from "../../../modules/iam/domain/ports/usuario.repository.port";
+
+// Listar responsables ahora resuelve el nombre del usuario. Estas pruebas solo
+// miran cuantos responsables hay, asi que basta con no encontrar a nadie.
+const fakeUsuarios = {
+    buscarPorId: async () => null,
+} as unknown as UsuarioRepositoryPort;
 
 class FakeActividadResponsableRepo implements actividadResponsableRepositoryPort {
     private items: actividadResponsable[] = [];
@@ -58,7 +65,7 @@ describe('Pruebas del Módulo Actividades Responsables', () => {
     beforeEach(() => {
         fakeRepo = new FakeActividadResponsableRepo();
         registrarUC = new registrarActividadResponsableUseCase(fakeRepo);
-        listarUC = listarActividadResponsablesUseCase ? new listarActividadResponsablesUseCase(fakeRepo) : ({} as any);
+        listarUC = new listarActividadResponsablesUseCase(fakeRepo, fakeUsuarios);
         actualizarUC = new actualizarActividadResponsablesUseCase(fakeRepo);
         eliminarUC = new eliminarActividadResponsablesUseCase(fakeRepo);
     });

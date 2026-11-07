@@ -16,15 +16,24 @@ export class MailerService {
   });
 
   async enviarCodigo(email: string, codigo: string, tipo: TipoCodigo): Promise<void> {
-    const asunto =
-      tipo === TipoCodigo.VERIFICACION_EMAIL
-        ? 'Verifica tu correo - AgroSoft'
-        : 'Restablece tu contraseña - AgroSoft';
+    // Un mapa y no un ternario: con tres tipos, el ternario hacia que el
+    // codigo de dos pasos llegara con el asunto de restablecer contraseña.
+    const TEXTOS: Record<TipoCodigo, { asunto: string; titulo: string }> = {
+      [TipoCodigo.VERIFICACION_EMAIL]: {
+        asunto: 'Verifica tu correo - AgroSoft',
+        titulo: 'Verifica tu correo',
+      },
+      [TipoCodigo.RESTABLECER_CONTRASENA]: {
+        asunto: 'Restablece tu contraseña - AgroSoft',
+        titulo: 'Restablece tu contraseña',
+      },
+      [TipoCodigo.DOS_PASOS]: {
+        asunto: 'Tu código para iniciar sesión - AgroSoft',
+        titulo: 'Código para iniciar sesión',
+      },
+    };
 
-    const titulo =
-      tipo === TipoCodigo.VERIFICACION_EMAIL
-        ? 'Verifica tu correo'
-        : 'Restablece tu contraseña';
+    const { asunto, titulo } = TEXTOS[tipo];
 
     const logoPath = path.join(__dirname, '..', 'assets', 'logo-agrosoft.png');
 

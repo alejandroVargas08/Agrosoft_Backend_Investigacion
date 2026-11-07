@@ -25,6 +25,8 @@ export interface MovimientoOutput {
     almacenDestinoId?: number;
     fecha?: string;
     stockResultante?: number;
+    // Lo llena ListarMovimientosUseCase; la tabla solo guarda usuarioId.
+    usuario?: { id: number; nombre: string; apellido: string } | null;
 }
 
 export function toMovimientoOutput(movimiento: MovimientoInsumo): MovimientoOutput {
