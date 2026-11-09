@@ -7,7 +7,7 @@ import { CultivosModule } from '../../cultivos/infrastructure/cultivos.module';
 import { actividadesOrmEntity } from './persistence/actividades.orm-entity';
 import { ActividadAsignacionOrmEntity } from './persistence/actividad-asignacion.orm-entity';
 import { ActividadesController } from './http/actividades.controller';
-import { ActividadAsignacionesController, MisTareasController, ResumenAprendicesController, RevisionAsignacionesController } from './http/asignaciones.controller';
+import { ActividadAsignacionesController, MisTareasController, PanelInstructorController, ResumenAprendicesController, RevisionAsignacionesController } from './http/asignaciones.controller';
 import { actividades_repository } from '../domain/ports/actividades.repository.port';
 import { ACTIVIDAD_ASIGNACIONES_REPOSITORY } from '../domain/ports/actividad-asignaciones.repository.port';
 import { actividadesRepositoryImpl } from './persistence/actividades.repository.impl';
@@ -25,6 +25,7 @@ import { GestionarAsignacionesUseCase } from '../aplicattion/use-cases/asignacio
 import { MisTareasUseCase } from '../aplicattion/use-cases/asignaciones/mis-tareas.use-case';
 import { RevisarAsignacionesUseCase } from '../aplicattion/use-cases/asignaciones/revisar-asignaciones.use-case';
 import { ResumenAprendicesUseCase } from '../aplicattion/use-cases/asignaciones/resumen-aprendices.use-case';
+import { PanelInstructorUseCase } from '../aplicattion/use-cases/asignaciones/panel-instructor.use-case';
 
 @Module({
     imports: [
@@ -40,6 +41,7 @@ import { ResumenAprendicesUseCase } from '../aplicattion/use-cases/asignaciones/
         MisTareasController,
         RevisionAsignacionesController,
         ResumenAprendicesController,
+        PanelInstructorController,
     ],
     providers: [
         { provide: actividades_repository, useClass: actividadesRepositoryImpl },
@@ -57,6 +59,7 @@ import { ResumenAprendicesUseCase } from '../aplicattion/use-cases/asignaciones/
         MisTareasUseCase,
         RevisarAsignacionesUseCase,
         ResumenAprendicesUseCase,
+        PanelInstructorUseCase,
     ],
     exports: [actividades_repository, ACTIVIDAD_ASIGNACIONES_REPOSITORY, AccesoActividadesService, ActividadVisibleGuard],
 })

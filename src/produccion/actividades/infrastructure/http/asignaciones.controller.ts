@@ -9,6 +9,7 @@ import { GestionarAsignacionesUseCase } from "../../aplicattion/use-cases/asigna
 import { MisTareasUseCase } from "../../aplicattion/use-cases/asignaciones/mis-tareas.use-case";
 import { RevisarAsignacionesUseCase } from "../../aplicattion/use-cases/asignaciones/revisar-asignaciones.use-case";
 import { ResumenAprendicesUseCase } from "../../aplicattion/use-cases/asignaciones/resumen-aprendices.use-case";
+import { PanelInstructorUseCase } from "../../aplicattion/use-cases/asignaciones/panel-instructor.use-case";
 
 @Controller('actividades/:actividadId/asignaciones')
 @Autenticado()
@@ -124,5 +125,34 @@ export class ResumenAprendicesController {
     @Get(':id/tareas')
     tareas(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
         return this.resumen.tareasDeAprendiz(id, usuario);
+    }
+}
+
+/**
+ * Las dos agregaciones del panel del instructor. Van aparte de /aprendices
+ * porque no hablan de un aprendiz sino del grupo entero.
+ */
+@Controller('instructor/panel')
+@Autenticado(PERMISOS_PRODUCCION.ASIGNAR_ACTIVIDADES)
+export class PanelInstructorController {
+    constructor(private readonly panel: PanelInstructorUseCase) {}
+
+    @Get('proximas-fechas')
+    proximasFechas(@UsuarioActual() usuario: UsuarioAutenticado, @Query('limite') limite?: string) {
+        const cuantas = Number(limite);
+        return this.panel.proximasFechas(usuario, Number.isInteger(cuantas) && cuantas > 0 ? cuantas : undefined);
+    }
+
+    @Get('aprobadas-por-semana')
+    aprobadasPorSemana(@UsuarioActual() usuario: UsuarioAutenticado) {
+        return this.panel.aprobadasPorSemana(usuario);
+    }
+
+    @Get('actividades-de-ficha/:programaFormacionId')
+    actividadesDeFicha(
+        @Param('programaFormacionId', ParseIntPipe) programaFormacionId: number,
+        @UsuarioActual() usuario: UsuarioAutenticado,
+    ) {
+        return this.panel.actividadesDeFicha(usuario, programaFormacionId);
     }
 }
