@@ -97,7 +97,12 @@ BEGIN
                 -- Una por semana, dando la vuelta: asi las 6 barras quedan con dato
                 v_semana       := v_aprobadas % 6;
                 v_aprobadas    := v_aprobadas + 1;
-                v_revisada     := date_trunc('week', now()) - (v_semana * interval '7 days') + interval '2 days 10 hours';
+                -- El miercoles de esa semana, pero nunca en el futuro: en la
+                -- semana en curso ese miercoles puede no haber llegado
+                v_revisada     := least(
+                    date_trunc('week', now()) - (v_semana * interval '7 days') + interval '2 days 10 hours',
+                    now() - interval '2 hours'
+                );
                 v_entregada    := v_revisada - interval '1 day';
                 v_iniciada     := v_entregada - interval '3 days';
                 v_fecha_limite := (v_revisada + interval '1 day')::date;
@@ -157,3 +162,18 @@ FROM actividad_asignaciones
 WHERE eliminado_en IS NULL
 GROUP BY estado
 ORDER BY estado;
+
+-- ── Correctivo ──────────────────────────────────────────────────────────────
+-- Una corrida anterior pudo dejar revisiones y entregas con fecha futura,
+-- porque el miercoles de la semana en curso todavia no ha llegado.
+UPDATE actividad_asignaciones
+SET revisada_en  = now() - interval '2 hours',
+    entregada_en = now() - interval '1 day 2 hours',
+    iniciada_en  = now() - interval '4 days'
+WHERE eliminado_en IS NULL
+  AND revisada_en > now();
+
+UPDATE actividad_asignaciones
+SET entregada_en = now() - interval '1 day'
+WHERE eliminado_en IS NULL
+  AND entregada_en > now();
