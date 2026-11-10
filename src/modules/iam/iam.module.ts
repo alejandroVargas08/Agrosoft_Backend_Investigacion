@@ -81,6 +81,11 @@ import { ProgramaFormacionRepository } from './infrastructure/persistence/reposi
 import { PROGRAMA_FORMACION_REPOSITORY } from './domain/ports/programa-formacion.repository.token';
 import { GestionarProgramasFormacionUseCase } from './application/use-cases/programa-formacion/gestionar-programas-formacion.use-case';
 import { ProgramasFormacionController } from './infrastructure/http/controllers/programas-formacion.controller';
+import { CodigoInvitacionOrmEntity } from './infrastructure/persistence/entities/codigo-invitacion.orm-entity';
+import { CodigoInvitacionRepository } from './infrastructure/persistence/repositories/codigo-invitacion.repository';
+import { CODIGO_INVITACION_REPOSITORY } from './domain/ports/codigo-invitacion.repository.token';
+import { CodigoInvitacionUseCase } from './application/use-cases/programa-formacion/codigo-invitacion.use-case';
+import { CodigoInvitacionController } from './infrastructure/http/controllers/codigo-invitacion.controller';
 
 // Acceso por ficha y permisos
 import { UsuarioProgramaOrmEntity } from './infrastructure/persistence/entities/usuario-programa.orm-entity';
@@ -97,6 +102,7 @@ import { PermisosGuard } from './infrastructure/http/guards/permisos.guard';
   imports: [
     ConfigModule,
     TypeOrmModule.forFeature([
+      CodigoInvitacionOrmEntity,
       UsuarioOrmEntity,
       RolOrmEntity,
       PermisoOrmEntity,
@@ -128,6 +134,7 @@ import { PermisosGuard } from './infrastructure/http/guards/permisos.guard';
     UsuarioProgramasController,
     MiAccesoController,
     ProgramasFormacionController,
+    CodigoInvitacionController,
   ],
   providers: [
     // Usuario
@@ -172,6 +179,10 @@ import { PermisosGuard } from './infrastructure/http/guards/permisos.guard';
     // Programa de Formacion
     { provide: PROGRAMA_FORMACION_REPOSITORY, useClass: ProgramaFormacionRepository },
     GestionarProgramasFormacionUseCase,
+
+    // Codigo de invitacion a la ficha
+    { provide: CODIGO_INVITACION_REPOSITORY, useClass: CodigoInvitacionRepository },
+    CodigoInvitacionUseCase,
 
     // JWT / Tokens
     { provide: TOKEN_SERVICE, useClass: JwtTokenService },

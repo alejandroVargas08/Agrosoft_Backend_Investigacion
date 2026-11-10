@@ -18,6 +18,7 @@ import { aUsuarioPublico, UsuarioPublico } from "../../dto/usuarios/usuario-resp
 import { Notificacion } from "../../../../notificaciones/domain/entities/notificacion.entity";
 import type { NotificacionRepositoryPort } from "../../../../notificaciones/domain/ports/notificacion.repository.port";
 import { NOTIFICACION_REPOSITORY } from "../../../../notificaciones/domain/ports/notificacion.repository.token";
+import { CodigoInvitacionUseCase } from "../programa-formacion/codigo-invitacion.use-case";
 
 export const ROL_POR_DEFECTO = 'Aprendiz';
 
@@ -45,6 +46,7 @@ export class CrearUsuarioUseCase {
         private readonly programaRepository: ProgramaFormacionRepositoryPort,
         @Inject(USUARIO_PROGRAMA_REPOSITORY)
         private readonly usuarioProgramas: UsuarioProgramaRepositoryPort,
+        private readonly codigosInvitacion: CodigoInvitacionUseCase,
     ) {}
 
     async ejecutar(dto: CrearUsuarioDto): Promise<UsuarioRegistrado> {
@@ -125,6 +127,22 @@ export class CrearUsuarioUseCase {
     }
 
     private async programaPrincipal(dto: CrearUsuarioDto): Promise<ProgramaFormacion | null> {
+        // El codigo de invitacion manda sobre todo lo demas: lo emitio el
+        // instructor de esa ficha, asi que es mas confiable que un numero
+        // tecleado por el aprendiz
+        const invitacion = dto.codigoInvitacion?.trim();
+        if (invitacion) {
+            const programaId = await this.codigosInvitacion.resolverPrograma(invitacion);
+            if (programaId === null) {
+                throw new BadRequestException('Ese código de invitación no existe. Revísalo con tu instructor.');
+            }
+            const programa = await this.programaRepository.buscarPorId(programaId);
+            if (!programa) {
+                throw new BadRequestException('La ficha de ese código de invitación ya no existe.');
+            }
+            return programa;
+        }
+
         const ficha = dto.idFicha?.trim();
         const porFicha = ficha ? await this.programaRepository.buscarPorFicha(ficha) : null;
         if (ficha && !porFicha && (dto.tipoUsuario ?? 'aprendiz') === 'aprendiz') {

@@ -49,6 +49,12 @@ export class CrearUsuarioDto {
   @MaxLength(60)
   codigoInstructor?: string;
 
+  /** El que le pasa el instructor: deja al aprendiz en su ficha. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  codigoInvitacion?: string;
+
   @IsOptional()
   @IsArray()
   @ArrayMaxSize(20)
