@@ -7,6 +7,7 @@ import { MENSAJE_IA_REPOSITORY } from '../../domain/ports/mensaje-ia.repository.
 import { PoliticaPersistenciaMensajesService } from '../services/politica-persistencia-mensajes.service';
 
 const CONTEXTO_SISTEMA = 'Eres AgroBot, el asistente agrícola de AgroSoft. Responde de forma clara y práctica sobre cultivos, plagas, tratamientos y manejo agrícola.';
+const INSTRUCCION_IMAGEN = 'Analiza la imagen como agrónomo: identifica el cultivo si puedes, describe síntomas visibles (plagas, enfermedades, deficiencias, estrés hídrico) y da recomendaciones prácticas. Si la imagen no es clara, dilo.';
 const MAX_MENSAJES_HISTORIAL = 12;
 
 @Injectable()
@@ -21,6 +22,7 @@ export class EnviarImagenesConversacionUseCase {
   async ejecutar(props: {
     conversacionId: number;
     mensaje: string;
+    imagenes?: string[];
     cantidadImagenes?: number;
     contexto?: string;
     tuvoDatos?: boolean;
@@ -28,22 +30,30 @@ export class EnviarImagenesConversacionUseCase {
     const conversacion = await this.conversaciones.buscarPorId(props.conversacionId);
     if (!conversacion) throw new NotFoundException('Conversación no encontrada');
 
-    const cantidadImagenes = props.cantidadImagenes ?? 0;
+    const imagenes = (props.imagenes ?? [])
+      .map((img) => img.replace(/^data:image\/[a-zA-Z+.-]+;base64,/, ''))
+      .filter((img) => img.length > 0);
+    const cantidadImagenes = imagenes.length || (props.cantidadImagenes ?? 0);
     const tieneImagenes = cantidadImagenes > 0;
-    const historialPrevio = await this.mensajes.listarPorConversacion(props.conversacionId);
 
-    const historial: MensajeHistorial[] = [
-      { role: 'system', content: props.contexto ? `${CONTEXTO_SISTEMA}\n\n${props.contexto}` : CONTEXTO_SISTEMA },
-      ...historialPrevio.slice(-MAX_MENSAJES_HISTORIAL).map((m) => ({
-        role: m.obtenerRol(),
-        content: m.tieneImagenesAdjuntas()
-          ? `${m.obtenerContenido()} [adjuntó ${m.obtenerCantidadImagenes()} imagen(es)]`
-          : m.obtenerContenido(),
-      })),
-      { role: 'user', content: props.mensaje },
-    ];
-
-    const respuesta = await this.iaProvider.chat(historial);
+    let respuesta: string;
+    if (imagenes.length > 0) {
+      const prompt = `${CONTEXTO_SISTEMA}\n\n${INSTRUCCION_IMAGEN}\n\nPregunta del usuario: ${props.mensaje}`;
+      respuesta = await this.iaProvider.analizarImagenes(imagenes, prompt);
+    } else {
+      const historialPrevio = await this.mensajes.listarPorConversacion(props.conversacionId);
+      const historial: MensajeHistorial[] = [
+        { role: 'system', content: props.contexto ? `${CONTEXTO_SISTEMA}\n\n${props.contexto}` : CONTEXTO_SISTEMA },
+        ...historialPrevio.slice(-MAX_MENSAJES_HISTORIAL).map((m) => ({
+          role: m.obtenerRol(),
+          content: m.tieneImagenesAdjuntas()
+            ? `${m.obtenerContenido()} [adjuntó ${m.obtenerCantidadImagenes()} imagen(es)]`
+            : m.obtenerContenido(),
+        })),
+        { role: 'user', content: props.mensaje },
+      ];
+      respuesta = await this.iaProvider.chat(historial);
+    }
 
     const guardar = this.politica.debeGuardar({
       mensaje: props.mensaje,

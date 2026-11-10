@@ -72,9 +72,9 @@ export class IaController {
     @UsuarioActual() usuario: UsuarioAutenticado,
   ) {
     await this.validarPropietario(id, usuario);
-    return this.enviarImagenesConversacionUseCase.ejecutar({
+      return this.enviarImagenesConversacionUseCase.ejecutar({
       conversacionId: id,
-      cantidadImagenes: dto.imagenes?.length ?? 0,
+      imagenes: dto.imagenes,
       mensaje: dto.prompt,
     });
   }
