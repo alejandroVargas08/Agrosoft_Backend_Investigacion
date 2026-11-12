@@ -1,4 +1,4 @@
-import { IsDateString, IsInt, IsOptional, IsString } from "class-validator";
+import { IsDateString, IsInt, IsNumber, IsOptional, IsString, Min } from "class-validator";
 
 export class CrearCultivoDto {
 
@@ -16,4 +16,7 @@ export class CrearCultivoDto {
 
     @IsDateString()
     fechaSiembra: string;
+
+    @IsOptional() @IsNumber() @Min(0)
+    areaM2?: number;
 }

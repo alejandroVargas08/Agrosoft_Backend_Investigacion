@@ -26,6 +26,7 @@ export class CrearCultivoUseCase {
             null,
             0,
             'activo',
+            dto.areaM2 ?? null,
         );
         return this.cultivoRepo.crear(cultivo);
     }

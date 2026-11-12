@@ -12,6 +12,8 @@ export class Cultivo {
         public fechaFinalizacion: Date | null, 
         public costoTotal: number,
         public estado: EstadoCultivo,
+        // Área propia de la unidad. Si no se registra, se usa la del lote.
+        public areaM2: number | null = null,
     ) {}
 
     finalizar(fecha: Date) {

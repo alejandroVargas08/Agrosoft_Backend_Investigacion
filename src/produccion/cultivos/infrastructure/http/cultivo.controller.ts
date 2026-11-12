@@ -11,7 +11,8 @@ import { ActualizarCultivoUseCase } from "../../application/use-cases/actualizar
 import { finalizarCultivoUseCase } from "../../application/use-cases/finalizar.cultivo.use-case";
 import { eliminarCultivoUseCase } from "../../application/use-cases/eliminar.cultivo.use-case";
 import { CrearCultivoDto } from "../../application/dtos/crear-cultivo.dto";
-import type { ActualizarCultivoDto } from "../../application/dtos/actualizar-cultivo.do";
+// Sin "type": Nest necesita la clase en tiempo de ejecucion para validar el body
+import { ActualizarCultivoDto } from "../../application/dtos/actualizar-cultivo.do";
 
 @Controller('cultivos')
 @Autenticado()

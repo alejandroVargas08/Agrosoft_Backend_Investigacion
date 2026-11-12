@@ -11,6 +11,7 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedCol
         @Column({ nullable: true}) fechaFinalizacion: Date;
         @Column('double precision', { default: 0}) costoTotal: number;
         @Column() estado: string;
+        @Column('double precision', { name: 'area_m2', nullable: true }) areaM2: number | null;
 
         @CreateDateColumn({ name: 'created_at' }) createdAt: Date;
         @UpdateDateColumn({ name: 'updated_at' }) updatedAt: Date;
