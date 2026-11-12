@@ -10,7 +10,7 @@ import { ActualizarUsuarioDto } from '../../../application/dto/usuarios/actualiz
 import { VerificarLoginDosPasosDto } from '../../../application/dto/usuarios/verificar-login-dos-pasos.dto';
 import { VerificarLoginDosPasosUseCase } from '../../../application/use-cases/usuarios/verificar-login-dos-pasos.use-case';
 import { LoginUsuarioDto } from '../../../application/dto/usuarios/login-usuario.dto';
-import { CambiarProgramaUsuarioDto, CambiarRolUsuarioDto, RechazarRegistroDto, RestablecerContrasenaAdminDto } from '../../../application/dto/usuarios/administrar-usuario.dto';
+import { CambiarProgramaUsuarioDto, CambiarRolUsuarioDto, CrearUsuarioAdminDto, RechazarRegistroDto, RestablecerContrasenaAdminDto } from '../../../application/dto/usuarios/administrar-usuario.dto';
 import { aUsuarioPublico } from '../../../application/dto/usuarios/usuario-respuesta.mapper';
 import type { UsuarioAutenticado } from '../../../domain/value-objects/alcance-datos.vo';
 import { Autenticado } from '../decorators/autenticado.decorator';
@@ -122,6 +122,15 @@ export class UsuarioController {
   @Autenticado(PERMISO_GESTIONAR_USUARIOS)
   restablecerContrasena(@Param('id', ParseIntPipe) id: number, @Body() dto: RestablecerContrasenaAdminDto) {
     return this.administrarUsuarioUseCase.restablecerContrasena(id, dto.nuevaContrasena);
+  }
+
+  // Alta hecha por el administrador: distinta del registro publico de @Post(),
+  // porque aqui se elige el rol y el usuario queda activo sin pasar por la
+  // cola de solicitudes. Devuelve la contrasena generada una sola vez.
+  @Post('admin')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  crearComoAdmin(@Body() dto: CrearUsuarioAdminDto) {
+    return this.administrarUsuarioUseCase.crearComoAdmin(dto);
   }
 
   @Delete(':id')
