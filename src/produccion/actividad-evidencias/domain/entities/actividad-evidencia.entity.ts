@@ -4,12 +4,19 @@ export class actividadEvidencia {
         public actividadId: number,
         public descripcion: string | null,
         public imagenes: string[],
+        /**
+         * La entrega del aprendiz a la que pertenece esta evidencia. Queda en
+         * null cuando la evidencia es de la actividad en general y no de la
+         * entrega de alguien en particular, que es lo que sube el instructor.
+         */
+        public asignacionId: number | null = null,
     ) {}
 
     static crear(props: {
         actividadId: number;
         descripcion?: string | null;
         imagenes?: string[];
+        asignacionId?: number | null;
     }): actividadEvidencia {
         const imagenes = props.imagenes ?? [];
         const tieneDescripcion = !!props.descripcion && props.descripcion.trim().length > 0;
@@ -19,7 +26,13 @@ export class actividadEvidencia {
             throw new Error('la evidencia debe de tener almenos una descripcion o una imagen');
         }
 
-        return new actividadEvidencia(null, props.actividadId, props.descripcion ?? null, imagenes );
+        return new actividadEvidencia(
+            null,
+            props.actividadId,
+            props.descripcion ?? null,
+            imagenes,
+            props.asignacionId ?? null,
+        );
     }
 
     agregarImagen(url: string) {

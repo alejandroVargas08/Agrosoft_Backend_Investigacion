@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
 import { registrarActividadEvidenciaUseCase } from "../../aplicattion/use-cases/registrar-actividad-evidencia.use-case";
 import { listarActividadEvidenciaUseCase } from "../../aplicattion/use-cases/listar-actividad-evidencia.use-case";
 import { AgregarImagenActividadEvidenciaUseCase } from "../../aplicattion/use-cases/agregar-actividad-evidencia.use-case";
@@ -25,8 +25,15 @@ import { PermitirEjecutor } from '../../../actividades/infrastructure/http/permi
         }
 
         @Get()
-        listar(@Param('actividadId', ParseIntPipe) actividadId: number) {
-            return this.listarEvidenciaUC.ejecutar(actividadId);
+        listar(
+            @Param('actividadId', ParseIntPipe) actividadId: number,
+            @Query('asignacionId') asignacionId?: string,
+        ) {
+            const entrega = asignacionId !== undefined ? Number(asignacionId) : undefined;
+            return this.listarEvidenciaUC.ejecutar(
+                actividadId,
+                Number.isInteger(entrega) ? entrega : undefined,
+            );
         }
 
         @Patch(':id/imagenes')

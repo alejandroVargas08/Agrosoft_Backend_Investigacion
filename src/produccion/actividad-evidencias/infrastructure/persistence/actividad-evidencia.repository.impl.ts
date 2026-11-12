@@ -22,8 +22,10 @@ import { actividadEvidenciaRepositoryPort } from "../../domain/ports/actividad-e
             return row ? this.toDomain(row) : null; 
         }
 
-        async listarPorActividad(actividadId: number): Promise<actividadEvidencia[]> {
-            const rows = await this.ormRepo.find({ where: {actividadId}});
+        async listarPorActividad(actividadId: number, asignacionId?: number): Promise<actividadEvidencia[]> {
+            const rows = await this.ormRepo.find({
+                where: asignacionId === undefined ? { actividadId } : { actividadId, asignacionId },
+            });
             return rows.map((r) => this.toDomain(r));
         }
 
@@ -41,15 +43,17 @@ import { actividadEvidenciaRepositoryPort } from "../../domain/ports/actividad-e
                 row.id, 
                 row.actividadId,
                 row.descripcion,
-                row.imagenes ?? 
-                []);
+                row.imagenes ?? [],
+                row.asignacionId ?? null,
+            );
         }
 
         private toOrm(item: actividadEvidencia): Partial<actividadEvidenciaOrmEntity> {
             return {
                 actividadId: item.actividadId,
                 descripcion: item.descripcion ?? undefined,
-                imagenes: item.imagenes
+                imagenes: item.imagenes,
+                asignacionId: item.asignacionId,
             };
         }
     }

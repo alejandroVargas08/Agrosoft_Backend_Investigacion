@@ -4,7 +4,8 @@ export const actividad_evidenciaRepository = Symbol('actividad_evidenciaReposito
     export interface actividadEvidenciaRepositoryPort {
         crear(item: actividadEvidencia): Promise<actividadEvidencia>;
         buscarPorId(id: number): Promise<actividadEvidencia | null>;
-        listarPorActividad(actividadId: number): Promise<actividadEvidencia[]>;
+        /** Con asignacionId trae solo las de esa entrega; sin el, todas. */
+        listarPorActividad(actividadId: number, asignacionId?: number): Promise<actividadEvidencia[]>;
         actualizar(item: actividadEvidencia): Promise<actividadEvidencia>;
         eliminar(id: number): Promise<void>;
     } 
