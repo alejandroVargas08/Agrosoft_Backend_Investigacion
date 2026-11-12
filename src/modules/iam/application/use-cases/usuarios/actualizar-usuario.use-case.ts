@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { UsuarioRepositoryPort } from '../../../domain/ports/usuario.repository.port';
 import { USUARIO_REPOSITORY } from '../../../domain/ports/usuario.repository.token';
 import { ActualizarUsuarioDto } from '../../dto/usuarios/actualizar-usuario.dto';
@@ -25,7 +25,12 @@ export class ActualizarUsuarioUseCase {
       usuarioExistente.cambiarApellido(dto.apellido);
     }
 
-    if (dto.correo) {
+    if (dto.correo && dto.correo !== usuarioExistente.obtenerCorreo()) {
+      // Sin esto el correo repetido choca con el indice unico y sale un 500
+      const otro = await this.usuarioRepository.buscarPorCorreo(dto.correo);
+      if (otro && otro.obtenerId() !== id) {
+        throw new ConflictException('Ese correo ya está registrado en otra cuenta');
+      }
       usuarioExistente.cambiarCorreo(dto.correo);
     }
 
