@@ -10,7 +10,7 @@ import { ActualizarUsuarioDto } from '../../../application/dto/usuarios/actualiz
 import { VerificarLoginDosPasosDto } from '../../../application/dto/usuarios/verificar-login-dos-pasos.dto';
 import { VerificarLoginDosPasosUseCase } from '../../../application/use-cases/usuarios/verificar-login-dos-pasos.use-case';
 import { LoginUsuarioDto } from '../../../application/dto/usuarios/login-usuario.dto';
-import { CambiarProgramaUsuarioDto, CambiarRolUsuarioDto, CrearUsuarioAdminDto, RechazarRegistroDto, RestablecerContrasenaAdminDto } from '../../../application/dto/usuarios/administrar-usuario.dto';
+import { AprobarRegistroDto, CambiarProgramaUsuarioDto, CambiarRolUsuarioDto, CrearUsuarioAdminDto, RechazarRegistroDto, RestablecerContrasenaAdminDto } from '../../../application/dto/usuarios/administrar-usuario.dto';
 import { aUsuarioPublico } from '../../../application/dto/usuarios/usuario-respuesta.mapper';
 import type { UsuarioAutenticado } from '../../../domain/value-objects/alcance-datos.vo';
 import { Autenticado } from '../decorators/autenticado.decorator';
@@ -108,8 +108,8 @@ export class UsuarioController {
 
   @Patch(':id/aprobar')
   @Autenticado(PERMISO_GESTIONAR_USUARIOS)
-  aprobarRegistro(@Param('id', ParseIntPipe) id: number) {
-    return this.administrarUsuarioUseCase.aprobarRegistro(id);
+  aprobarRegistro(@Param('id', ParseIntPipe) id: number, @Body() dto: AprobarRegistroDto) {
+    return this.administrarUsuarioUseCase.aprobarRegistro(id, dto?.fichasACargo);
   }
 
   @Patch(':id/rechazar')

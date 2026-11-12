@@ -1,4 +1,17 @@
-import { IsEmail, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, MaxLength, MinLength } from 'class-validator';
+import { ArrayUnique, IsArray, IsEmail, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, MaxLength, MinLength } from 'class-validator';
+
+/**
+ * Al aprobar a un instructor, el administrador puede ajustar las fichas que
+ * le quedan a cargo. Sin la lista se asignan las que pidio al registrarse.
+ */
+export class AprobarRegistroDto {
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  readonly fichasACargo?: number[];
+}
 
 /**
  * El alta que hace el administrador desde Gestion de Usuarios, distinta del

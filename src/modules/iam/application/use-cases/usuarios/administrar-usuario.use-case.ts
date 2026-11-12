@@ -45,12 +45,21 @@ export class AdministrarUsuarioUseCase {
       .map(aUsuarioPublico);
   }
 
-  async aprobarRegistro(usuarioId: number): Promise<UsuarioPublico> {
+  async aprobarRegistro(usuarioId: number, fichasElegidas?: number[]): Promise<UsuarioPublico> {
     const usuario = await this.obtenerUsuario(usuarioId);
     if (!usuario.estaPendiente()) throw new ConflictException('Este usuario no tiene una solicitud pendiente');
+
+    // Las que eligio el administrador mandan sobre las que se pidieron
+    const fichas = fichasElegidas ?? usuario.obtenerSolicitudRegistro()?.fichasACargo ?? [];
+    for (const programaId of fichasElegidas ?? []) {
+      if (!(await this.programaRepository.buscarPorId(programaId))) {
+        throw new NotFoundException(`Ficha con ID ${programaId} no encontrada`);
+      }
+    }
+
     usuario.aprobarRegistro();
     const actualizado = await this.usuarioRepository.actualizar(usuario);
-    for (const programaId of usuario.obtenerSolicitudRegistro()?.fichasACargo ?? []) {
+    for (const programaId of fichas) {
       if (!(await this.usuarioProgramas.existe(usuarioId, programaId))) {
         await this.usuarioProgramas.asignar(usuarioId, programaId);
       }
