@@ -4,7 +4,7 @@ import { AccesoAprendicesService } from '../../../../modules/iam/application/ser
 import { EstadoNovedad, ESTADOS_NOVEDAD, Novedad } from '../../domain/entities/novedad.entity';
 import { NOVEDAD_REPOSITORY } from '../../domain/ports/novedad.repository.port';
 import type { NovedadRepositoryPort } from '../../domain/ports/novedad.repository.port';
-import { ReportarNovedadDto, ResponderNovedadDto } from '../dtos/novedad.dto';
+import { AtenderNovedadDto, ReportarNovedadDto, ResponderNovedadDto } from '../dtos/novedad.dto';
 
 /** Lo que ve la pantalla: la novedad con el nombre de quien la reportó. */
 export interface NovedadRespuesta {
@@ -81,8 +81,8 @@ export class NovedadesUseCase {
         return this.presentar(lista, nombres);
     }
 
-    async atender(id: number, dto: ResponderNovedadDto, usuario: UsuarioAutenticado): Promise<NovedadRespuesta> {
-        return this.resolver(id, usuario, (novedad) => novedad.atender(dto.respuesta, usuario.id));
+    async atender(id: number, dto: AtenderNovedadDto, usuario: UsuarioAutenticado): Promise<NovedadRespuesta> {
+        return this.resolver(id, usuario, (novedad) => novedad.atender(dto.respuesta ?? null, usuario.id));
     }
 
     async descartar(id: number, dto: ResponderNovedadDto, usuario: UsuarioAutenticado): Promise<NovedadRespuesta> {

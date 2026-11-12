@@ -160,12 +160,31 @@ describe('NovedadesUseCase', () => {
             ).rejects.toThrow(/ya fue resuelta/i);
         });
 
-        it('exige una respuesta no vacía', async () => {
+        it('atender sin respuesta la deja atendida y sin texto', async () => {
+            const { useCase, repo } = construir([novedad(1, APRENDIZ)]);
+
+            await useCase.atender(1, {}, sesion(INSTRUCTOR));
+
+            const guardada = repo.guardadas[0];
+            expect(guardada.estado).toBe('atendida');
+            expect(guardada.respuestaInstructor).toBeNull();
+            expect(guardada.respondidaEn).not.toBeNull();
+        });
+
+        it('un campo en blanco al atender vale lo mismo que no escribir nada', async () => {
+            const { useCase, repo } = construir([novedad(1, APRENDIZ)]);
+
+            await useCase.atender(1, { respuesta: '   ' }, sesion(INSTRUCTOR));
+
+            expect(repo.guardadas[0].respuestaInstructor).toBeNull();
+        });
+
+        it('descartar sí exige el motivo', async () => {
             const { useCase } = construir([novedad(1, APRENDIZ)]);
 
             await expect(
-                useCase.atender(1, { respuesta: '   ' }, sesion(INSTRUCTOR)),
-            ).rejects.toThrow(/respuesta/i);
+                useCase.descartar(1, { respuesta: '   ' }, sesion(INSTRUCTOR)),
+            ).rejects.toThrow(/motivo/i);
         });
 
         it('no deja resolver la de un aprendiz de otra ficha', async () => {

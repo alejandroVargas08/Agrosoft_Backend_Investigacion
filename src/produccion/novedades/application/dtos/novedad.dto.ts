@@ -35,9 +35,22 @@ export class ReportarNovedadDto {
     readonly nombreHerramienta?: string;
 }
 
+/** Al descartar hay que decir por que: el aprendiz tiene que saberlo. */
 export class ResponderNovedadDto {
     @IsString()
     @MinLength(3)
     @MaxLength(1000)
     readonly respuesta: string;
+}
+
+/**
+ * Al atender, en cambio, la respuesta es opcional, como en el diseño: dar algo
+ * por resuelto no siempre necesita explicacion. Sin MinLength a proposito, para
+ * que un campo que quedo en blanco no sea un error sino una respuesta vacia.
+ */
+export class AtenderNovedadDto {
+    @IsOptional()
+    @IsString()
+    @MaxLength(1000)
+    readonly respuesta?: string;
 }
