@@ -16,8 +16,11 @@ export class loteProduccion{
         public destino: string | null = null,
         public responsable: string | null = null,
         public observaciones: string | null = null,
-        // Fecha en que se registro la cosecha (created_at en la tabla)
+        // Día en que se cosechó. Las cosechas viejas no la tienen y usan created_at.
         public readonly fechaCosecha: Date | null = null,
+        // Lo que se anotó tal cual (ej. 12 bultos); cantidadKg es su equivalente en kg
+        public readonly cantidad: number | null = null,
+        public readonly unidad: string | null = null,
     ) {}
 
     descontarStock(kg: number) {

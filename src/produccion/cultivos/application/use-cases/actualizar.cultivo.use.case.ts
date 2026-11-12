@@ -48,6 +48,16 @@ export class ActualizarCultivoUseCase {
             cultivo.areaM2 = datosActualizados.areaM2 ?? null;
         }
 
+        if (datosActualizados.fechaFinalizacion !== undefined) {
+            const nueva = new Date(datosActualizados.fechaFinalizacion);
+            anotar('fin', dia(cultivo.fechaFinalizacion), dia(nueva));
+            cultivo.fechaFinalizacion = nueva;
+        }
+        if (datosActualizados.costoEstimado !== undefined) {
+            anotar('costo estimado', cultivo.costoEstimado, datosActualizados.costoEstimado);
+            cultivo.costoEstimado = datosActualizados.costoEstimado;
+        }
+
         const guardado = await this.cultivoRepo.actualizar(cultivo);
 
         if (Object.keys(cambios).length > 0) {

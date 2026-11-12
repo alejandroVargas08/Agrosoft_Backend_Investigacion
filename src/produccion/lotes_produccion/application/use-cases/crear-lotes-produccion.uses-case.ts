@@ -26,6 +26,9 @@ export class CrearLoteProduccionUseCase {
             dto.destino ?? null,
             dto.responsable ?? null,
             dto.observaciones ?? null,
+            dto.fechaCosecha ? new Date(dto.fechaCosecha) : null,
+            dto.cantidad ?? null,
+            dto.unidad ?? null,
         );
         nuevoLote.recalcularCostoTotal();
         return this.loteProduccionRepo.crear(nuevoLote);

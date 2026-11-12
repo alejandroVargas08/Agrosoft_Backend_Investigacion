@@ -19,4 +19,11 @@ export class CrearCultivoDto {
 
     @IsOptional() @IsNumber() @Min(0)
     areaM2?: number;
+
+    /** Cuándo se espera terminar. Al finalizar se reemplaza por la fecha real. */
+    @IsOptional() @IsDateString()
+    fechaFinalizacion?: string;
+
+    @IsOptional() @IsNumber() @Min(0)
+    costoEstimado?: number;
 }

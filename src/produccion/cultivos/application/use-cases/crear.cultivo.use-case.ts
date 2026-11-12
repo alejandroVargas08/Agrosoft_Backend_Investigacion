@@ -23,10 +23,11 @@ export class CrearCultivoUseCase {
             dto.loteId,
             dto.subLoteId ?? null,
             new Date(dto.fechaSiembra),
-            null,
+            dto.fechaFinalizacion ? new Date(dto.fechaFinalizacion) : null,
             0,
             'activo',
             dto.areaM2 ?? null,
+            dto.costoEstimado ?? null,
         );
         return this.cultivoRepo.crear(cultivo);
     }

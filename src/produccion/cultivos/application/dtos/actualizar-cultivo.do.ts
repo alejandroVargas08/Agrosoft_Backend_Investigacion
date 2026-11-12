@@ -20,6 +20,12 @@ export class ActualizarCultivoDto {
     @IsOptional() @IsNumber() @Min(0)
     areaM2?: number;
 
+    @IsOptional() @IsDateString()
+    fechaFinalizacion?: string;
+
+    @IsOptional() @IsNumber() @Min(0)
+    costoEstimado?: number;
+
     /** Por qué se hizo el cambio. Queda en el historial de la unidad. */
     @IsOptional() @IsString() @MaxLength(300)
     motivo?: string;

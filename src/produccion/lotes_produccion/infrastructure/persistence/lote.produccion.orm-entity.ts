@@ -19,6 +19,9 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedCol
         @Column({ type: 'varchar', length: 60, nullable: true }) destino: string | null;
         @Column({ type: 'varchar', length: 120, nullable: true }) responsable: string | null;
         @Column({ type: 'text', nullable: true }) observaciones: string | null;
+        @Column({ name: 'fecha_cosecha', type: 'date', nullable: true }) fechaCosecha: string | null;
+        @Column('double precision', { nullable: true }) cantidad: number | null;
+        @Column({ type: 'varchar', length: 20, nullable: true }) unidad: string | null;
 
         @CreateDateColumn({ name: 'created_at' })
         createdAt: Date;
