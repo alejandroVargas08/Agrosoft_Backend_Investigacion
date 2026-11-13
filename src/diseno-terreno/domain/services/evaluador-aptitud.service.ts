@@ -70,9 +70,13 @@ export class EvaluadorAptitud {
     const minimo = Math.min(...puntajes);
     const promedio = puntajes.reduce((a, b) => a + b, 0) / puntajes.length;
     let puntaje = minimo === 0 ? 0 : Math.round(100 * (0.6 * minimo + 0.4 * promedio));
+    const areaVerificada = perfil.cobertura?.areaVerificadaPct ?? 100;
     if (factores[0].puntaje === null && puntaje > PUNTAJE_MAXIMO_SIN_COBERTURA) {
       puntaje = PUNTAJE_MAXIMO_SIN_COBERTURA;
       limitantes.push('No se verificó qué hay sobre el terreno (construcciones, agua, bosque): aptitud limitada a moderada');
+    } else if (areaVerificada < 100 && puntaje > PUNTAJE_MAXIMO_SIN_COBERTURA) {
+      puntaje = PUNTAJE_MAXIMO_SIN_COBERTURA;
+      limitantes.push(`Solo se verificó el ${areaVerificada} % del terreno: aptitud limitada a moderada`);
     }
 
     return {

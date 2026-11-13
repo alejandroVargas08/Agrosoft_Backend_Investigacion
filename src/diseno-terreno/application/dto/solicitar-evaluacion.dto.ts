@@ -16,6 +16,12 @@ export class SolicitarEvaluacionDto {
   @IsOptional() @IsString() @MaxLength(40)
   cultivoPreferido?: string;
 
+  @IsOptional() @IsInt()
+  vueloId?: number;
+
+  @IsOptional() @IsBoolean()
+  soloAreaVuelo?: boolean;
+
   @IsOptional() @IsBoolean()
   usarDron?: boolean;
 

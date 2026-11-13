@@ -1,5 +1,6 @@
 import type { TipoCoberturaVisual } from '../../../drones/domain/value-objects/interpretacion-ia.vo';
 import { PuntoGeo } from './geo';
+import { ObjetoTerreno, ResumenObjetos } from './objetos-terreno';
 
 export type ClaseTextura = 'ARENOSO' | 'FRANCO_ARENOSO' | 'FRANCO' | 'FRANCO_ARCILLOSO' | 'ARCILLOSO';
 
@@ -34,20 +35,31 @@ export interface Suelo {
   fuente: string;
 }
 
+export type TipoZona = 'NO_SEMBRABLE' | 'BOSQUE' | 'YA_SEMBRADO' | 'LIBRE';
+
 export interface ZonaExcluida {
   centro: PuntoGeo;
   radioM: number;
   motivo: string;
+  tipo: TipoZona;
 }
 
-export type FuenteCobertura = 'DRON' | 'SATELITE';
+export interface CultivoExistente {
+  nombre: string;
+  capturas: number;
+}
+
+export type FuenteCobertura = 'DRON' | 'SATELITE' | 'DRON_Y_SATELITE' | 'MAPA';
 
 export interface CoberturaTerreno {
   fuente: FuenteCobertura;
   porcentajes: Partial<Record<TipoCoberturaVisual, number>>;
   porcentajeSembrable: number;
+  areaVerificadaPct: number;
   observaciones: string[];
+  zonas: ZonaExcluida[];
   zonasExcluidas: ZonaExcluida[];
+  cultivosExistentes: CultivoExistente[];
   fecha: Date | null;
   referencia: string | null;
 }
@@ -59,6 +71,8 @@ export interface PerfilTerreno {
   clima: Clima | null;
   suelo: Suelo | null;
   cobertura: CoberturaTerreno | null;
+  objetos?: ObjetoTerreno[];
+  resumenObjetos?: ResumenObjetos | null;
   fuentesFallidas: string[];
 }
 

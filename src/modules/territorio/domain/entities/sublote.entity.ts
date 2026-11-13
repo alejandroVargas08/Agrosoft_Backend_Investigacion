@@ -66,6 +66,21 @@ actualizarEstado(nuevoEstado: EstadoLote): void {
     this._updatedAt = new Date();
 }
 
+editar(cambios: { nombre?: string; descripcion?: string; poligono?: PoligonoGeografico; centroide?: PuntoGeografico; area?: Area }): void {
+    if (this._deletedAt) {
+        throw new Error('No se puede editar un sublote eliminado');
+    }
+    if (cambios.nombre !== undefined) {
+        if (cambios.nombre.trim().length === 0) throw new Error('El nombre del sublote no puede quedar vacío');
+        this._nombre = cambios.nombre.trim();
+    }
+    if (cambios.descripcion !== undefined) this._descripcion = cambios.descripcion.trim();
+    if (cambios.poligono) this._poligono = cambios.poligono;
+    if (cambios.centroide) this._centroide = cambios.centroide;
+    if (cambios.area) this._area = cambios.area;
+    this._updatedAt = new Date();
+}
+
 eliminar(): void {
     this._deletedAt = new Date();
     this._updatedAt = new Date();

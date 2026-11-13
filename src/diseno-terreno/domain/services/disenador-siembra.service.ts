@@ -1,5 +1,6 @@
 import { CultivoAptitud } from '../entities/cultivo-aptitud.entity';
-import { PuntoGeo, trazarSurcos } from '../value-objects/geo';
+import { PuntoGeo, quitarTramosEnCirculos, trazarSurcos } from '../value-objects/geo';
+import { quitarTramosEnObjetos } from '../value-objects/objetos-terreno';
 import { PerfilTerreno, ZonaExcluida } from '../value-objects/perfil-terreno.vo';
 
 export type SistemaTrazado = 'SURCOS_RECTOS' | 'CURVAS_DE_NIVEL' | 'CURVAS_CON_BARRERAS' | 'TERRAZAS' | 'NO_RECOMENDADO';
@@ -23,6 +24,7 @@ export interface DisenoSiembra {
   surcos: PuntoGeo[][];
   surcosPorLinea: number;
   zonasExcluidas: ZonaExcluida[];
+  porcentajeYaSembrado: number;
 }
 
 const CAMINOS_PERENNES = 0.1;
@@ -34,10 +36,18 @@ export class DisenadorSiembra {
     const pendiente = perfil.topografia?.pendientePct ?? null;
     const azimut = perfil.topografia?.azimutBajadaGrados ?? null;
 
-    const porcentajeSembrable = perfil.cobertura?.porcentajeSembrable ?? 100;
+    const porcentajeYaSembrado = Math.round(perfil.cobertura?.porcentajes.CULTIVO ?? 0);
+    const porcentajeSembrable = Math.max(0, (perfil.cobertura?.porcentajeSembrable ?? 100) - porcentajeYaSembrado);
     if (!perfil.cobertura) {
       recomendaciones.push('No se verificó qué hay sobre el terreno; se asumió el 100 % sembrable. Confírmalo con dron o imagen satelital.');
     }
+    if (porcentajeYaSembrado > 0) {
+      const cultivos = (perfil.cobertura?.cultivosExistentes ?? []).map((c) => c.nombre).join(', ');
+      recomendaciones.push(
+        `El ${porcentajeYaSembrado} % ya tiene cultivo${cultivos ? ` (${cultivos})` : ''}: el diseño solo usa el área libre. Si vas a renovar ese cultivo, el área disponible es mayor.`,
+      );
+    }
+    const zonasExcluidas = (perfil.cobertura?.zonasExcluidas ?? []).filter((z) => z.tipo !== 'LIBRE');
 
     const porcentajeCaminos = cultivo.perenne ? CAMINOS_PERENNES : CAMINOS_TRANSITORIOS;
     const areaSembrableM2 = Math.round((perfil.areaM2 * porcentajeSembrable) / 100);
@@ -73,9 +83,10 @@ export class DisenadorSiembra {
       sistemaTrazado,
       orientacionSurcosGrados: Math.round(orientacionSurcosGrados),
       recomendaciones,
-      surcos: trazado.lineas,
+      surcos: quitarTramosEnObjetos(quitarTramosEnCirculos(trazado.lineas, zonasExcluidas), perfil.objetos ?? []),
       surcosPorLinea: trazado.surcosPorLinea,
-      zonasExcluidas: perfil.cobertura?.zonasExcluidas ?? [],
+      zonasExcluidas,
+      porcentajeYaSembrado,
     };
   }
 

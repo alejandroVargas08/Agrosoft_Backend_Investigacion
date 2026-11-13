@@ -9,6 +9,7 @@ import type { CultivoAptitudRepositoryPort, EvaluacionTerrenoRepositoryPort } fr
 import { CULTIVO_APTITUD_REPOSITORY_TOKEN, EVALUACION_TERRENO_REPOSITORY_TOKEN } from '../../domain/ports/repositorios.port';
 import { areaPoligonoM2, PuntoGeo } from '../../domain/value-objects/geo';
 import { SolicitarEvaluacionDto } from '../dto/solicitar-evaluacion.dto';
+import { AnalizadorCoberturaService } from '../services/analizador-cobertura.service';
 import { ProcesarEvaluacionTerrenoUseCase } from './procesar-evaluacion-terreno.use-case';
 
 const AREA_MAXIMA_M2 = 5_000_000;
@@ -27,11 +28,16 @@ export class SolicitarEvaluacionTerrenoUseCase {
     @Inject(ACCESO_LOTES_PORT)
     private readonly accesoLotes: AccesoLotesPort,
     private readonly procesarEvaluacion: ProcesarEvaluacionTerrenoUseCase,
+    private readonly cobertura: AnalizadorCoberturaService,
   ) {}
 
   async execute(dto: SolicitarEvaluacionDto, usuario: UsuarioAutenticado): Promise<EvaluacionTerreno> {
     if (!dto.loteId && !dto.poligono) {
       throw new BadRequestException('Envía un loteId o un poligono con al menos 3 puntos');
+    }
+
+    if (dto.soloAreaVuelo && (!dto.vueloId || !dto.loteId)) {
+      throw new BadRequestException('Para evaluar el área de un vuelo envía loteId y vueloId');
     }
 
     let poligono: PuntoGeo[];
@@ -42,8 +48,18 @@ export class SolicitarEvaluacionTerrenoUseCase {
       if (!lote || !(await this.accesoLotes.puedeAcceder(usuario, dto.loteId))) {
         throw new NotFoundException(`No existe un lote con id ${dto.loteId}`);
       }
-      poligono = dto.poligono ?? lote.poligono.vertices.map((v) => ({ lat: v.lat, lng: v.lng }));
+      const poligonoLote = lote.poligono.vertices.map((v) => ({ lat: v.lat, lng: v.lng }));
+      poligono = dto.poligono ?? poligonoLote;
       nombre ||= `Lote ${lote.nombre}`;
+      if (dto.soloAreaVuelo) {
+        const area = await this.cobertura.areaDelVuelo(dto.vueloId!, poligonoLote);
+        if (!area) {
+          throw new BadRequestException('El vuelo no tiene un análisis completado con fotos georreferenciadas (GPS)');
+        }
+        if (area.loteId !== dto.loteId) throw new BadRequestException('El vuelo no pertenece a ese lote');
+        poligono = area.poligono;
+        nombre = (dto.nombre?.trim() || `Área del vuelo "${area.nombre}" · ${lote.nombre}`).slice(0, 120);
+      }
     } else {
       poligono = dto.poligono!.map((p) => ({ lat: p.lat, lng: p.lng }));
     }
@@ -59,6 +75,8 @@ export class SolicitarEvaluacionTerrenoUseCase {
     const evaluacion = await this.evaluacionRepository.guardar(
       EvaluacionTerreno.crear({
         loteId: dto.loteId ?? null,
+        vueloId: dto.loteId ? dto.vueloId ?? null : null,
+        areaDelVuelo: !!dto.soloAreaVuelo,
         nombre: nombre || `Terreno de ${(area / 10_000).toFixed(2)} ha`,
         poligono,
         cultivoPreferido: dto.cultivoPreferido ?? null,

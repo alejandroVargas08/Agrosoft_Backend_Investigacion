@@ -70,6 +70,144 @@ function dentro(p: PuntoLocal, poligono: PuntoLocal[]): boolean {
   return resultado;
 }
 
+export function fraccionCubierta(poligono: PuntoGeo[], centros: PuntoGeo[], radioM: number, resolucion = 40): number {
+  if (centros.length === 0 || radioM <= 0) return 0;
+  const proyeccion = ProyeccionLocal.para(poligono);
+  const locales = poligono.map((p) => proyeccion.aLocal(p));
+  const circulos = centros.map((c) => proyeccion.aLocal(c));
+  const xs = locales.map((p) => p.x);
+  const ys = locales.map((p) => p.y);
+  const [minX, maxX, minY, maxY] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  const radio2 = radioM * radioM;
+  let interiores = 0;
+  let cubiertos = 0;
+  for (let i = 0; i < resolucion; i++) {
+    for (let j = 0; j < resolucion; j++) {
+      const p = { x: minX + ((i + 0.5) * (maxX - minX)) / resolucion, y: minY + ((j + 0.5) * (maxY - minY)) / resolucion };
+      if (!dentro(p, locales)) continue;
+      interiores++;
+      if (circulos.some((c) => (c.x - p.x) ** 2 + (c.y - p.y) ** 2 <= radio2)) cubiertos++;
+    }
+  }
+  return interiores === 0 ? 0 : cubiertos / interiores;
+}
+
+function areaFirmada(puntos: PuntoLocal[]): number {
+  let doble = 0;
+  for (let i = 0; i < puntos.length; i++) {
+    const a = puntos[i];
+    const b = puntos[(i + 1) % puntos.length];
+    doble += a.x * b.y - b.x * a.y;
+  }
+  return doble / 2;
+}
+
+function envolventeConvexa(puntos: PuntoLocal[]): PuntoLocal[] {
+  const ordenados = [...puntos].sort((a, b) => a.x - b.x || a.y - b.y);
+  if (ordenados.length < 3) return ordenados;
+  const cruz = (o: PuntoLocal, a: PuntoLocal, b: PuntoLocal) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  const inferior: PuntoLocal[] = [];
+  for (const p of ordenados) {
+    while (inferior.length >= 2 && cruz(inferior[inferior.length - 2], inferior[inferior.length - 1], p) <= 0) inferior.pop();
+    inferior.push(p);
+  }
+  const superior: PuntoLocal[] = [];
+  for (const p of [...ordenados].reverse()) {
+    while (superior.length >= 2 && cruz(superior[superior.length - 2], superior[superior.length - 1], p) <= 0) superior.pop();
+    superior.push(p);
+  }
+  return [...inferior.slice(0, -1), ...superior.slice(0, -1)];
+}
+
+function recortarConConvexo(sujeto: PuntoLocal[], recorte: PuntoLocal[]): PuntoLocal[] {
+  const lado = (a: PuntoLocal, b: PuntoLocal, p: PuntoLocal) => (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+  const corte = (p: PuntoLocal, q: PuntoLocal, a: PuntoLocal, b: PuntoLocal): PuntoLocal => {
+    const lp = lado(a, b, p);
+    const lq = lado(a, b, q);
+    const t = lp / (lp - lq);
+    return { x: p.x + t * (q.x - p.x), y: p.y + t * (q.y - p.y) };
+  };
+  let salida = areaFirmada(sujeto) < 0 ? [...sujeto].reverse() : [...sujeto];
+  for (let i = 0; i < recorte.length && salida.length > 0; i++) {
+    const a = recorte[i];
+    const b = recorte[(i + 1) % recorte.length];
+    const entrada = salida;
+    salida = [];
+    for (let j = 0; j < entrada.length; j++) {
+      const actual = entrada[j];
+      const previo = entrada[(j + entrada.length - 1) % entrada.length];
+      const actualDentro = lado(a, b, actual) >= 0;
+      const previoDentro = lado(a, b, previo) >= 0;
+      if (actualDentro) {
+        if (!previoDentro) salida.push(corte(previo, actual, a, b));
+        salida.push(actual);
+      } else if (previoDentro) {
+        salida.push(corte(previo, actual, a, b));
+      }
+    }
+  }
+  return salida;
+}
+
+export function zonaDeCapturas(centros: PuntoGeo[], radioM: number, limite: PuntoGeo[] | null, lados = 16): PuntoGeo[] {
+  if (centros.length === 0) return [];
+  const proyeccion = ProyeccionLocal.para(centros);
+  const bordes: PuntoLocal[] = [];
+  for (const centro of centros) {
+    const c = proyeccion.aLocal(centro);
+    for (let k = 0; k < lados; k++) {
+      const angulo = (2 * Math.PI * k) / lados;
+      bordes.push({ x: c.x + radioM * Math.cos(angulo), y: c.y + radioM * Math.sin(angulo) });
+    }
+  }
+  const envolvente = envolventeConvexa(bordes);
+  if (limite && limite.length >= 3) {
+    const recortado = recortarConConvexo(limite.map((p) => proyeccion.aLocal(p)), envolvente);
+    if (recortado.length >= 3 && Math.abs(areaFirmada(recortado)) >= 1) return recortado.map((p) => proyeccion.aGeo(p));
+  }
+  return envolvente.map((p) => proyeccion.aGeo(p));
+}
+
+export interface CirculoGeo {
+  centro: PuntoGeo;
+  radioM: number;
+}
+
+export function quitarTramosEnCirculos(lineas: PuntoGeo[][], circulos: CirculoGeo[]): PuntoGeo[][] {
+  if (circulos.length === 0 || lineas.length === 0) return lineas;
+  const proyeccion = new ProyeccionLocal(lineas[0][0]);
+  const locales = circulos.map((c) => ({ ...proyeccion.aLocal(c.centro), r: c.radioM }));
+  const resultado: PuntoGeo[][] = [];
+  for (const linea of lineas) {
+    const a = proyeccion.aLocal(linea[0]);
+    const b = proyeccion.aLocal(linea[linea.length - 1]);
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const largo2 = dx * dx + dy * dy;
+    if (largo2 === 0) continue;
+    const quitados: [number, number][] = [];
+    for (const c of locales) {
+      const t = ((c.x - a.x) * dx + (c.y - a.y) * dy) / largo2;
+      const px = a.x + t * dx - c.x;
+      const py = a.y + t * dy - c.y;
+      const d2 = px * px + py * py;
+      if (d2 >= c.r * c.r) continue;
+      const mitad = Math.sqrt((c.r * c.r - d2) / largo2);
+      quitados.push([t - mitad, t + mitad]);
+    }
+    quitados.sort((x, y) => x[0] - y[0]);
+    let inicio = 0;
+    const punto = (t: number) => proyeccion.aGeo({ x: a.x + t * dx, y: a.y + t * dy });
+    for (const [desde, hasta] of quitados) {
+      if (desde > inicio) resultado.push([punto(inicio), punto(Math.min(desde, 1))]);
+      inicio = Math.max(inicio, hasta);
+      if (inicio >= 1) break;
+    }
+    if (inicio < 1) resultado.push([punto(inicio), punto(1)]);
+  }
+  return resultado;
+}
+
 export function muestrearPuntos(poligono: PuntoGeo[], maximoInteriores = 36): PuntoGeo[] {
   const proyeccion = ProyeccionLocal.para(poligono);
   const locales = poligono.map((p) => proyeccion.aLocal(p));

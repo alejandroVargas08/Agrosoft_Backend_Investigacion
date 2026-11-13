@@ -25,6 +25,8 @@ import { CrearSubLoteUseCase } from './application/use-cases/crear-sublote.use-c
 import { ListarSubLotesPorLoteUseCase } from './application/use-cases/listar-sublotes-por-lote.use-case';
 import { CambiarEstadoSubLoteUseCase } from './application/use-cases/cambiar-estado-sublote.use-case';
 import { EliminarSubLoteUseCase } from './application/use-cases/eliminar-sublote.use-case';
+import { ActualizarLoteUseCase } from './application/use-cases/actualizar-lote.use-case';
+import { ActualizarSubLoteUseCase } from './application/use-cases/actualizar-sublote.use-case';
 
 @Module({
     imports: [IamModule, TypeOrmModule.forFeature([LoteOrmEntity, SubLoteOrmEntity])],
@@ -40,6 +42,8 @@ import { EliminarSubLoteUseCase } from './application/use-cases/eliminar-sublote
         ListarSubLotesPorLoteUseCase,
         CambiarEstadoSubLoteUseCase,
         EliminarSubLoteUseCase,
+        ActualizarLoteUseCase,
+        ActualizarSubLoteUseCase,
 
         { provide: LOTE_REPOSITORY_PORT, useClass: LoteTypeOrmRepository },
         { provide: SUBLOTE_REPOSITORY_PORT, useClass: SubLoteTypeOrmRepository },

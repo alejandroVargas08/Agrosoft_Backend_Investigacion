@@ -43,6 +43,8 @@ export class EvaluacionTerrenoRepository implements EvaluacionTerrenoRepositoryP
     return EvaluacionTerreno.desdePersistencia({
       id: orm.id,
       loteId: orm.loteId,
+      vueloId: orm.vueloId ?? null,
+      areaDelVuelo: orm.areaDelVuelo ?? false,
       nombre: orm.nombre,
       poligono: orm.poligono,
       cultivoPreferido: orm.cultivoPreferido,

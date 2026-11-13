@@ -7,7 +7,9 @@ import { CrearSubLoteUseCase } from '../../application/use-cases/crear-sublote.u
 import { ListarSubLotesPorLoteUseCase } from '../../application/use-cases/listar-sublotes-por-lote.use-case';
 import { CambiarEstadoSubLoteUseCase } from '../../application/use-cases/cambiar-estado-sublote.use-case';
 import { EliminarSubLoteUseCase } from '../../application/use-cases/eliminar-sublote.use-case';
+import { ActualizarSubLoteUseCase } from '../../application/use-cases/actualizar-sublote.use-case';
 import { CrearSubLoteDto, CambiarEstadoSubLoteDto } from './dto/sublote-request.dto';
+import { ActualizarTerrenoDto } from './dto/actualizar-terreno.dto';
 
 @Controller('territorio/sublotes')
 @Autenticado()
@@ -17,6 +19,7 @@ export class SubLoteController {
         private readonly listarSubLotesPorLote: ListarSubLotesPorLoteUseCase,
         private readonly cambiarEstadoSubLote: CambiarEstadoSubLoteUseCase,
         private readonly eliminarSubLote: EliminarSubLoteUseCase,
+        private readonly actualizarSubLote: ActualizarSubLoteUseCase,
     ) {}
 
     @Post()
@@ -29,6 +32,16 @@ export class SubLoteController {
     @RequierePermisos('lotes.ver')
     listarPorLote(@Param('loteId', ParseIntPipe) loteId: number, @UsuarioActual() usuario: UsuarioAutenticado) {
         return this.listarSubLotesPorLote.ejecutar(loteId, usuario);
+    }
+
+    @Patch(':id')
+    @RequierePermisos('lotes.gestionar')
+    actualizar(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: ActualizarTerrenoDto,
+        @UsuarioActual() usuario: UsuarioAutenticado,
+    ) {
+        return this.actualizarSubLote.ejecutar(id, dto, usuario);
     }
 
     @Patch(':id/estado')

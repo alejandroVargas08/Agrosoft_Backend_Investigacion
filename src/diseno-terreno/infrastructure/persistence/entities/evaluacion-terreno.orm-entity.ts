@@ -19,6 +19,12 @@ export class EvaluacionTerrenoOrmEntity {
   @Column({ name: 'lote_id', type: 'int', nullable: true })
   loteId: number | null;
 
+  @Column({ name: 'vuelo_id', type: 'int', nullable: true })
+  vueloId: number | null;
+
+  @Column({ name: 'area_del_vuelo', default: false })
+  areaDelVuelo: boolean;
+
   @Column({ type: 'varchar', length: 120 })
   nombre: string;
 

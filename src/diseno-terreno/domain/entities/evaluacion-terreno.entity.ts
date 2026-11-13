@@ -11,6 +11,8 @@ export const ETAPAS_EVALUACION: EtapaEvaluacion[] = ['TOPOGRAFIA', 'CLIMA_Y_SUEL
 export interface EvaluacionTerrenoProps {
   id: number | null;
   loteId: number | null;
+  vueloId: number | null;
+  areaDelVuelo: boolean;
   nombre: string;
   poligono: PuntoGeo[];
   cultivoPreferido: string | null;
@@ -35,7 +37,7 @@ export class EvaluacionTerreno {
   static crear(
     input: Pick<
       EvaluacionTerrenoProps,
-      'loteId' | 'nombre' | 'poligono' | 'cultivoPreferido' | 'usarDron' | 'usarSatelite' | 'solicitadoPorUsuarioId'
+      'loteId' | 'vueloId' | 'areaDelVuelo' | 'nombre' | 'poligono' | 'cultivoPreferido' | 'usarDron' | 'usarSatelite' | 'solicitadoPorUsuarioId'
     >,
   ): EvaluacionTerreno {
     if (input.poligono.length < 3) throw new Error('El terreno necesita al menos 3 vértices');
@@ -81,6 +83,8 @@ export class EvaluacionTerreno {
 
   get id() { return this.props.id; }
   get loteId() { return this.props.loteId; }
+  get vueloId() { return this.props.vueloId; }
+  get areaDelVuelo() { return this.props.areaDelVuelo; }
   get nombre() { return this.props.nombre; }
   get poligono() { return this.props.poligono; }
   get cultivoPreferido() { return this.props.cultivoPreferido; }
