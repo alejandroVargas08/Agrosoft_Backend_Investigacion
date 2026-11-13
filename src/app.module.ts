@@ -37,6 +37,10 @@ import { DronesModule } from './drones/drones.module';
       schema: 'public',
       synchronize: true,
       logging: true,
+      // Las columnas "creado en" son timestamp sin zona y las llena la base con
+      // now(). Con la sesion en UTC (Docker) se guardaban en hora UTC y Node las
+      // leia como hora de Colombia: todo quedaba 5 horas en el futuro.
+      extra: { options: '-c timezone=America/Bogota' },
     }),
     TerritorioModule,
     InventarioModule,
