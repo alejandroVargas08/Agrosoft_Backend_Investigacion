@@ -31,6 +31,9 @@ const VE_FICHA = `
                  OR EXISTS (SELECT 1 FROM permisos_de_usuarios up2
                             WHERE up2.usuario_id = u.id AND up2.permiso_id = p2.id AND up2.eliminado_en IS NULL))))`;
 
+// En la base van en inglés (low/medium/high)
+const SEVERIDAD: Record<string, string> = { low: 'baja', medium: 'media', high: 'alta' };
+
 const fmtNum = (v: unknown) => {
     const n = Number(v);
     return Number.isFinite(n) ? n.toLocaleString('es-CO', { maximumFractionDigits: 2 }) : String(v);
@@ -175,7 +178,7 @@ export class VigilanteAvisosService implements OnApplicationBootstrap, OnModuleD
             await this.avisos.emitir(para, {
                 tipo: 'incidencia',
                 titulo: 'Nueva incidencia',
-                mensaje: `${i.titulo}${i.cultivo ? ' en ' + i.cultivo : ''}${i.severidad ? ' · severidad ' + String(i.severidad).toLowerCase() : ''}.`,
+                mensaje: `${i.titulo}${i.cultivo ? ' en ' + i.cultivo : ''}${i.severidad ? ' · severidad ' + (SEVERIDAD[String(i.severidad).toLowerCase()] ?? String(i.severidad).toLowerCase()) : ''}.`,
             }, { incidenciaId: i.id });
             await this.ponerMarca(clave, Number(i.id));
         }

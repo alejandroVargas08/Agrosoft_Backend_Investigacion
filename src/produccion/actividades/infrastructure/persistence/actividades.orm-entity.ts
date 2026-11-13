@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { fechaSinHora } from '../../../../shared/persistence/fecha-sin-hora.transformer';
 
 @Entity("actividades")
     export class actividadesOrmEntity {
@@ -23,7 +24,7 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedCol
         @Column({ name: "cultivo_id" })
         cultivoId: number;
 
-        @Column({ type: "date" })
+        @Column({ type: "date", transformer: fechaSinHora })
         fecha: Date;
 
         @Column({ name: "horas_actividad", type: "float" })

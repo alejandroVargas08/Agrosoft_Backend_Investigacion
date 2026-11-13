@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { fechaSinHora } from '../../../../shared/persistence/fecha-sin-hora.transformer';
 
 @Entity('tratamientos')
 export class TratamientoOrmEntity {
@@ -6,7 +7,7 @@ export class TratamientoOrmEntity {
     @Column({ name: 'incidencia_id', nullable: true }) incidenciaId: number;
     @Column() producto: string;
     @Column({ nullable: true }) dosis: string;
-    @Column({ type: 'date' }) fecha: Date;
+    @Column({ type: 'date', transformer: fechaSinHora }) fecha: Date;
     @Column('double precision', { default: 0 }) costo: number;
     @Column({ type: 'text', nullable: true }) notas: string;
     @Column() estado: string;
