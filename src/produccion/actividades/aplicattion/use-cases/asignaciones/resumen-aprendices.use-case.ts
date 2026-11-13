@@ -25,6 +25,8 @@ export interface ResumenAprendiz {
     /** Con el plazo encima y todavía sin entregar. */
     vencidas: number;
     horas: number;
+    /** Solo las de tareas aprobadas: es lo que se paga como mano de obra */
+    horasAprobadas: number;
     /** Horas trabajadas x precio por hora de cada actividad. El precio no es
      *  uno solo: cada actividad trae el suyo, asi que se suma por asignacion. */
     costoHoras: number;
@@ -80,6 +82,7 @@ export class ResumenAprendicesUseCase {
                 entregadas: 0,
                 vencidas: 0,
                 horas: 0,
+                horasAprobadas: 0,
                 costoHoras: 0,
                 ultimoIngreso: usuario.obtenerLastLoginAt(),
             });
@@ -102,7 +105,11 @@ export class ResumenAprendicesUseCase {
             if (asignacion.estado === 'ENTREGADA') resumen.entregadas += 1;
             if (asignacion.estaVencida()) resumen.vencidas += 1;
             resumen.horas += horas;
-            resumen.costoHoras += horas * (actividad.precioHoraActividad ?? 0);
+            // Una tarea devuelta o sin revisar todavía no cuenta como mano de obra
+            if (asignacion.estado === 'APROBADA') {
+                resumen.horasAprobadas += horas;
+                resumen.costoHoras += horas * (actividad.precioHoraActividad ?? 0);
+            }
         }
 
         // El servicio ya los devuelve ordenados por apellido, y el Map conserva

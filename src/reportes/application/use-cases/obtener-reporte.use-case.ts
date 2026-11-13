@@ -6,6 +6,7 @@ import {
     FilaFinanzas,
     FilaProduccion,
     PeriodoReporte,
+    ReporteClima,
     ReporteGeneral,
 } from '../dtos/reporte.dto';
 
@@ -47,11 +48,31 @@ export class ObtenerReporteUseCase {
         return inicio;
     }
 
+    private periodoValido(pedido?: string): PeriodoReporte {
+        return pedido === 'trimestral' || pedido === 'anual' ? pedido : 'mensual';
+    }
+
+    /** Pestaña Clima: promedios de las estaciones por tramo y la luz de hoy. */
+    async clima(periodoPedido?: string): Promise<ReporteClima> {
+        const periodo = this.periodoValido(periodoPedido);
+        const [filas, luz] = await Promise.all([
+            this.repositorio.climaPorPeriodo(CONFIG[periodo].unidad, this.calcularDesde(periodo)),
+            this.repositorio.luzDeHoy(),
+        ]);
+        return {
+            periodo,
+            clima: filas.map((f) => ({
+                periodo: this.etiqueta(f.inicio, periodo),
+                temperatura: f.temperatura,
+                humedad: f.humedad,
+                uv: f.uv,
+            })),
+            luz,
+        };
+    }
+
     async ejecutar(periodoPedido?: string): Promise<ReporteGeneral> {
-        const periodo: PeriodoReporte =
-            periodoPedido === 'trimestral' || periodoPedido === 'anual'
-                ? periodoPedido
-                : 'mensual';
+        const periodo: PeriodoReporte = this.periodoValido(periodoPedido);
 
         const { unidad } = CONFIG[periodo];
         const desde = this.calcularDesde(periodo);
