@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Request } from 'express';
 import { randomUUID } from 'crypto';
@@ -11,15 +10,6 @@ import { AgregarImagenActividadEvidenciaUseCase } from '../../aplicattion/use-ca
 import { registrarActividadEvidenciaDto } from '../../aplicattion/dto/registrar-actividad-evidencia.dto';
 import { agregarImagenEvidenciaDto } from '../../aplicattion/dto/crear-actividad-evidencia.dto';
 import { eliminarEvidenciaActividadUseCase } from '../../aplicattion/use-cases/eliminar-actividad.evidencia.use-case';
-=======
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
-import { registrarActividadEvidenciaUseCase } from "../../aplicattion/use-cases/registrar-actividad-evidencia.use-case";
-import { listarActividadEvidenciaUseCase } from "../../aplicattion/use-cases/listar-actividad-evidencia.use-case";
-import { AgregarImagenActividadEvidenciaUseCase } from "../../aplicattion/use-cases/agregar-actividad-evidencia.use-case";
-import { registrarActividadEvidenciaDto } from "../../aplicattion/dto/registrar-actividad-evidencia.dto";
-import { agregarImagenEvidenciaDto } from "../../aplicattion/dto/crear-actividad-evidencia.dto";
-import { eliminarEvidenciaActividadUseCase } from "../../aplicattion/use-cases/eliminar-actividad.evidencia.use-case";
->>>>>>> origin/juan_dev
 import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso-actividad.decorator';
 import { PermitirEjecutor } from '../../../actividades/infrastructure/http/permitir-ejecutor.decorator';
 
@@ -53,7 +43,6 @@ export class actividadEvidenciaController {
     return this.registrarEvidenciaUC.ejecutar(actividadId, dto);
   }
 
-<<<<<<< HEAD
   @Post('fotos')
   @UseInterceptors(
     FileInterceptor('foto', {
@@ -73,19 +62,6 @@ export class actividadEvidenciaController {
     await fs.mkdir(CARPETA_EVIDENCIAS, { recursive: true });
     const nombre = `act${actividadId}-${Date.now()}-${randomUUID().slice(0, 8)}${EXTENSIONES[foto.mimetype]}`;
     await fs.writeFile(path.join(CARPETA_EVIDENCIAS, nombre), foto.buffer);
-=======
-        @Get()
-        listar(
-            @Param('actividadId', ParseIntPipe) actividadId: number,
-            @Query('asignacionId') asignacionId?: string,
-        ) {
-            const entrega = asignacionId !== undefined ? Number(asignacionId) : undefined;
-            return this.listarEvidenciaUC.ejecutar(
-                actividadId,
-                Number.isInteger(entrega) ? entrega : undefined,
-            );
-        }
->>>>>>> origin/juan_dev
 
     const url = `${req.protocol}://${req.get('host')}/uploads/evidencias/${nombre}`;
     return this.registrarEvidenciaUC.ejecutar(actividadId, {
@@ -95,8 +71,15 @@ export class actividadEvidenciaController {
   }
 
   @Get()
-  listar(@Param('actividadId', ParseIntPipe) actividadId: number) {
-    return this.listarEvidenciaUC.ejecutar(actividadId);
+  listar(
+    @Param('actividadId', ParseIntPipe) actividadId: number,
+    @Query('asignacionId') asignacionId?: string,
+  ) {
+    const entrega = asignacionId !== undefined ? Number(asignacionId) : undefined;
+    return this.listarEvidenciaUC.ejecutar(
+      actividadId,
+      Number.isInteger(entrega) ? entrega : undefined,
+    );
   }
 
   @Patch(':id/imagenes')
