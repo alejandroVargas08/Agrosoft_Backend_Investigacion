@@ -23,6 +23,7 @@ import { iaModule } from './ia/ia.module';
 import { ReportesModule } from './reportes/infrastructure/reportes.module';
 import { DronesModule } from './drones/drones.module';
 import { AgrobotModule } from './agrobot/agrobot.module';
+import { DisenoTerrenoModule } from './diseno-terreno/diseno-terreno.module';
 
 @Module({
   imports: [
@@ -61,6 +62,9 @@ import { AgrobotModule } from './agrobot/agrobot.module';
     iaModule,
     ReportesModule,
     DronesModule,
+    DronesModule,
+    DisenoTerrenoModule,
+    AgrobotModule,
     AgrobotModule
   ],
   controllers: [],
