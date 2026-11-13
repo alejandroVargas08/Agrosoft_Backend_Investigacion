@@ -17,6 +17,7 @@ import { PagosModule } from './comercial/pagos/infrastruture/pagos.module';
 import { TransaccionesFinancierasModule } from './finanzas/transacciones-financieras/infrastructure/transacciones-financieras.module';
 import { IamModule } from './modules/iam/iam.module';
 import { NotificacionesModule } from './modules/notificaciones/notificaciones.module';
+import { AvisosModule } from './modules/avisos/avisos.module';
 import { IotModule } from './modules/iot/iot.module';
 import { WikiEpasModule } from './modules/wiki-epas/wiki-epas.module';
 import { iaModule } from './ia/ia.module';
@@ -59,6 +60,7 @@ import { DronesModule } from './drones/drones.module';
     TransaccionesFinancierasModule,
     IamModule,
     NotificacionesModule,
+    AvisosModule,
     IotModule,
     WikiEpasModule,
     iaModule,

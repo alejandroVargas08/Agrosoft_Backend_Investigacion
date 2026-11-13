@@ -17,6 +17,7 @@ import { CodigoVinculacionTypeOrmRepository } from './infrastructure/persistence
 import { TelegramController } from './infrastructure/http/telegram.controller';
 
 import { AgrosoftBot } from './infrastructure/bot/agrosoft.bot';
+import { CanalTelegram } from './infrastructure/avisos/canal-telegram';
 import { IncidenciasModule } from '../../../produccion/incidencias/infrastructure/incidencias.module';
 import { TratamientosModule } from '../../../produccion/tratamientos/infrastructure/tratamientos.module';
 import { ReportesModule } from '../../../reportes/infrastructure/reportes.module';
@@ -54,6 +55,8 @@ import { DesvincularPorUsuarioUseCase } from './application/use-cases/desvincula
     ],
     controllers: [TelegramController],
     providers: [
+        // Manda al chat los avisos del módulo avisos (sensores, stock, vencidas, incidencias)
+        CanalTelegram,
         AgrosoftBot,
 
         ObtenerOIniciarConversacionUseCase,
