@@ -51,8 +51,10 @@ export class CrearInsumoDto {
     @IsInt()
     almacenId: number;
 
+    /** Opcional: el diseño deja guardar un insumo "Sin proveedor" */
+    @IsOptional()
     @IsInt()
-    proveedorId: number;
+    proveedorId?: number;
 
     @IsInt()
     categoriaId: number;

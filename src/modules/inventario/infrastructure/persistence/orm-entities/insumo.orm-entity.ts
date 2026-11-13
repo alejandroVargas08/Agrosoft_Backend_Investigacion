@@ -60,8 +60,8 @@ import {
     @Column({ name: 'almacen_id' })
     almacenId: number;
 
-    @Column({ name: 'proveedor_id' })
-    proveedorId: number;
+    @Column({ name: 'proveedor_id', type: 'int', nullable: true })
+    proveedorId: number | null;
 
     @Column({ name: 'categoria_id' })
     categoriaId: number;
