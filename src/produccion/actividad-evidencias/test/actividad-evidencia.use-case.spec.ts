@@ -15,7 +15,8 @@ class FakeActividadEvidenciaRepo implements actividadEvidenciaRepositoryPort {
             this.nextId++,
             item.actividadId,
             item.descripcion,
-            item.imagenes
+            item.imagenes,
+            item.asignacionId,
         );
         this.items.push(newItem);
         return newItem;
@@ -25,8 +26,11 @@ class FakeActividadEvidenciaRepo implements actividadEvidenciaRepositoryPort {
         return this.items.find(i => i.id === id) || null;
     }
 
-    async listarPorActividad(actividadId: number): Promise<actividadEvidencia[]> {
-        return this.items.filter(i => i.actividadId === actividadId);
+    async listarPorActividad(actividadId: number, asignacionId?: number): Promise<actividadEvidencia[]> {
+        return this.items.filter(
+            i => i.actividadId === actividadId &&
+                (asignacionId === undefined || i.asignacionId === asignacionId),
+        );
     }
 
     async actualizar(item: actividadEvidencia): Promise<actividadEvidencia> {
@@ -102,6 +106,27 @@ describe('Pruebas del Módulo Actividades Evidencias', () => {
         expect(evidenciasActividad10.length).toBe(2);
         expect(evidenciasActividad10[0].descripcion).toBe('Evidencia 1');
         expect(evidenciasActividad10[1].descripcion).toBe('Evidencia 2');
+    });
+
+    it('separa las evidencias por la entrega a la que pertenecen', async () => {
+        await registrarUC.ejecutar(20, { descripcion: 'La subio Ana', imagenes: [], asignacionId: 100 });
+        await registrarUC.ejecutar(20, { descripcion: 'Otra de Ana', imagenes: [], asignacionId: 100 });
+        await registrarUC.ejecutar(20, { descripcion: 'La subio Carlos', imagenes: [], asignacionId: 200 });
+        await registrarUC.ejecutar(20, { descripcion: 'Del instructor, sin entrega', imagenes: [] });
+
+        // Sin filtro salen todas, incluida la que no tiene entrega
+        expect((await listarUC.ejecutar(20)).length).toBe(4);
+
+        const deAna = await listarUC.ejecutar(20, 100);
+        expect(deAna.length).toBe(2);
+        expect(deAna.every(e => e.asignacionId === 100)).toBe(true);
+
+        expect((await listarUC.ejecutar(20, 200)).length).toBe(1);
+    });
+
+    it('deja la evidencia sin entrega cuando no se indica una', async () => {
+        const creada = await registrarUC.ejecutar(30, { descripcion: 'Nota suelta', imagenes: [] });
+        expect(creada.asignacionId).toBeNull();
     });
 
     it('elimina una evidencia de manera exitosa', async () => {

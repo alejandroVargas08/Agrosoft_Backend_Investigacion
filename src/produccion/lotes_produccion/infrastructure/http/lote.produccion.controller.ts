@@ -2,8 +2,9 @@ import { Body, Controller, Get, Param, Patch, Post, Query } from "@nestjs/common
 import { ActualizarLoteProduccionUseCase } from "../../application/use-cases/actualizar.lotes.produccion.use-case";
 import { CrearLoteProduccionUseCase } from "../../application/use-cases/crear-lotes-produccion.uses-case";
 import { listarLotesProduccionUseCase } from "../../application/use-cases/listar.lotes.produccion.use-case";
-import type { CrearLoteProduccionDto } from "../../application/dtos/crear-lote.produccion.dto";
-import type { ActualizarLoteProduccionDto } from "../../application/dtos/actualizar-lote.produccion.dto";
+// Sin "type": Nest necesita las clases en tiempo de ejecucion para validar el body
+import { CrearLoteProduccionDto } from "../../application/dtos/crear-lote.produccion.dto";
+import { ActualizarLoteProduccionDto } from "../../application/dtos/actualizar-lote.produccion.dto";
 import { descontarStockUseCase } from "../../application/use-cases/descontar-lotes-produccion-use-case";
 import { Autenticado } from '../../../../modules/iam/infrastructure/http/decorators/autenticado.decorator';
 

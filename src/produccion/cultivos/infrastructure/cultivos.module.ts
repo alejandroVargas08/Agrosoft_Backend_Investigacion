@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { IamModule } from '../../../modules/iam/iam.module';
 import { TerritorioModule } from '../../../modules/territorio/territorio.module';
@@ -13,9 +13,11 @@ import { ObtenerCultivoUseCase } from '../application/use-cases/obtener.cultivo.
 import { ActualizarCultivoUseCase } from '../application/use-cases/actualizar.cultivo.use.case';
 import { finalizarCultivoUseCase } from '../application/use-cases/finalizar.cultivo.use-case';
 import { eliminarCultivoUseCase } from '../application/use-cases/eliminar.cultivo.use-case';
+import { HistorialCultivoModule } from '../../historial-cultivo/historial-cultivo.module';
 
 @Module({
-    imports: [IamModule, TerritorioModule, TypeOrmModule.forFeature([CultivoOrmEntity])],
+    // forwardRef: el historial también importa este módulo para validar el acceso
+    imports: [IamModule, TerritorioModule, TypeOrmModule.forFeature([CultivoOrmEntity]), forwardRef(() => HistorialCultivoModule)],
     controllers: [CultivoController],
     providers: [
         { provide: Cultivo_Repository, useClass: CultivoRepositoryImpl },

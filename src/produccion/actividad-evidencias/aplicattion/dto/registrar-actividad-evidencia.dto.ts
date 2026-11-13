@@ -1,4 +1,5 @@
-import { IsArray, IsOptional, IsString } from "class-validator";
+import { IsArray, IsInt, IsOptional, IsString } from "class-validator";
+import { Type } from "class-transformer";
 
 export class registrarActividadEvidenciaDto {
     @IsOptional()
@@ -8,4 +9,10 @@ export class registrarActividadEvidenciaDto {
     @IsOptional()
     @IsArray()
     imagenes?: string[];
+
+    /** La entrega del aprendiz a la que pertenece. Opcional. */
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    asignacionId?: number;
 }

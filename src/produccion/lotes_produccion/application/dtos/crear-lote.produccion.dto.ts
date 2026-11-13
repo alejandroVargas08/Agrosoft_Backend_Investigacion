@@ -1,4 +1,4 @@
-import { IsInt, IsNumber, IsOptional, IsString, Min, MaxLength } from 'class-validator';
+import { IsDateString, IsIn, IsInt, IsNumber, IsOptional, IsString, Min, MaxLength } from 'class-validator';
 
 /**
  * Antes era una interfaz: el ValidationPipe no puede validar una interfaz,
@@ -46,4 +46,15 @@ export class CrearLoteProduccionDto {
 
     @IsOptional() @IsString() @MaxLength(500)
     observaciones?: string;
+
+    /** Día de la cosecha. Si no viene, se toma el día del registro. */
+    @IsOptional() @IsDateString()
+    fechaCosecha?: string;
+
+    /** La cantidad tal cual se anotó; cantidadKg lleva su equivalente en kg */
+    @IsOptional() @IsNumber() @Min(0)
+    cantidad?: number;
+
+    @IsOptional() @IsIn(['kg', 'toneladas', 'unidades', 'bultos', 'cajas'])
+    unidad?: string;
 }

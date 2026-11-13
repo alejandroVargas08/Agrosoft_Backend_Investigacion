@@ -13,6 +13,11 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedCol
         
         @Column('text', { array: true, default: '{}' }) 
         imagenes: string[];
+
+        // Nullable a proposito: las evidencias que ya existian quedan sin
+        // entrega, y las del instructor tampoco tienen.
+        @Column({ name: 'asignacion_id', type: 'int', nullable: true })
+        asignacionId: number | null;
         
         @CreateDateColumn({ name: 'created_at' }) 
         createdAt: Date;

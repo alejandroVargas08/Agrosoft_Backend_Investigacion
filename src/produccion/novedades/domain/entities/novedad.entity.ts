@@ -26,29 +26,32 @@ export class Novedad {
     ) {}
 
     /**
-     * Atender o descartar es la misma transición con distinto desenlace, y las
-     * dos exigen que el instructor escriba algo: el aprendiz tiene que saber
-     * en qué quedó lo que reportó.
+     * Atender o descartar es la misma transición con distinto desenlace. Lo que
+     * cambia es la exigencia: descartar obliga a explicar por qué, porque el
+     * aprendiz se queda sin solución; atender no, porque el hecho de estar
+     * atendida ya le dice en qué quedó.
      */
-    private resolver(estado: EstadoNovedad, respuesta: string, instructorId: number): void {
+    private resolver(estado: EstadoNovedad, respuesta: string | null, instructorId: number): void {
         if (this.estado !== 'pendiente') {
             throw new Error('Esta novedad ya fue resuelta');
         }
-        if (!respuesta.trim()) {
-            throw new Error('Escribe una respuesta para el aprendiz');
-        }
         this.estado = estado;
-        this.respuestaInstructor = respuesta.trim();
+        this.respuestaInstructor = respuesta;
         this.respondidaPorUsuarioId = instructorId;
         this.respondidaEn = new Date();
     }
 
-    atender(respuesta: string, instructorId: number): void {
-        this.resolver('atendida', respuesta, instructorId);
+    atender(respuesta: string | null, instructorId: number): void {
+        const texto = respuesta?.trim() ?? '';
+        this.resolver('atendida', texto || null, instructorId);
     }
 
     descartar(respuesta: string, instructorId: number): void {
-        this.resolver('descartada', respuesta, instructorId);
+        const texto = respuesta.trim();
+        if (!texto) {
+            throw new Error('Escribe el motivo para el aprendiz');
+        }
+        this.resolver('descartada', texto, instructorId);
     }
 
     estaPendiente(): boolean {

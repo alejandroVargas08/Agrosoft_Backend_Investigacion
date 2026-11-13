@@ -59,7 +59,9 @@ export class LoteProduccionRepositoryImpl implements loteProduccionRepositoryPor
             row.destino ?? null,
             row.responsable ?? null,
             row.observaciones ?? null,
-            row.createdAt ?? null
+            row.fechaCosecha ? new Date(row.fechaCosecha) : (row.createdAt ?? null),
+            row.cantidad ?? row.cantidadKg,
+            row.unidad ?? 'kg',
         );
     }
 
@@ -78,7 +80,10 @@ export class LoteProduccionRepositoryImpl implements loteProduccionRepositoryPor
             precioSugeridoKg: l.precioSugeridoKg,
             destino: l.destino,
             responsable: l.responsable,
-            observaciones: l.observaciones
+            observaciones: l.observaciones,
+            ...(l.fechaCosecha ? { fechaCosecha: l.fechaCosecha.toISOString().slice(0, 10) } : {}),
+            ...(l.cantidad !== null ? { cantidad: l.cantidad } : {}),
+            ...(l.unidad !== null ? { unidad: l.unidad } : {}),
         };
     }
 }

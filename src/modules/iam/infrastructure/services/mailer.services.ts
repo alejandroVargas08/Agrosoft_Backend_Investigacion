@@ -9,6 +9,11 @@ export class MailerService {
     host: process.env.MAIL_HOST,
     port: Number(process.env.MAIL_PORT),
     secure: false,
+    pool: true,
+    maxConnections: 2,
+    connectionTimeout: 15000,
+    greetingTimeout: 10000,
+    socketTimeout: 30000,
     auth: {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_PASSWORD,

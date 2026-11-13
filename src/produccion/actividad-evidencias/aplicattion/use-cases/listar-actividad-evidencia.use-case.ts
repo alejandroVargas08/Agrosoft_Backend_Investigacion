@@ -9,7 +9,7 @@ import { type actividadEvidenciaRepositoryPort } from "../../domain/ports/activi
             private readonly repo: actividadEvidenciaRepositoryPort
         ) {}
 
-        async ejecutar(actividadId: number) {
-            return this.repo.listarPorActividad(actividadId);
+        async ejecutar(actividadId: number, asignacionId?: number) {
+            return this.repo.listarPorActividad(actividadId, asignacionId);
         }
     }

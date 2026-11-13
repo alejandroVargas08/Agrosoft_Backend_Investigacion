@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { IamModule } from '../../modules/iam/iam.module';
 import { CultivosModule } from '../cultivos/infrastructure/cultivos.module';
@@ -10,7 +10,7 @@ import { historial_CultivoRepository } from './domain/ports/historial-cultivo.po
 import { historialCultivoRepositoryImpl } from './infrastructure/persistence/historial-cultivo.repository.impl';
 
 @Module({
-    imports: [IamModule, CultivosModule, TypeOrmModule.forFeature([historialCultivoOrmEntity])],
+    imports: [IamModule, forwardRef(() => CultivosModule), TypeOrmModule.forFeature([historialCultivoOrmEntity])],
     controllers: [historialCultivoController],
     providers: [
         registrarCambioHistorialCultivoUseCase,

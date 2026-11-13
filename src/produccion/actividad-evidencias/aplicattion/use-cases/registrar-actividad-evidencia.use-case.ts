@@ -16,6 +16,7 @@ import { type actividadEvidenciaRepositoryPort } from "../../domain/ports/activi
                 actividadId,
                 descripcion: dto.descripcion,
                 imagenes: dto.imagenes,
+                asignacionId: dto.asignacionId,
             });
             return this.repo.crear(item);
         }

@@ -3,7 +3,7 @@ import { Autenticado } from '../../../../modules/iam/infrastructure/http/decorat
 import { UsuarioActual } from '../../../../modules/iam/infrastructure/http/decorators/usuario-actual.decorator';
 import type { UsuarioAutenticado } from '../../../../modules/iam/domain/value-objects/alcance-datos.vo';
 import { PERMISOS_PRODUCCION } from '../../../permisos-produccion';
-import { ReportarNovedadDto, ResponderNovedadDto } from '../../application/dtos/novedad.dto';
+import { AtenderNovedadDto, ReportarNovedadDto, ResponderNovedadDto } from '../../application/dtos/novedad.dto';
 import { NovedadesUseCase } from '../../application/use-cases/novedades.use-case';
 
 /** Lo que reporta y consulta el aprendiz sobre sus propias novedades. */
@@ -37,7 +37,7 @@ export class NovedadesController {
     @Patch(':id/atender')
     atender(
         @Param('id', ParseIntPipe) id: number,
-        @Body() dto: ResponderNovedadDto,
+        @Body() dto: AtenderNovedadDto,
         @UsuarioActual() usuario: UsuarioAutenticado,
     ) {
         return this.novedades.atender(id, dto, usuario);

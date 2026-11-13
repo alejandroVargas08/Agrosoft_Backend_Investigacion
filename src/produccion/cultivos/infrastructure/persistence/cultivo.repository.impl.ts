@@ -51,7 +51,9 @@ export class CultivoRepositoryImpl implements CultivoRepositoryPort {
             row.fechaSiembra, 
             row.fechaFinalizacion, 
             row.costoTotal, 
-            row.estado as any
+            row.estado as any,
+            row.areaM2 ?? null,
+            row.costoEstimado ?? null,
         );
     }
     private toOrm(c: Cultivo) : Partial<CultivoOrmEntity> {
@@ -63,7 +65,9 @@ export class CultivoRepositoryImpl implements CultivoRepositoryPort {
             fechaSiembra: c.fechaSiembra, 
             fechaFinalizacion: c.fechaFinalizacion ?? undefined, 
             costoTotal: c.costoTotal, 
-            estado: c.estado 
+            estado: c.estado,
+            areaM2: c.areaM2,
+            costoEstimado: c.costoEstimado,
         };
     }
 }
