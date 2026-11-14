@@ -2,7 +2,7 @@ import { ProyeccionLocal, PuntoGeo } from './geo';
 
 export type TipoObjeto = 'CONSTRUCCION' | 'VIA' | 'AGUA' | 'BOSQUE' | 'ARBOL';
 export type FormaObjeto = 'POLIGONO' | 'LINEA' | 'PUNTO';
-export type FuenteObjeto = 'OSM' | 'MICROSOFT' | 'IA_DRON';
+export type FuenteObjeto = 'OSM' | 'MICROSOFT' | 'IA_DRON' | 'IA_SATELITE';
 
 export interface ObjetoTerreno {
   tipo: TipoObjeto;
@@ -11,6 +11,7 @@ export interface ObjetoTerreno {
   anchoM: number;
   nombre: string | null;
   fuente?: FuenteObjeto;
+  confirmadoIa?: boolean;
 }
 
 export interface ResumenObjetos {
@@ -193,4 +194,40 @@ export function recortarObjetosAlArea(objetos: ObjetoTerreno[], poligono: PuntoG
     cerrarTramo();
   }
   return resultado;
+}
+
+function dentroDeGeo(p: PuntoGeo, poligono: PuntoGeo[]): boolean {
+  let resultado = false;
+  for (let i = 0, j = poligono.length - 1; i < poligono.length; j = i++) {
+    const a = poligono[i];
+    const b = poligono[j];
+    if (a.lat > p.lat !== b.lat > p.lat && p.lng < ((b.lng - a.lng) * (p.lat - a.lat)) / (b.lat - a.lat) + a.lng) resultado = !resultado;
+  }
+  return resultado;
+}
+
+function centro(puntos: PuntoGeo[]): PuntoGeo {
+  const suma = puntos.reduce((acc, p) => ({ lat: acc.lat + p.lat, lng: acc.lng + p.lng }), { lat: 0, lng: 0 });
+  return { lat: suma.lat / puntos.length, lng: suma.lng / puntos.length };
+}
+
+export function combinarObjetos(deMapas: ObjetoTerreno[], deIa: ObjetoTerreno[], soloConfirman: FuenteObjeto[] = []): ObjetoTerreno[] {
+  const edificios = deMapas.filter((o) => o.tipo === 'CONSTRUCCION' && o.forma === 'POLIGONO');
+  const celdasConstruccion = deIa.filter((o) => o.tipo === 'CONSTRUCCION' && o.forma === 'POLIGONO');
+
+  const mapas = deMapas.map((o) => {
+    if (!edificios.includes(o)) return o;
+    const c = centro(o.puntos);
+    return { ...o, confirmadoIa: celdasConstruccion.some((celda) => dentroDeGeo(c, celda.puntos)) };
+  });
+
+  const ia = deIa.filter((celda) => {
+    if (celda.tipo !== 'CONSTRUCCION') return true;
+    if (celda.fuente && soloConfirman.includes(celda.fuente)) return false;
+    const c = centro(celda.puntos);
+    const yaMapeada = edificios.some((e) => dentroDeGeo(centro(e.puntos), celda.puntos) || dentroDeGeo(c, e.puntos));
+    return !yaMapeada;
+  });
+
+  return [...mapas, ...ia];
 }

@@ -7,12 +7,13 @@ import { CULTIVO_APTITUD_REPOSITORY_TOKEN, EVALUACION_TERRENO_REPOSITORY_TOKEN }
 import { DisenadorSiembra, DisenoSiembra } from '../../domain/services/disenador-siembra.service';
 import { AptitudCultivo, EvaluadorAptitud } from '../../domain/services/evaluador-aptitud.service';
 import { areaPoligonoM2, centroide } from '../../domain/value-objects/geo';
-import { FuenteObjeto, ObjetoTerreno, recortarObjetosAlArea, ResumenObjetos, resumirObjetos, TipoObjeto } from '../../domain/value-objects/objetos-terreno';
+import { combinarObjetos, FuenteObjeto, ObjetoTerreno, recortarObjetosAlArea, ResumenObjetos, resumirObjetos, TipoObjeto } from '../../domain/value-objects/objetos-terreno';
 import { CoberturaTerreno, PerfilTerreno, porcentajeSembrable } from '../../domain/value-objects/perfil-terreno.vo';
 import type { TipoCoberturaVisual } from '../../../drones/domain/value-objects/interpretacion-ia.vo';
 import { AnalizadorCoberturaService } from '../services/analizador-cobertura.service';
 import { AnalizadorTopografiaService } from '../services/analizador-topografia.service';
 import { DetectorObjetosDronService } from '../services/detector-objetos-dron.service';
+import { DetectorObjetosSateliteService } from '../services/detector-objetos-satelite.service';
 
 const DISENOS_SUGERIDOS = 3;
 const CLASES_CON_DISENO = ['ALTA', 'MODERADA', 'MARGINAL'];
@@ -20,11 +21,14 @@ const CLASES_CON_DISENO = ['ALTA', 'MODERADA', 'MARGINAL'];
 const AREA_DRON_SUFICIENTE_PCT = 80;
 const FUENTE_OBJETOS = 'Casas, vías y árboles (OpenStreetMap y Microsoft)';
 const FUENTE_IA_DRON = 'Detección con IA en las fotos del dron';
+const FUENTE_IA_SATELITE = 'Detección con IA en la imagen satelital';
+const DRON_SOLO_CONFIRMA = (process.env.DRON_IA_AGREGA_CASAS ?? 'false') !== 'true';
 
 const NOMBRES_FUENTE: Record<FuenteObjeto, string> = {
   OSM: 'OpenStreetMap',
   MICROSOFT: 'Microsoft (edificios)',
   IA_DRON: 'la IA en las fotos del dron',
+  IA_SATELITE: 'la IA en la imagen satelital',
 };
 
 const OBJETO_A_COBERTURA: Record<TipoObjeto, TipoCoberturaVisual> = {
@@ -61,6 +65,7 @@ export class ProcesarEvaluacionTerrenoUseCase {
     @Inject(PROVEEDOR_OBJETOS_TOKEN)
     private readonly objetosMapa: ProveedorObjetosPort,
     private readonly detectorDron: DetectorObjetosDronService,
+    private readonly detectorSatelite: DetectorObjetosSateliteService,
   ) {}
 
   async execute(evaluacionId: number): Promise<void> {
@@ -100,18 +105,22 @@ export class ProcesarEvaluacionTerrenoUseCase {
       await this.avanzar(evaluacion, 'COBERTURA');
       const coberturaBase = await this.obtenerCobertura(evaluacion, advertencias, intentar);
       const vueloId = evaluacion.vueloId;
-      const [deMapas, deDron] = await Promise.all([
+      const [deMapas, deSatelite, deDron] = await Promise.all([
         intentar(FUENTE_OBJETOS, () => this.objetosMapa.obtenerObjetos(poligono)),
+        intentar(FUENTE_IA_SATELITE, () => this.detectorSatelite.detectar(poligono)),
         vueloId ? intentar(FUENTE_IA_DRON, () => this.detectorDron.detectar(vueloId)) : Promise.resolve(null),
       ]);
       for (const falla of deMapas?.fallas ?? []) {
         fuentesFallidas.push(falla.fuente);
         advertencias.push(`No se pudo obtener ${falla.fuente.toLowerCase()}: ${falla.mensaje}`);
       }
-      const objetos = recortarObjetosAlArea([...(deMapas?.objetos ?? []), ...(deDron ?? [])], poligono);
+      const objetos = recortarObjetosAlArea(
+        combinarObjetos(deMapas?.objetos ?? [], [...(deSatelite ?? []), ...(deDron ?? [])], DRON_SOLO_CONFIRMA ? ['IA_DRON'] : []),
+        poligono,
+      );
       const resumenObjetos = objetos.length > 0 ? resumirObjetos(poligono, objetos) : null;
       const cobertura = this.ajustarConObjetos(coberturaBase, resumenObjetos);
-      if (deMapas !== null || deDron !== null) {
+      if (deMapas !== null || deSatelite !== null || deDron !== null) {
         advertencias.push(
           resumenObjetos
             ? `Según ${this.describirFuentes(objetos)} hay ${this.describirConteo(objetos)}, que ocupan el ${resumenObjetos.porcentajeOcupado} % del terreno. El diseño no pasa por ahí.`
@@ -240,11 +249,14 @@ export class ProcesarEvaluacionTerrenoUseCase {
   }
 
   private describirConteo(objetos: ObjetoTerreno[]): string {
+    const esIa = (o: ObjetoTerreno) => o.fuente === 'IA_DRON' || o.fuente === 'IA_SATELITE';
     const conteo = new Map<TipoObjeto, number>();
-    for (const o of objetos.filter((o) => o.fuente !== 'IA_DRON')) conteo.set(o.tipo, (conteo.get(o.tipo) ?? 0) + 1);
+    for (const o of objetos.filter((o) => !esIa(o))) conteo.set(o.tipo, (conteo.get(o.tipo) ?? 0) + 1);
     const partes = [...conteo.entries()].map(([tipo, n]) => `${n} ${NOMBRES_OBJETO[tipo][n === 1 ? 0 : 1]}`);
-    const celdasIa = objetos.filter((o) => o.fuente === 'IA_DRON').length;
-    if (celdasIa > 0) partes.push(`${celdasIa} ${celdasIa === 1 ? 'zona marcada' : 'zonas marcadas'} por la IA en las fotos`);
+    const confirmadas = objetos.filter((o) => o.confirmadoIa).length;
+    if (confirmadas > 0) partes.push(`${confirmadas} ${confirmadas === 1 ? 'casa confirmada' : 'casas confirmadas'} por la IA`);
+    const celdasIa = objetos.filter(esIa).length;
+    if (celdasIa > 0) partes.push(`${celdasIa} ${celdasIa === 1 ? 'zona marcada' : 'zonas marcadas'} por la IA (casas faltantes, vías, agua o bosque)`);
     return partes.length > 1 ? `${partes.slice(0, -1).join(', ')} y ${partes[partes.length - 1]}` : partes[0] ?? 'objetos';
   }
 

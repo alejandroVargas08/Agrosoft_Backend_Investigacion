@@ -8,7 +8,7 @@ import { FuenteObjetosPort } from '../../domain/ports/proveedores-geo.port';
 import { PuntoGeo } from '../../domain/value-objects/geo';
 import { ObjetoTerreno } from '../../domain/value-objects/objetos-terreno';
 
-const TIMEOUT_MS = Number(process.env.OVERPASS_TIEMPO_MAX_S ?? 25) * 1000;
+const TIMEOUT_MS = Number(process.env.OVERPASS_TIEMPO_MAX_S ?? 60) * 1000;
 const MARGEN_GRADOS = 0.0003;
 const MAXIMO_OBJETOS = 3000;
 const VIGENCIA_CACHE_MS = 7 * 24 * 60 * 60 * 1000;
@@ -70,7 +70,7 @@ export class OsmObjetosAdapter implements FuenteObjetosPort {
       return JSON.parse(await fs.readFile(archivo, 'utf8')) as ElementoOsm[];
     }
 
-    const consulta = `[out:json][timeout:25];
+    const consulta = `[out:json][timeout:${Math.round(TIMEOUT_MS / 1000) - 5}];
 (
   way["building"](${caja});
   way["highway"](${caja});
@@ -96,7 +96,8 @@ out geom;`;
         await fs.writeFile(archivo, JSON.stringify(elementos)).catch(() => undefined);
         return elementos;
       } catch (error) {
-        const mensaje = error instanceof Error ? error.message : String(error);
+        const estado = (error as { response?: { status?: number } } | null)?.response?.status;
+        const mensaje = estado ? `HTTP ${estado}` : error instanceof Error ? error.message : String(error);
         errores.push(`${new URL(url).host}: ${mensaje}`);
         this.logger.warn(`Overpass ${url} falló: ${mensaje}`);
       }

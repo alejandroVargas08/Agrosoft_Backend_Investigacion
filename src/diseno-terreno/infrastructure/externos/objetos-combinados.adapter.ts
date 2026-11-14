@@ -4,7 +4,7 @@ import { centroide, PuntoGeo } from '../../domain/value-objects/geo';
 import { MicrosoftEdificiosAdapter } from './microsoft-edificios.adapter';
 import { OsmObjetosAdapter } from './osm-objetos.adapter';
 
-const TIEMPO_MICROSOFT_MS = Number(process.env.MICROSOFT_EDIFICIOS_TIEMPO_MAX_S ?? 20) * 1000;
+const TIEMPO_MICROSOFT_MS = Number(process.env.MICROSOFT_EDIFICIOS_TIEMPO_MAX_S ?? 90) * 1000;
 
 function conLimite<T>(promesa: Promise<T>, ms: number, mensaje: string): Promise<T> {
   return new Promise<T>((resolver, rechazar) => {

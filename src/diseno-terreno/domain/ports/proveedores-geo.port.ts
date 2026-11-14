@@ -54,8 +54,28 @@ export interface CuadriculaClasificada {
   celdas: TipoCoberturaVisual[][];
 }
 
+export type OrigenImagen = 'DRON' | 'SATELITE';
+
+export interface OpcionesCuadricula {
+  filas?: number;
+  columnas?: number;
+  origen?: OrigenImagen;
+}
+
 export interface DetectorCuadriculaPort {
-  clasificar(rutaImagen: string): Promise<CuadriculaClasificada>;
+  clasificar(imagen: string | Buffer, opciones?: OpcionesCuadricula): Promise<CuadriculaClasificada>;
+}
+
+export interface CajaGeo {
+  sur: number;
+  oeste: number;
+  norte: number;
+  este: number;
+}
+
+export interface ProveedorRecorteSatelitalPort {
+  readonly fuente: string;
+  obtenerRecorte(caja: CajaGeo, anchoPx: number, altoPx: number): Promise<Buffer>;
 }
 
 export const PROVEEDOR_ELEVACION_TOKEN = Symbol('PROVEEDOR_ELEVACION');
@@ -65,3 +85,4 @@ export const PROVEEDOR_IMAGEN_SATELITAL_TOKEN = Symbol('PROVEEDOR_IMAGEN_SATELIT
 export const INTERPRETE_COBERTURA_TOKEN = Symbol('INTERPRETE_COBERTURA');
 export const PROVEEDOR_OBJETOS_TOKEN = Symbol('PROVEEDOR_OBJETOS');
 export const DETECTOR_CUADRICULA_TOKEN = Symbol('DETECTOR_CUADRICULA');
+export const RECORTE_SATELITAL_TOKEN = Symbol('RECORTE_SATELITAL');

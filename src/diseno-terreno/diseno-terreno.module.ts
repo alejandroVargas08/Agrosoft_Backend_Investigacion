@@ -21,20 +21,13 @@ import { MicrosoftEdificiosAdapter } from './infrastructure/externos/microsoft-e
 import { ObjetosCombinadosAdapter } from './infrastructure/externos/objetos-combinados.adapter';
 import { DetectorCuadriculaOllamaAdapter } from './infrastructure/ia/detector-cuadricula-ollama.adapter';
 
-import {
-  DETECTOR_CUADRICULA_TOKEN,
-  INTERPRETE_COBERTURA_TOKEN,
-  PROVEEDOR_CLIMA_TOKEN,
-  PROVEEDOR_ELEVACION_TOKEN,
-  PROVEEDOR_IMAGEN_SATELITAL_TOKEN,
-  PROVEEDOR_OBJETOS_TOKEN,
-  PROVEEDOR_SUELO_TOKEN,
-} from './domain/ports/proveedores-geo.port';
+import { DETECTOR_CUADRICULA_TOKEN, INTERPRETE_COBERTURA_TOKEN, PROVEEDOR_CLIMA_TOKEN, PROVEEDOR_ELEVACION_TOKEN, PROVEEDOR_IMAGEN_SATELITAL_TOKEN, PROVEEDOR_OBJETOS_TOKEN, PROVEEDOR_SUELO_TOKEN, RECORTE_SATELITAL_TOKEN } from './domain/ports/proveedores-geo.port';
 import { CULTIVO_APTITUD_REPOSITORY_TOKEN, EVALUACION_TERRENO_REPOSITORY_TOKEN } from './domain/ports/repositorios.port';
 
 import { AnalizadorTopografiaService } from './application/services/analizador-topografia.service';
 import { AnalizadorCoberturaService } from './application/services/analizador-cobertura.service';
 import { DetectorObjetosDronService } from './application/services/detector-objetos-dron.service';
+import { DetectorObjetosSateliteService } from './application/services/detector-objetos-satelite.service';
 import { SolicitarEvaluacionTerrenoUseCase } from './application/use-cases/solicitar-evaluacion-terreno.use-case';
 import { ProcesarEvaluacionTerrenoUseCase } from './application/use-cases/procesar-evaluacion-terreno.use-case';
 import { ListarEvaluacionesTerrenoUseCase, ObtenerEvaluacionTerrenoUseCase } from './application/use-cases/consultar-evaluaciones.use-case';
@@ -53,6 +46,7 @@ import { DisenarCultivoUseCase, ListarCultivosAptitudUseCase } from './applicati
     AnalizadorTopografiaService,
     AnalizadorCoberturaService,
     DetectorObjetosDronService,
+    DetectorObjetosSateliteService,
     SolicitarEvaluacionTerrenoUseCase,
     ProcesarEvaluacionTerrenoUseCase,
     ObtenerEvaluacionTerrenoUseCase,
@@ -88,6 +82,7 @@ import { DisenarCultivoUseCase, ListarCultivosAptitudUseCase } from './applicati
     MicrosoftEdificiosAdapter,
     { provide: PROVEEDOR_OBJETOS_TOKEN, useClass: ObjetosCombinadosAdapter },
     { provide: DETECTOR_CUADRICULA_TOKEN, useClass: DetectorCuadriculaOllamaAdapter },
+    { provide: RECORTE_SATELITAL_TOKEN, useExisting: EsriImagenSatelitalAdapter },
   ],
 })
 export class DisenoTerrenoModule {}

@@ -26,12 +26,17 @@ const PROPORCION_ANCHO = 4;
 const PROPORCION_ALTO = 3;
 const BYTES_XMP = 256 * 1024;
 
-const TIPO_A_OBJETO: Partial<Record<TipoCoberturaVisual, TipoObjeto>> = {
+const VERSION_CACHE = 'v4';
+const TIPOS_DISPONIBLES: Partial<Record<TipoCoberturaVisual, TipoObjeto>> = {
   CONSTRUCCION: 'CONSTRUCCION',
   VIA: 'VIA',
   AGUA: 'AGUA',
   BOSQUE: 'BOSQUE',
 };
+const TIPOS_ACTIVOS = (process.env.DRON_IA_TIPOS ?? 'CONSTRUCCION').split(',').map((t) => t.trim().toUpperCase());
+const TIPO_A_OBJETO: Partial<Record<TipoCoberturaVisual, TipoObjeto>> = Object.fromEntries(
+  Object.entries(TIPOS_DISPONIBLES).filter(([tipo]) => TIPOS_ACTIVOS.includes(tipo)),
+);
 
 interface FotoVertical {
   centro: PuntoGeo;
@@ -96,11 +101,11 @@ export class DetectorObjetosDronService {
 
   private async clasificarConCache(rutaLocal: string): Promise<CuadriculaClasificada> {
     const info = await fs.stat(rutaLocal);
-    const clave = createHash('md5').update(`${rutaLocal}|${info.size}|${info.mtimeMs}`).digest('hex');
+    const clave = createHash('md5').update(`${VERSION_CACHE}|${rutaLocal}|${info.size}|${info.mtimeMs}`).digest('hex');
     const archivo = path.join(CARPETA_CACHE, `${clave}.json`);
     const guardado = await fs.readFile(archivo, 'utf8').catch(() => null);
     if (guardado) return JSON.parse(guardado) as CuadriculaClasificada;
-    const cuadricula = await this.detector.clasificar(rutaLocal);
+    const cuadricula = await this.detector.clasificar(rutaLocal, { origen: 'DRON' });
     await fs.writeFile(archivo, JSON.stringify(cuadricula)).catch(() => undefined);
     return cuadricula;
   }
