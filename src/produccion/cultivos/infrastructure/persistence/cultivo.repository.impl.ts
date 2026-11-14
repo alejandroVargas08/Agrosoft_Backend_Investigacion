@@ -32,6 +32,15 @@ export class CultivoRepositoryImpl implements CultivoRepositoryPort {
         return rows.map(row => row.id);
     }
 
+    async listarActivos(ids: number[] | null): Promise<Cultivo[]> {
+        if (ids !== null && ids.length === 0) return [];
+        const rows = await this.ormRepo.find({
+            where: ids === null ? { estado: 'activo' } : { estado: 'activo', id: In(ids) },
+            order: { nombreCultivo: 'ASC' },
+        });
+        return rows.map(row => this.toDomain(row));
+    }
+
     async actualizar(cultivo: Cultivo): Promise<Cultivo> {
         await this.ormRepo.update(cultivo.id!, this.toOrm(cultivo));
         return cultivo;

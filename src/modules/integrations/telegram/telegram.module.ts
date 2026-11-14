@@ -24,6 +24,7 @@ import { ReportesModule } from '../../../reportes/infrastructure/reportes.module
 import { IotModule } from '../../iot/iot.module';
 import { InventarioModule } from '../../inventario/inventario.module';
 import { IamModule } from '../../iam/iam.module';
+import { CultivosModule } from '../../../produccion/cultivos/infrastructure/cultivos.module';
 
 import { ObtenerOIniciarConversacionUseCase } from './application/use-cases/obtener-o-iniciar-conversacion.use-case';
 import { AvanzarConversacionUseCase } from './application/use-cases/avanzar-conversacion.use-case';
@@ -45,6 +46,7 @@ import { DesvincularPorUsuarioUseCase } from './application/use-cases/desvincula
         IotModule,
         InventarioModule,
         IamModule,
+        CultivosModule,
         TelegrafModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],

@@ -7,6 +7,8 @@ export interface CultivoRepositoryPort {
     buscarPorId(id: number) : Promise<Cultivo | null >;
     listarPorLote(loteId: number) : Promise<Cultivo[]>;
     idsPorLotes(loteIds: number[]) : Promise<number[]>;
+    // null = sin filtro (el usuario ve todos los lotes)
+    listarActivos(ids: number[] | null) : Promise<Cultivo[]>;
     actualizar(cultivo: Cultivo) : Promise<Cultivo>;
     eliminar(id: number) : Promise<void>;
 }

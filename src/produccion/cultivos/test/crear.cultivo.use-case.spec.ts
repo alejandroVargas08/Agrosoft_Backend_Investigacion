@@ -9,6 +9,7 @@ class FakeCultivoRepo implements CultivoRepositoryPort {
     async buscarPorId() { return null; }
     async listarPorLote() { return []; }
     async idsPorLotes() { return []; }
+    async listarActivos() { return []; }
     async actualizar(c: Cultivo) { return c; }
     async eliminar() {}
 }

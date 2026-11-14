@@ -18,6 +18,7 @@ import { VincularUsuarioUseCase } from '../../application/use-cases/vincular-usu
 import { BuscarVinculoUseCase } from '../../application/use-cases/buscar-vinculo.use-case';
 import { DesvincularUsuarioUseCase } from '../../application/use-cases/desvincular-usuario.use-case';
 import { VincularConCodigoUseCase } from '../../application/use-cases/vincular-con-codigo.use-case';
+import { AccesoCultivosService } from '../../../../../produccion/cultivos/application/services/acceso-cultivos.service';
 import type { VinculoUsuario } from '../../domain/entities/vinculo-usuario.entity';
 import { CONTEXTO_ACCESO_TOKEN } from '../../../../iam/domain/ports/contexto-acceso.token';
 import type { ContextoAccesoPort } from '../../../../iam/domain/ports/contexto-acceso.port';
@@ -26,6 +27,9 @@ import type { UsuarioAutenticado } from '../../../../iam/domain/value-objects/al
 const SIN_DATO = '-';
 const PERMISO_GESTIONAR_INCIDENCIAS = 'incidencias.gestionar';
 const PERMISO_VER_INCIDENCIAS = 'incidencias.ver';
+
+// Los que tienen @Command; cualquier otro "/algo" recibe una respuesta en vez de silencio
+const COMANDOS = ['start', 'salir', 'ayuda', 'cancelar', 'incidencia', 'tratamiento', 'reporte', 'alertas'];
 
 // El login no es un flujo de application/flows: tiene su propio camino
 const PASO_CORREO = 'login:correo';
@@ -68,6 +72,7 @@ export class AgrosoftBot {
         private readonly buscarVinculo: BuscarVinculoUseCase,
         private readonly desvincularUsuario: DesvincularUsuarioUseCase,
         private readonly vincularConCodigo: VincularConCodigoUseCase,
+        private readonly accesoCultivos: AccesoCultivosService,
         @Inject(CONTEXTO_ACCESO_TOKEN) private readonly contextoAcceso: ContextoAccesoPort,
     ) {}
 
@@ -92,13 +97,13 @@ export class AgrosoftBot {
         if (codigo) {
             try {
                 const nuevoVinculo = await this.vincularConCodigo.ejecutar(telegramUserId, codigo);
-                await ctx.reply('Listo, ' + nuevoVinculo.nombre + '. Tu cuenta quedo vinculada.\n\n' + MENU);
+                await ctx.reply('Listo, ' + nuevoVinculo.nombre + '. Tu cuenta quedó vinculada.\n\n' + MENU);
                 return;
             } catch {
                 await ctx.reply(
-                    'Ese codigo no sirve o ya expiro. Genera uno nuevo en AgroSoft, ' +
-                    'en Configuracion > Vincular con Telegram.\n\n' +
-                    'Tambien puedes entrar con tu correo: escribelo ahora.',
+                    'Ese código no sirve o ya expiró. Genera uno nuevo en AgroSoft, ' +
+                    'en Configuración > Telegram > Vincular.\n\n' +
+                    'También puedes entrar con tu correo: escríbelo ahora.',
                 );
                 await this.obtenerOIniciarConversacion.ejecutar(telegramUserId, PASO_CORREO);
                 return;
@@ -108,7 +113,7 @@ export class AgrosoftBot {
         // Sin vinculo no se puede hacer nada: lo primero es saber quien escribe
         await this.obtenerOIniciarConversacion.ejecutar(telegramUserId, PASO_CORREO);
         await ctx.reply(
-            'Soy el bot de AgroSoft. Antes de empezar necesito saber quien eres.\n\n' +
+            'Soy el bot de AgroSoft. Antes de empezar necesito saber quién eres.\n\n' +
             'Escribe el correo con el que entras a AgroSoft.',
         );
     }
@@ -162,9 +167,9 @@ export class AgrosoftBot {
             const r = reporte.resumen;
 
             const lineas = [
-                'Reporte de los ultimos 6 meses',
+                'Reporte de los últimos 6 meses',
                 '',
-                'Produccion: ' + this.kg(r.produccionTotalKg),
+                'Producción: ' + this.kg(r.produccionTotalKg),
                 'Ingresos: ' + this.pesos(r.ingresos),
                 'Egresos: ' + this.pesos(r.egresos),
                 'Rentabilidad: ' + r.rentabilidad + '%',
@@ -173,7 +178,7 @@ export class AgrosoftBot {
 
             // Los tres cultivos que mas aportaron, si hay produccion registrada
             if (reporte.distribucion.length > 0) {
-                lineas.push('', 'Cultivos con mas produccion:');
+                lineas.push('', 'Cultivos con más producción:');
                 for (const fila of reporte.distribucion.slice(0, 3)) {
                     lineas.push('- ' + fila.name + ': ' + this.kg(fila.value));
                 }
@@ -181,7 +186,7 @@ export class AgrosoftBot {
 
             await ctx.reply(lineas.join('\n'));
         } catch (error) {
-            this.logger.error('Fallo el reporte', error as Error);
+            this.logger.error('Falló el reporte', error as Error);
             await ctx.reply('No pude traer el reporte en este momento.');
         }
     }
@@ -209,28 +214,28 @@ export class AgrosoftBot {
             } else {
                 for (const alerta of recientes) {
                     lineas.push(
-                        '- Sensor ' + alerta.sensorId + ' (' + alerta.tipo + '): ' +
+                        '- Sensor ' + alerta.sensorId + ' (' + this.tipoAlerta(alerta.tipo) + '): ' +
                         alerta.valor + ' / umbral ' + alerta.umbral +
                         ' — ' + this.fechaCorta(alerta.fechaAlerta),
                     );
                 }
                 if (alertasSensores.length > recientes.length) {
-                    lineas.push('  ...y ' + (alertasSensores.length - recientes.length) + ' mas');
+                    lineas.push('  ...y ' + (alertasSensores.length - recientes.length) + ' más');
                 }
             }
 
-            lineas.push('', 'Insumos bajo minimo (' + insumos.length + '):');
+            lineas.push('', 'Insumos bajo mínimo (' + insumos.length + '):');
             if (insumos.length === 0) {
-                lineas.push('- Todo el inventario esta por encima del minimo');
+                lineas.push('- Todo el inventario está por encima del mínimo');
             } else {
                 for (const insumo of insumos.slice(0, 5)) {
                     lineas.push(
                         '- ' + insumo.nombre + ': ' + insumo.stockUso + ' ' + insumo.unidadUso +
-                        ' (minimo ' + insumo.stockMinimo + ')',
+                        ' (mínimo ' + insumo.stockMinimo + ')',
                     );
                 }
                 if (insumos.length > 5) {
-                    lineas.push('  ...y ' + (insumos.length - 5) + ' mas');
+                    lineas.push('  ...y ' + (insumos.length - 5) + ' más');
                 }
             }
 
@@ -246,7 +251,12 @@ export class AgrosoftBot {
     @On('text')
     async alRecibirTexto(@Ctx() ctx: Context) {
         const texto = (ctx.message as { text?: string } | undefined)?.text ?? '';
-        if (texto.startsWith('/')) return; // cada comando tiene su propio manejador
+        if (texto.startsWith('/')) {
+            // Los comandos conocidos tienen su propio manejador; el resto no debe quedar sin respuesta
+            const comando = texto.slice(1).split(/[\s@]/)[0].toLowerCase();
+            if (!COMANDOS.includes(comando)) await ctx.reply('No conozco ese comando.\n\n' + MENU);
+            return;
+        }
         await this.procesarRespuesta(ctx, texto);
     }
 
@@ -254,7 +264,39 @@ export class AgrosoftBot {
     async alTocarBoton(@Ctx() ctx: Context) {
         const data = (ctx.callbackQuery as { data?: string } | undefined)?.data ?? '';
         await ctx.answerCbQuery();
-        await this.procesarRespuesta(ctx, data.slice('op:'.length));
+        await this.marcarEleccion(ctx, data);
+
+        // op:<campo>:<valor>. El campo dice a qué pregunta pertenece el botón.
+        const resto = data.slice('op:'.length);
+        const separador = resto.indexOf(':');
+        if (separador < 0) {
+            await ctx.reply('Ese botón ya no sirve. Escribe /ayuda para ver qué puedes hacer.');
+            return;
+        }
+        await this.procesarRespuesta(ctx, resto.slice(separador + 1), resto.slice(0, separador));
+    }
+
+    /**
+     * Quita los botones (así no se pueden volver a tocar) y deja escrita en la
+     * pregunta la opción elegida, para que el chat muestre qué se respondió.
+     */
+    private async marcarEleccion(ctx: Context, data: string) {
+        const mensaje = ctx.callbackQuery?.message as
+            | { text?: string; reply_markup?: { inline_keyboard?: { text: string; callback_data?: string }[][] } }
+            | undefined;
+        const elegido = mensaje?.reply_markup?.inline_keyboard
+            ?.flat()
+            .find((boton) => boton.callback_data === data)?.text;
+
+        try {
+            if (mensaje?.text && elegido) {
+                await ctx.editMessageText(mensaje.text + '\n\n✅ ' + elegido);
+            } else {
+                await ctx.editMessageReplyMarkup(undefined);
+            }
+        } catch {
+            // el mensaje ya no tenía botones o es muy viejo para editarlo
+        }
     }
 
     // ─── Vinculación de cuenta ───────────────────────────────────────────────
@@ -388,7 +430,7 @@ export class AgrosoftBot {
         }
 
         const botones = opciones.map((opcion) => [
-            Markup.button.callback(opcion.etiqueta, 'op:' + opcion.valor),
+            Markup.button.callback(opcion.etiqueta, 'op:' + paso.campo + ':' + opcion.valor),
         ]);
         await ctx.reply(paso.pregunta, Markup.inlineKeyboard(botones));
     }
@@ -400,6 +442,21 @@ export class AgrosoftBot {
      */
     private async opcionesDe(ctx: Context, paso: PasoFlujo): Promise<OpcionPaso[]> {
         if (paso.opciones && paso.opciones.length > 0) return paso.opciones;
+
+        if (paso.fuente === 'cultivos') {
+            const usuario = await this.usuarioDe(ctx);
+            if (!usuario) return [];
+            const cultivos = await this.accesoCultivos.listarActivosVisibles(usuario);
+            if (cultivos.length === 0) return [];
+            return [
+                ...cultivos.slice(0, 10).map((cultivo) => ({
+                    etiqueta: cultivo.nombreCultivo,
+                    valor: String(cultivo.id ?? ''),
+                })),
+                { etiqueta: 'No aplica', valor: SIN_DATO },
+            ];
+        }
+
         if (paso.fuente !== 'incidencias') return [];
 
         const usuario = await this.usuarioDe(ctx);
@@ -418,7 +475,7 @@ export class AgrosoftBot {
         return [...abiertas, { etiqueta: 'Sin incidencia', valor: SIN_DATO }];
     }
 
-    private async procesarRespuesta(ctx: Context, valor: string) {
+    private async procesarRespuesta(ctx: Context, valor: string, campoDelBoton?: string) {
         const telegramUserId = this.idDe(ctx);
         if (!telegramUserId) return;
 
@@ -432,13 +489,18 @@ export class AgrosoftBot {
             return;
         }
 
-        if (!(await this.exigirVinculo(ctx))) return;
+        if (!(await this.exigirVinculo(ctx))) {
+            await this.cancelarSilenciosamente(ctx);
+            return;
+        }
 
         const [comando, indiceTexto] = conversacion.step.split(':');
         const flujo = comando ? buscarFlujo(comando) : undefined;
         const indice = Number(indiceTexto);
 
         if (!flujo || !Number.isInteger(indice)) {
+            // No dejar abierta la conversación vacía que se acaba de crear
+            await this.cancelarSilenciosamente(ctx);
             await ctx.reply('No hay nada en curso.\n\n' + MENU);
             return;
         }
@@ -447,6 +509,12 @@ export class AgrosoftBot {
         if (!paso) {
             await this.cancelarSilenciosamente(ctx);
             await ctx.reply('Perdí el hilo de la conversación. Vuelve a empezar.\n\n' + MENU);
+            return;
+        }
+
+        if (campoDelBoton !== undefined && campoDelBoton !== paso.campo) {
+            await ctx.reply('Ese botón es de una pregunta anterior. Responde esta:');
+            await this.preguntar(ctx, paso);
             return;
         }
 
@@ -573,12 +641,21 @@ export class AgrosoftBot {
             if (!/^\d{4}-\d{2}-\d{2}$/.test(respuesta)) {
                 return 'La fecha va en formato AAAA-MM-DD. Ejemplo: 2026-10-19';
             }
-            return Number.isNaN(Date.parse(respuesta))
+            // Date corre los días de más (30 de febrero → 2 de marzo); por eso se compara de vuelta
+            const fecha = new Date(respuesta + 'T00:00:00Z');
+            return Number.isNaN(fecha.getTime()) || fecha.toISOString().slice(0, 10) !== respuesta
                 ? 'Esa fecha no existe. Revísala y escríbela como AAAA-MM-DD.'
                 : null;
         }
 
         return null;
+    }
+
+    private tipoAlerta(tipo: string): string {
+        const t = tipo.toLowerCase();
+        if (t.startsWith('max')) return 'máximo';
+        if (t.startsWith('min')) return 'mínimo';
+        return t;
     }
 
     private fechaCorta(fecha: Date): string {

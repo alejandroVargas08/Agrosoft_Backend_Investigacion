@@ -5,7 +5,7 @@
  */
 
 // De dónde salen las opciones cuando no están escritas a mano
-export type FuenteOpciones = 'incidencias';
+export type FuenteOpciones = 'incidencias' | 'cultivos';
 
 // Qué forma debe tener la respuesta para considerarse válida
 export type FormatoPaso = 'numero' | 'fecha';
