@@ -129,7 +129,15 @@ export class InterpreteAgronomicoOllamaAdapter implements InterpreteAgronomicoPo
   }
 
   private texto(valor: unknown): string {
-    return typeof valor === 'string' ? valor.trim().slice(0, MAXIMO_CARACTERES) : '';
+    if (typeof valor !== 'string') return '';
+    const texto = valor.trim();
+    if (texto.length <= MAXIMO_CARACTERES) return texto;
+    // Cortar en la última frase completa que quepa; si no hay ninguna, cortar en una palabra y marcarlo con "…"
+    const recorte = texto.slice(0, MAXIMO_CARACTERES);
+    const finFrase = Math.max(recorte.lastIndexOf('. '), recorte.lastIndexOf('.\n'));
+    if (finFrase > MAXIMO_CARACTERES * 0.5) return recorte.slice(0, finFrase + 1);
+    const finPalabra = recorte.lastIndexOf(' ');
+    return `${recorte.slice(0, finPalabra > 0 ? finPalabra : MAXIMO_CARACTERES - 1).trimEnd()}…`;
   }
 
   private listaTextos(valor: unknown): string[] {
