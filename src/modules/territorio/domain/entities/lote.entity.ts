@@ -84,6 +84,18 @@ renombrar(nuevoNombre: string): void {
     this._updatedAt = new Date();
 }
 
+editar(cambios: { nombre?: string; descripcion?: string; poligono?: PoligonoGeografico; centroide?: PuntoGeografico; area?: Area }): void {
+    if (this._deletedAt) {
+        throw new Error('No se puede editar un lote eliminado');
+    }
+    if (cambios.nombre !== undefined) this.renombrar(cambios.nombre.trim());
+    if (cambios.descripcion !== undefined) this._descripcion = cambios.descripcion.trim();
+    if (cambios.poligono) this._poligono = cambios.poligono;
+    if (cambios.centroide) this._centroide = cambios.centroide;
+    if (cambios.area) this._area = cambios.area;
+    this._updatedAt = new Date();
+}
+
 eliminar(): void {
     this._deletedAt = new Date();
     this._updatedAt = new Date();

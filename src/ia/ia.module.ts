@@ -21,6 +21,7 @@ import { MensajeIARepository } from './infrastructure/persistence/repositories/m
 import { CONVERSACION_IA_REPOSITORY } from './domain/ports/conversacion-ia.repository.token';
 import { MENSAJE_IA_REPOSITORY } from './domain/ports/mensaje-ia.repository.token';
 import { IA_PROVIDER_TOKEN } from './domain/ports/ia-provider.token';
+import { PoliticaPersistenciaMensajesService } from './application/services/politica-persistencia-mensajes.service';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { IA_PROVIDER_TOKEN } from './domain/ports/ia-provider.token';
     ObtenerMensajesUseCase,
     EnviarMensajeConversacionUseCase,
     EnviarImagenesConversacionUseCase,
+    PoliticaPersistenciaMensajesService,
     {
       provide: IA_PROVIDER_TOKEN,
       useClass: OllamaAdapter,
@@ -48,6 +50,6 @@ import { IA_PROVIDER_TOKEN } from './domain/ports/ia-provider.token';
       useClass: MensajeIARepository,
     },
   ],
-  exports: [EnviarMensajeConversacionUseCase, EnviarImagenesConversacionUseCase, IA_PROVIDER_TOKEN],
+  exports: [EnviarMensajeConversacionUseCase, EnviarImagenesConversacionUseCase, IA_PROVIDER_TOKEN, CONVERSACION_IA_REPOSITORY],
 })
 export class iaModule {}

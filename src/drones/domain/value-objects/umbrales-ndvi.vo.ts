@@ -41,9 +41,12 @@ export class UmbralesNdvi {
   }
 
   clasificar(valor: number): ClaseVegetacion {
-    if (valor < this.sinVegetacion) return 'SIN_VEGETACION';
-    if (valor < this.estresAlto) return 'ESTRES_ALTO';
-    if (valor < this.saludable) return 'ESTRES_MODERADO';
+    if (valor < this.sinVegetacion) 
+      return 'SIN_VEGETACION';
+    if (valor < this.estresAlto) 
+      return 'ESTRES_ALTO';
+    if (valor < this.saludable) 
+      return 'ESTRES_MODERADO';
     return 'SALUDABLE';
   }
 

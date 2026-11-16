@@ -5,18 +5,32 @@ import type { NotificacionRepositoryPort } from '../../../domain/ports/notificac
 import { Notificacion } from '../../../domain/entities/notificacion.entity';
 import { NotificacionOrmEntity } from '../entities/notificacion.orm-entity';
 import { NotificacionMapper } from '../mappers/notificacion.mapper';
+import { PushService } from '../../push/push.service';
 
 @Injectable()
 export class NotificacionRepository implements NotificacionRepositoryPort {
   constructor(
     @InjectRepository(NotificacionOrmEntity)
     private readonly repo: Repository<NotificacionOrmEntity>,
+    private readonly push: PushService,
   ) {}
 
   async guardar(notificacion: Notificacion): Promise<Notificacion> {
+    const esNueva = !notificacion.obtenerId();
     const orm = NotificacionMapper.aPersistencia(notificacion);
     const guardado = await this.repo.save(orm);
-    return NotificacionMapper.aDominio(guardado);
+    const resultado = NotificacionMapper.aDominio(guardado);
+
+    if (esNueva) {
+      void this.push.enviarAUsuario(
+        resultado.obtenerUsuarioId(),
+        resultado.obtenerTitulo(),
+        resultado.obtenerMensaje(),
+        { tipo: resultado.obtenerTipo(), notificacionId: String(resultado.obtenerId()) },
+      );
+    }
+
+    return resultado;
   }
 
   async buscarPorId(id: number): Promise<Notificacion | null> {

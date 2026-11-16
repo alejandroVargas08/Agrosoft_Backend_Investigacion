@@ -22,7 +22,9 @@ export class VerificarCodigoUseCase {
       throw new BadRequestException('El código ha expirado o ya fue usado');
     }
 
-    await this.emailCodeRepository.marcarUsado(emailCode.id!);
+    if (tipo !== TipoCodigo.RESTABLECER_CONTRASENA) {
+      await this.emailCodeRepository.marcarUsado(emailCode.id!);
+    }
     return true;
   }
 }

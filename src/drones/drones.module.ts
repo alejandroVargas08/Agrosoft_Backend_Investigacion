@@ -102,6 +102,12 @@ import { ListarResultadosAnalisisUseCase } from './application/use-cases/analisi
     { provide: PROCESADOR_MULTIESPECTRAL_TOKEN, useClass: ProcesadorMultiespectralGeotiffAdapter },
     { provide: INTERPRETE_AGRONOMICO_TOKEN, useClass: InterpreteAgronomicoOllamaAdapter },
   ],
-  exports: [VUELO_REPOSITORY_TOKEN, ANALISIS_VUELO_REPOSITORY_TOKEN, RESULTADO_CAPTURA_REPOSITORY_TOKEN],
+  exports: [
+    VUELO_REPOSITORY_TOKEN,
+    ANALISIS_VUELO_REPOSITORY_TOKEN,
+    RESULTADO_CAPTURA_REPOSITORY_TOKEN,
+    CAPTURA_REPOSITORY_TOKEN,
+    ALMACENAMIENTO_ARCHIVOS_TOKEN,
+  ],
 })
 export class DronesModule {}

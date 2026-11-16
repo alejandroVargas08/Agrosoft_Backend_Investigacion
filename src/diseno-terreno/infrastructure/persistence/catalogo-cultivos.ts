@@ -1,0 +1,118 @@
+import type { CultivoAptitudProps } from '../../domain/entities/cultivo-aptitud.entity';
+
+type Semilla = Omit<CultivoAptitudProps, 'id' | 'activo'>;
+
+export const CATALOGO_CULTIVOS: Semilla[] = [
+  {
+    codigo: 'papa', nombre: 'Papa',
+    altitudMinM: 2000, altitudMaxM: 3300, temperaturaMinC: 10, temperaturaMaxC: 18,
+    precipitacionMinMm: 700, precipitacionMaxMm: 1500, phMin: 5.0, phMax: 6.5, pendienteMaxPct: 25,
+    texturasPreferidas: ['FRANCO', 'FRANCO_ARENOSO'], distanciaSurcosM: 1.0, distanciaPlantasM: 0.35,
+    cicloDias: 150, perenne: false, notas: 'Aporca a los 30–45 días y evita suelos encharcados por riesgo de gota.',
+  },
+  {
+    codigo: 'fresa', nombre: 'Fresa',
+    altitudMinM: 1800, altitudMaxM: 2800, temperaturaMinC: 13, temperaturaMaxC: 20,
+    precipitacionMinMm: 600, precipitacionMaxMm: 1500, phMin: 5.5, phMax: 6.5, pendienteMaxPct: 15,
+    texturasPreferidas: ['FRANCO', 'FRANCO_ARENOSO'], distanciaSurcosM: 1.0, distanciaPlantasM: 0.3,
+    cicloDias: 120, perenne: false, notas: 'Siembra en camas elevadas con acolchado plástico y riego por goteo.',
+  },
+  {
+    codigo: 'arveja', nombre: 'Arveja',
+    altitudMinM: 1800, altitudMaxM: 2900, temperaturaMinC: 12, temperaturaMaxC: 18,
+    precipitacionMinMm: 600, precipitacionMaxMm: 1200, phMin: 5.5, phMax: 7.0, pendienteMaxPct: 25,
+    texturasPreferidas: ['FRANCO', 'FRANCO_ARENOSO'], distanciaSurcosM: 1.0, distanciaPlantasM: 0.3,
+    cicloDias: 110, perenne: false, notas: 'Requiere tutorado con estacas y alambre.',
+  },
+  {
+    codigo: 'cebolla_larga', nombre: 'Cebolla larga',
+    altitudMinM: 2400, altitudMaxM: 3200, temperaturaMinC: 12, temperaturaMaxC: 18,
+    precipitacionMinMm: 800, precipitacionMaxMm: 1500, phMin: 5.5, phMax: 7.0, pendienteMaxPct: 25,
+    texturasPreferidas: ['FRANCO'], distanciaSurcosM: 0.6, distanciaPlantasM: 0.3,
+    cicloDias: 150, perenne: false, notas: null,
+  },
+  {
+    codigo: 'lechuga', nombre: 'Lechuga',
+    altitudMinM: 1800, altitudMaxM: 2800, temperaturaMinC: 12, temperaturaMaxC: 20,
+    precipitacionMinMm: 600, precipitacionMaxMm: 1200, phMin: 6.0, phMax: 7.0, pendienteMaxPct: 12,
+    texturasPreferidas: ['FRANCO', 'FRANCO_ARENOSO'], distanciaSurcosM: 0.4, distanciaPlantasM: 0.3,
+    cicloDias: 70, perenne: false, notas: 'Siembra escalonada cada 2–3 semanas para cosecha continua.',
+  },
+  {
+    codigo: 'mora', nombre: 'Mora de Castilla',
+    altitudMinM: 1800, altitudMaxM: 2400, temperaturaMinC: 12, temperaturaMaxC: 19,
+    precipitacionMinMm: 1500, precipitacionMaxMm: 2500, phMin: 5.2, phMax: 6.7, pendienteMaxPct: 35,
+    texturasPreferidas: ['FRANCO'], distanciaSurcosM: 2.5, distanciaPlantasM: 2.0,
+    cicloDias: 240, perenne: true, notas: 'Requiere espaldera o tutorado en T.',
+  },
+  {
+    codigo: 'aguacate_hass', nombre: 'Aguacate Hass',
+    altitudMinM: 1800, altitudMaxM: 2500, temperaturaMinC: 13, temperaturaMaxC: 21,
+    precipitacionMinMm: 1000, precipitacionMaxMm: 2000, phMin: 5.0, phMax: 6.5, pendienteMaxPct: 45,
+    texturasPreferidas: ['FRANCO', 'FRANCO_ARENOSO'], distanciaSurcosM: 7.0, distanciaPlantasM: 7.0,
+    cicloDias: 1095, perenne: true, notas: 'Muy sensible al encharcamiento: necesita suelo bien drenado.',
+  },
+  {
+    codigo: 'lulo', nombre: 'Lulo',
+    altitudMinM: 1600, altitudMaxM: 2400, temperaturaMinC: 16, temperaturaMaxC: 22,
+    precipitacionMinMm: 1500, precipitacionMaxMm: 2500, phMin: 5.5, phMax: 6.5, pendienteMaxPct: 35,
+    texturasPreferidas: ['FRANCO'], distanciaSurcosM: 2.5, distanciaPlantasM: 2.5,
+    cicloDias: 270, perenne: true, notas: null,
+  },
+  {
+    codigo: 'cafe', nombre: 'Café',
+    altitudMinM: 1200, altitudMaxM: 2000, temperaturaMinC: 17, temperaturaMaxC: 23,
+    precipitacionMinMm: 1500, precipitacionMaxMm: 2500, phMin: 4.5, phMax: 6.0, pendienteMaxPct: 50,
+    texturasPreferidas: ['FRANCO', 'FRANCO_ARCILLOSO'], distanciaSurcosM: 1.5, distanciaPlantasM: 1.0,
+    cicloDias: 540, perenne: true, notas: 'Considera sombrío transitorio con plátano o guamo.',
+  },
+  {
+    codigo: 'frijol', nombre: 'Fríjol',
+    altitudMinM: 900, altitudMaxM: 2400, temperaturaMinC: 15, temperaturaMaxC: 25,
+    precipitacionMinMm: 500, precipitacionMaxMm: 1500, phMin: 5.5, phMax: 7.0, pendienteMaxPct: 20,
+    texturasPreferidas: ['FRANCO', 'FRANCO_ARENOSO'], distanciaSurcosM: 0.6, distanciaPlantasM: 0.2,
+    cicloDias: 100, perenne: false, notas: null,
+  },
+  {
+    codigo: 'maiz', nombre: 'Maíz',
+    altitudMinM: 0, altitudMaxM: 2600, temperaturaMinC: 18, temperaturaMaxC: 30,
+    precipitacionMinMm: 600, precipitacionMaxMm: 1500, phMin: 5.5, phMax: 7.5, pendienteMaxPct: 15,
+    texturasPreferidas: ['FRANCO', 'FRANCO_ARENOSO', 'FRANCO_ARCILLOSO'], distanciaSurcosM: 0.8, distanciaPlantasM: 0.25,
+    cicloDias: 120, perenne: false, notas: null,
+  },
+  {
+    codigo: 'tomate', nombre: 'Tomate',
+    altitudMinM: 0, altitudMaxM: 2000, temperaturaMinC: 18, temperaturaMaxC: 27,
+    precipitacionMinMm: 600, precipitacionMaxMm: 1300, phMin: 5.8, phMax: 7.0, pendienteMaxPct: 12,
+    texturasPreferidas: ['FRANCO', 'FRANCO_ARENOSO'], distanciaSurcosM: 1.2, distanciaPlantasM: 0.4,
+    cicloDias: 120, perenne: false, notas: 'En clima frío solo es viable bajo invernadero.',
+  },
+  {
+    codigo: 'cana_panelera', nombre: 'Caña panelera',
+    altitudMinM: 700, altitudMaxM: 2000, temperaturaMinC: 20, temperaturaMaxC: 30,
+    precipitacionMinMm: 1500, precipitacionMaxMm: 2500, phMin: 5.5, phMax: 7.5, pendienteMaxPct: 35,
+    texturasPreferidas: ['FRANCO', 'FRANCO_ARCILLOSO'], distanciaSurcosM: 1.5, distanciaPlantasM: 0.5,
+    cicloDias: 540, perenne: true, notas: null,
+  },
+  {
+    codigo: 'platano', nombre: 'Plátano',
+    altitudMinM: 0, altitudMaxM: 1800, temperaturaMinC: 20, temperaturaMaxC: 30,
+    precipitacionMinMm: 1200, precipitacionMaxMm: 3000, phMin: 5.5, phMax: 7.0, pendienteMaxPct: 30,
+    texturasPreferidas: ['FRANCO'], distanciaSurcosM: 3.0, distanciaPlantasM: 2.5,
+    cicloDias: 365, perenne: true, notas: null,
+  },
+  {
+    codigo: 'yuca', nombre: 'Yuca',
+    altitudMinM: 0, altitudMaxM: 1800, temperaturaMinC: 20, temperaturaMaxC: 30,
+    precipitacionMinMm: 700, precipitacionMaxMm: 2500, phMin: 4.5, phMax: 7.5, pendienteMaxPct: 25,
+    texturasPreferidas: ['ARENOSO', 'FRANCO_ARENOSO', 'FRANCO'], distanciaSurcosM: 1.0, distanciaPlantasM: 0.8,
+    cicloDias: 300, perenne: false, notas: null,
+  },
+  {
+    codigo: 'cacao', nombre: 'Cacao',
+    altitudMinM: 0, altitudMaxM: 1200, temperaturaMinC: 22, temperaturaMaxC: 30,
+    precipitacionMinMm: 1500, precipitacionMaxMm: 2800, phMin: 5.0, phMax: 7.0, pendienteMaxPct: 30,
+    texturasPreferidas: ['FRANCO', 'FRANCO_ARCILLOSO'], distanciaSurcosM: 3.0, distanciaPlantasM: 3.0,
+    cicloDias: 1095, perenne: true, notas: 'Necesita sombrío permanente en los primeros años.',
+  },
+];

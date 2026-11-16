@@ -19,7 +19,9 @@ export class EnviarMensajeConversacionUseCase {
     conversacionId: number;
     mensaje: string;
     cantidadImagenes?: number;
-  }): Promise<{ respuesta: string }> {
+    contexto?: string;
+    tuvoDatos?: boolean;
+  }): Promise<{ respuesta: string, guardado: boolean }> {
     const conversacion = await this.conversaciones.buscarPorId(props.conversacionId);
     if (!conversacion) throw new NotFoundException('Conversación no encontrada');
 
@@ -35,7 +37,7 @@ export class EnviarMensajeConversacionUseCase {
 
     const historialPrevio = await this.mensajes.listarPorConversacion(props.conversacionId);
     const historial: MensajeHistorial[] = [
-      { role: 'system', content: CONTEXTO_SISTEMA },
+      { role: 'system', content: props.contexto ? `${CONTEXTO_SISTEMA}\n\n${props.contexto}` : CONTEXTO_SISTEMA },
       ...historialPrevio.map((m) => ({
         role: m.obtenerRol(),
         content: m.tieneImagenesAdjuntas()
@@ -55,6 +57,6 @@ export class EnviarMensajeConversacionUseCase {
     conversacion.tocar();
     await this.conversaciones.guardar(conversacion);
 
-    return { respuesta };
+    return { respuesta, guardado: true };
   }
 }

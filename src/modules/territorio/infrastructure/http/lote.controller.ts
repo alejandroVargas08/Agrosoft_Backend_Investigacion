@@ -9,7 +9,9 @@ import { ObtenerLotePorIdUseCase } from '../../application/use-cases/obtener-lot
 import { CambiarEstadoLoteUseCase } from '../../application/use-cases/cambiar-estado-lote.use-case';
 import { EliminarLoteUseCase } from '../../application/use-cases/eliminar-lote.use-case';
 import { AsignarProgramaLoteUseCase } from '../../application/use-cases/asignar-programa-lote.use-case';
+import { ActualizarLoteUseCase } from '../../application/use-cases/actualizar-lote.use-case';
 import { CrearLoteDto, CambiarEstadoLoteDto, AsignarProgramaLoteDto } from './dto/lote-request.dto';
+import { ActualizarTerrenoDto } from './dto/actualizar-terreno.dto';
 
 @Controller('territorio/lotes')
 @Autenticado()
@@ -21,6 +23,7 @@ export class LoteController {
         private readonly cambiarEstadoLote: CambiarEstadoLoteUseCase,
         private readonly eliminarLote: EliminarLoteUseCase,
         private readonly asignarProgramaLote: AsignarProgramaLoteUseCase,
+        private readonly actualizarLote: ActualizarLoteUseCase,
     ) {}
 
     @Post()
@@ -39,6 +42,16 @@ export class LoteController {
     @RequierePermisos('lotes.ver')
     obtenerPorId(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
         return this.obtenerLotePorId.ejecutar(id, usuario);
+    }
+
+    @Patch(':id')
+    @RequierePermisos('lotes.gestionar')
+    actualizar(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: ActualizarTerrenoDto,
+        @UsuarioActual() usuario: UsuarioAutenticado,
+    ) {
+        return this.actualizarLote.ejecutar(id, dto, usuario);
     }
 
     @Patch(':id/estado')
