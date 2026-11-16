@@ -20,6 +20,14 @@ export interface ClimaPorPeriodo {
     uv: number | null;
 }
 
+/** Promedio de las estaciones de un lote durante un día (las condiciones del día de un vuelo de dron). */
+export interface ClimaDelDia {
+    temperatura: number | null;
+    humedad: number | null;
+    uv: number | null;
+    lecturas: number;
+}
+
 export interface LuzDelDia {
     /** Promedio de las lecturas de luz del día que no son cero (las de noche no cuentan) */
     promedioLux: number | null;
@@ -34,4 +42,5 @@ export interface ReportesRepositoryPort {
     contarUnidadesActivas(): Promise<number>;
     climaPorPeriodo(unidad: string, desde: Date): Promise<ClimaPorPeriodo[]>;
     luzDeHoy(): Promise<LuzDelDia>;
+    climaDelDia(loteId: number, fecha: string): Promise<ClimaDelDia>;
 }

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Reportes_Repository } from '../../domain/ports/reportes.repository.port';
-import type { ReportesRepositoryPort } from '../../domain/ports/reportes.repository.port';
+import type { ClimaDelDia, ReportesRepositoryPort } from '../../domain/ports/reportes.repository.port';
 import {
     FilaDistribucion,
     FilaFinanzas,
@@ -69,6 +69,11 @@ export class ObtenerReporteUseCase {
             })),
             luz,
         };
+    }
+
+    /** Condiciones de las estaciones de un lote en un día (AAAA-MM-DD), por ejemplo el día de un vuelo de dron. */
+    climaDelDia(loteId: number, fecha: string): Promise<ClimaDelDia> {
+        return this.repositorio.climaDelDia(loteId, fecha);
     }
 
     async ejecutar(periodoPedido?: string): Promise<ReporteGeneral> {

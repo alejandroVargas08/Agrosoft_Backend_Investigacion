@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import {
+    ClimaDelDia,
     ClimaPorPeriodo,
     FinanzasPorPeriodo,
     LuzDelDia,
@@ -114,6 +115,7 @@ export class ReportesRepositoryImpl implements ReportesRepositoryPort {
     // el frontend. El valor se guarda como texto: solo cuentan los que son número.
     private static readonly LECTURAS = `
         SELECT l.fecha_lectura AS fecha,
+               s.lote_id AS lote_id,
                CASE WHEN l.valor ~ '^-?[0-9]+(\\.[0-9]+)?$' THEN l.valor::numeric END AS valor,
                CASE
                    WHEN LOWER(COALESCE(t.nombre, s.nombre_sensor)) LIKE '%temp%' THEN 'temperatura'
@@ -153,6 +155,32 @@ export class ReportesRepositoryImpl implements ReportesRepositoryPort {
             humedad: redondear(f.humedad),
             uv: redondear(f.uv),
         }));
+    }
+
+    /** fecha en formato AAAA-MM-DD, día de Colombia */
+    async climaDelDia(loteId: number, fecha: string): Promise<ClimaDelDia> {
+        const filas = await this.dataSource.query(
+            `
+            SELECT AVG(x.valor) FILTER (WHERE x.medida = 'temperatura') AS temperatura,
+                   AVG(x.valor) FILTER (WHERE x.medida = 'humedad') AS humedad,
+                   AVG(x.valor) FILTER (WHERE x.medida = 'uv') AS uv,
+                   COUNT(*) AS lecturas
+            FROM (${ReportesRepositoryImpl.LECTURAS}) x
+            WHERE x.valor IS NOT NULL
+              AND x.lote_id = $1
+              AND x.medida IN ('temperatura', 'humedad', 'uv')
+              AND (x.fecha AT TIME ZONE 'America/Bogota')::date = $2::date
+            `,
+            [loteId, fecha],
+        );
+        const redondear = (v: unknown) => (v === null || v === undefined ? null : Math.round(Number(v) * 10) / 10);
+        const f = filas[0] ?? {};
+        return {
+            temperatura: redondear(f.temperatura),
+            humedad: redondear(f.humedad),
+            uv: redondear(f.uv),
+            lecturas: Number(f.lecturas ?? 0),
+        };
     }
 
     async luzDeHoy(): Promise<LuzDelDia> {
