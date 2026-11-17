@@ -1,5 +1,6 @@
 import { SensorAlerta } from '../../../domain/entities/sensor-alerta.entity';
 import { TipoAlerta } from '../../../domain/value-objects/rango-operativo.vo';
+import type { ResolucionAlerta } from '../../../domain/entities/sensor-alerta.entity';
 import { SensorAlertaOrmEntity } from '../entities/sensor-alerta.orm-entity';
 
 export class SensorAlertaMapper {
@@ -13,6 +14,9 @@ export class SensorAlertaMapper {
       fechaAlerta: orm.fechaAlerta,
       loteId: orm.loteId,
       subLoteId: orm.subLoteId,
+      resueltaEn: orm.resueltaEn ?? null,
+      resolucion: (orm.resolucion as ResolucionAlerta | null) ?? null,
+      valorNormalizado: orm.valorNormalizado ?? null,
       creadoEn: orm.creadoEn,
       actualizadoEn: orm.actualizadoEn,
       eliminadoEn: orm.eliminadoEn,
@@ -29,6 +33,9 @@ export class SensorAlertaMapper {
     orm.fechaAlerta = alerta.fechaAlerta;
     orm.loteId = alerta.loteId;
     orm.subLoteId = alerta.subLoteId;
+    orm.resueltaEn = alerta.resueltaEn;
+    orm.resolucion = alerta.resolucion;
+    orm.valorNormalizado = alerta.valorNormalizado;
     return orm;
   }
 }

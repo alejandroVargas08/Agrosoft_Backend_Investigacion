@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { CrearSensorAlertaUseCase } from '../../../application/use-cases/sensor-alertas/crear-sensor-alerta.use-case';
 import { ObtenerSensorAlertaUseCase } from '../../../application/use-cases/sensor-alertas/obtener-sensor-alerta.use-case';
 import { ListarSensorAlertasUseCase } from '../../../application/use-cases/sensor-alertas/listar-sensor-alertas.use-case';
 import { ListarAlertasPorSensorUseCase } from '../../../application/use-cases/sensor-alertas/listar-alertas-por-sensor.use-case';
 import { EliminarSensorAlertaUseCase } from '../../../application/use-cases/sensor-alertas/eliminar-sensor-alerta.use-case';
+import { DescartarSensorAlertaUseCase } from '../../../application/use-cases/sensor-alertas/descartar-sensor-alerta.use-case';
 import { CrearSensorAlertaDto } from '../../../application/dto/sensor-alertas/crear-sensor-alerta.dto';
 import { Autenticado } from '../../../../iam/infrastructure/http/decorators/autenticado.decorator';
 import { PERMISO_VER_SENSORES, PERMISO_GESTIONAR_SENSORES } from '../permisos-iot';
@@ -16,6 +17,7 @@ export class SensorAlertasController {
     private readonly listarSensorAlertasUseCase: ListarSensorAlertasUseCase,
     private readonly listarAlertasPorSensorUseCase: ListarAlertasPorSensorUseCase,
     private readonly eliminarSensorAlertaUseCase: EliminarSensorAlertaUseCase,
+    private readonly descartarSensorAlertaUseCase: DescartarSensorAlertaUseCase,
   ) {}
 
   @Autenticado(PERMISO_GESTIONAR_SENSORES)
@@ -25,9 +27,11 @@ export class SensorAlertasController {
   }
 
   @Autenticado(PERMISO_VER_SENSORES)
+  // ?estado=activa | normalizada | descartada (sin filtro: todas)
   @Get()
-  listar() {
-    return this.listarSensorAlertasUseCase.execute();
+  async listar(@Query('estado') estado?: string) {
+    const alertas = await this.listarSensorAlertasUseCase.execute();
+    return estado ? alertas.filter((a) => a.estado === estado) : alertas;
   }
 
   @Autenticado(PERMISO_VER_SENSORES)
@@ -40,6 +44,13 @@ export class SensorAlertasController {
   @Get(':id')
   obtener(@Param('id', ParseIntPipe) id: number) {
     return this.obtenerSensorAlertaUseCase.execute(id);
+  }
+
+  // Cierra la alerta sin borrarla: queda en el historial como 'descartada'
+  @Autenticado(PERMISO_GESTIONAR_SENSORES)
+  @Patch(':id/descartar')
+  descartar(@Param('id', ParseIntPipe) id: number) {
+    return this.descartarSensorAlertaUseCase.execute(id);
   }
 
   @Autenticado(PERMISO_GESTIONAR_SENSORES)

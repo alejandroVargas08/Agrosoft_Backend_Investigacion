@@ -197,11 +197,13 @@ export class AgrosoftBot {
 
         try {
             // Las dos fuentes son independientes, se piden en paralelo
-            const [alertasSensores, insumos] = await Promise.all([
+            const [todasSensores, insumos] = await Promise.all([
                 this.listarSensorAlertas.execute(),
                 this.listarInsumosBajoStock.ejecutar(),
             ]);
 
+            // Solo las abiertas: las normalizadas o descartadas ya no son alerta
+            const alertasSensores = todasSensores.filter((a) => a.estaActiva());
             const recientes = [...alertasSensores]
                 .sort((a, b) => b.fechaAlerta.getTime() - a.fechaAlerta.getTime())
                 .slice(0, 5);
@@ -210,7 +212,7 @@ export class AgrosoftBot {
 
             lineas.push('', 'Sensores (' + alertasSensores.length + '):');
             if (recientes.length === 0) {
-                lineas.push('- Sin alertas registradas');
+                lineas.push('- Sin alertas activas');
             } else {
                 for (const alerta of recientes) {
                     lineas.push(
