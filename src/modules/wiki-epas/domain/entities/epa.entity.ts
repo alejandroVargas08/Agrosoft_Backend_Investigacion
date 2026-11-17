@@ -64,4 +64,7 @@ export class Epa {
   get eliminadoEn() { return this.props.eliminadoEn; }
 
   toProps(): EpaProps { return { ...this.props }; }
+
+  // Nest serializa la respuesta con JSON.stringify: sin esto sale { props: {...} }
+  toJSON(): EpaProps { return { ...this.props }; }
 }

@@ -50,7 +50,8 @@ export class SolicitarEvaluacionTerrenoUseCase {
       }
       const poligonoLote = lote.poligono.vertices.map((v) => ({ lat: v.lat, lng: v.lng }));
       poligono = dto.poligono ?? poligonoLote;
-      nombre ||= `Lote ${lote.nombre}`;
+      // Los lotes ya se llaman "Lote La Esperanza": no repetir la palabra
+      nombre ||= /^lote\b/i.test(lote.nombre) ? lote.nombre : `Lote ${lote.nombre}`;
       if (dto.soloAreaVuelo) {
         const area = await this.cobertura.areaDelVuelo(dto.vueloId!, poligonoLote);
         if (!area) {

@@ -5,6 +5,7 @@ const PALABRAS: Record<FuenteContexto, RegExp> = {
   sensores: /sensor|estaci[oó]n|temperatura|humedad|\buv\b|radiaci[oó]n|clima|alerta|hongo|calor|fr[ií]o/i,
   inventario: /insumo|inventario|stock|existencia|fertilizante|herramienta|se acaba|m[ií]nimo/i,
   drones: /dron|vuelo|ndvi|ndre|gndvi|ndwi|an[aá]lisis|estr[eé]s|cobertura|multiespectral|salud del (lote|cultivo)/i,
+  plagas: /plaga|enfermedad|arvense|maleza|\bepa\b|broca|roya|hongo|insecto|gusano|hormiga|mancha|s[ií]ntoma|tratar|tratamiento|control(ar)? (de|la|el)|fumig/i,
   finanzas: /dinero|plata|finanz|ingreso|egreso|gasto|ganancia|rentabilidad|\bventas?\b|factura|pago|cliente|cobr|costo|presupuesto|precio|balance/i,
 };
 

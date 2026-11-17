@@ -1,6 +1,6 @@
 import type { UsuarioAutenticado } from '../../../modules/iam/domain/value-objects/alcance-datos.vo';
 
-export type FuenteContexto = 'sensores' | 'inventario' | 'drones' | 'finanzas';
+export type FuenteContexto = 'sensores' | 'inventario' | 'drones' | 'finanzas' | 'plagas';
 
 export interface ProveedorContextoPort {
   readonly fuente: FuenteContexto;
@@ -17,6 +17,7 @@ export const MENSAJE_SIN_ACCESO: Record<FuenteContexto, string> = {
   inventario: 'No tienes acceso a la información de inventario.',
   drones: 'No tienes acceso a la información de drones.',
   finanzas: 'No tienes acceso a la información de finanzas. Solo los administradores e instructores pueden consultarla.',
+  plagas: 'No tienes acceso a la Wiki EPA.',
 };
 
 export const PROVEEDORES_CONTEXTO_TOKEN = 'PROVEEDORES_CONTEXTO_TOKEN';
