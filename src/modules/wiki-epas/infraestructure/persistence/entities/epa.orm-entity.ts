@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToMany, JoinTable } from 'typeorm';
+import { TipoCultivoWikiOrmEntity } from './tipo-cultivo-wiki.orm-entity';
 
 @Entity('epas')
 export class EpaOrmEntity {
@@ -49,4 +50,14 @@ export class EpaOrmEntity {
 
   @Column({ name: 'creado_por_usuario_id' })
   creadoPorUsuarioId: number;
+
+  // Los cultivos a los que afecta. eager: viaja siempre con la EPA, asi un
+  // guardado nunca la deja sin cultivos por no haberlos cargado.
+  @ManyToMany(() => TipoCultivoWikiOrmEntity, { eager: true })
+  @JoinTable({
+    name: 'epa_cultivos_susceptibles',
+    joinColumn: { name: 'epa_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'tipo_cultivo_wiki_id', referencedColumnName: 'id' },
+  })
+  cultivosSusceptibles: TipoCultivoWikiOrmEntity[];
 }

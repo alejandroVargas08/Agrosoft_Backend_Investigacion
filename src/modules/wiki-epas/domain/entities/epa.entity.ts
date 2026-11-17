@@ -1,5 +1,11 @@
 export type TipoEpa = 'ENFERMEDAD' | 'PLAGA' | 'ARVENSE';
 
+/** Un tipo de cultivo de la wiki (Cafe, Mora...) al que afecta la EPA. */
+export interface CultivoSusceptible {
+  id: number;
+  nombre: string;
+}
+
 interface EpaProps {
   id: number | null;
   nombre: string;
@@ -13,6 +19,7 @@ interface EpaProps {
   fotosSintomas: string[];
   fotosGenerales: string[];
   etiquetas: string[];
+  cultivosSusceptibles?: CultivoSusceptible[];
   creadoPorUsuarioId: number;
   creadoEn?: Date;
   actualizadoEn?: Date;
@@ -58,6 +65,11 @@ export class Epa {
   get fotosSintomas() { return this.props.fotosSintomas; }
   get fotosGenerales() { return this.props.fotosGenerales; }
   get etiquetas() { return this.props.etiquetas; }
+  get cultivosSusceptibles(): CultivoSusceptible[] { return this.props.cultivosSusceptibles ?? []; }
+
+  cambiarCultivosSusceptibles(cultivos: CultivoSusceptible[]): void {
+    this.props = { ...this.props, cultivosSusceptibles: cultivos };
+  }
   get creadoPorUsuarioId() { return this.props.creadoPorUsuarioId; }
   get creadoEn() { return this.props.creadoEn; }
   get actualizadoEn() { return this.props.actualizadoEn; }

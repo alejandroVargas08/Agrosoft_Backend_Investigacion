@@ -19,7 +19,7 @@ export class ProveedorContextoPlagas implements ProveedorContextoPort {
     const fichas = epas.map((e) => {
       const meses = e.mesesProbables.length ? e.mesesProbables.map((m) => MESES[m - 1]).join(', ') : 'sin dato';
       return [
-        `- ${e.nombre} (${e.tipoEpa.toLowerCase()}; afecta: ${e.etiquetas.join(', ') || 'sin dato'})`,
+        `- ${e.nombre} (${e.tipoEpa.toLowerCase()}; cultivos susceptibles: ${e.cultivosSusceptibles.map((c) => c.nombre).join(', ') || e.etiquetas.join(', ') || 'sin dato'})`,
         `  Síntomas: ${e.sintomas}`,
         `  Manejo y control: ${e.manejoYControl}`,
         `  Meses de mayor riesgo: ${meses}`,
