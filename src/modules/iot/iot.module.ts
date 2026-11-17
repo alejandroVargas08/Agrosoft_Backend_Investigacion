@@ -1,5 +1,3 @@
-import { MqttSensorListener } from './infraestructure/mqtt/mqtt-sensor.listener';
-
 import { IotGlobalConfigController } from './infraestructure/http/controllers/iot-global-config.controller';
 import { IotGlobalConfigOrmEntity } from './infraestructure/persistence/entities/iot-global-config.orm-entity';
 import { IotGlobalConfigRepository } from './infraestructure/persistence/repositories/iot-global-config.repository';
@@ -83,7 +81,6 @@ import { EliminarTipoSensorUseCase } from './application/use-cases/tipos-sensore
     ObtenerSensorPublicoUseCase,
     ActualizarSensorUseCase,
     EliminarSensorUseCase,
-    MqttSensorListener,
     { provide: SENSOR_REPOSITORY_TOKEN, useClass: SensorRepository },
 
     CrearTipoSensorUseCase,

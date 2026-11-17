@@ -1,13 +1,3 @@
-// Nuevos imports
-import { EpaTiposCultivosWikiController } from './infraestructure/http/controllers/epa-tipos-cultivos-wiki.controller';
-import { EpaTipoCultivoWikiOrmEntity } from './infraestructure/persistence/entities/epa-tipo-cultivo-wiki.orm-entity';
-import { EpaTipoCultivoWikiRepository } from './infraestructure/persistence/repositories/epa-tipo-cultivo-wiki.repository';
-import { EPA_TIPO_CULTIVO_WIKI_REPOSITORY_TOKEN } from './domain/ports/epa-tipo-cultivo-wiki.repository.token';
-
-import { AsociarEpaTipoCultivoWikiUseCase } from './application/use-cases/epa-tipos-cultivos-wiki/asociar-epa-tipo-cultivo-wiki.use-case';
-import { DesasociarEpaTipoCultivoWikiUseCase } from './application/use-cases/epa-tipos-cultivos-wiki/desasociar-epa-tipo-cultivo-wiki.use-case';
-import { ListarTiposCultivoPorEpaUseCase } from './application/use-cases/epa-tipos-cultivos-wiki/listar-tipos-cultivo-por-epa.use-case';
-import { ListarEpasPorTipoCultivoUseCase } from './application/use-cases/epa-tipos-cultivos-wiki/listar-epas-por-tipo-cultivo.use-case';
 
 import { TiposCultivosWikiController } from './infraestructure/http/controllers/tipos-cultivos-wiki.controller';
 import { TipoCultivoWikiOrmEntity } from './infraestructure/persistence/entities/tipo-cultivo-wiki.orm-entity';
@@ -72,14 +62,7 @@ import { IamModule } from '../iam/iam.module';
     ActualizarTipoCultivoWikiUseCase,
     EliminarTipoCultivoWikiUseCase,
     { provide: TIPO_CULTIVO_WIKI_REPOSITORY_TOKEN, useClass: TipoCultivoWikiRepository },
-
-    AsociarEpaTipoCultivoWikiUseCase,
-    DesasociarEpaTipoCultivoWikiUseCase,
-    ListarTiposCultivoPorEpaUseCase,
-    ListarEpasPorTipoCultivoUseCase,
-    { provide: EPA_TIPO_CULTIVO_WIKI_REPOSITORY_TOKEN, useClass: EpaTipoCultivoWikiRepository },
   ],
-  exports: [EPA_REPOSITORY_TOKEN, WIKI_TIPO_EPA_REPOSITORY_TOKEN, TIPO_CULTIVO_WIKI_REPOSITORY_TOKEN,
-    EPA_TIPO_CULTIVO_WIKI_REPOSITORY_TOKEN,],
+  exports: [EPA_REPOSITORY_TOKEN, WIKI_TIPO_EPA_REPOSITORY_TOKEN, TIPO_CULTIVO_WIKI_REPOSITORY_TOKEN],
 })
 export class WikiEpasModule {}
