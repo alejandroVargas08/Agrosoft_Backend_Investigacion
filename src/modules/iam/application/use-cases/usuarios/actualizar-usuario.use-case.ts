@@ -34,8 +34,12 @@ export class ActualizarUsuarioUseCase {
       usuarioExistente.cambiarCorreo(dto.correo);
     }
 
-    if (dto.telefono) {
-      usuarioExistente.cambiarTelefono(dto.telefono);
+    if (dto.telefono !== undefined) {
+      usuarioExistente.cambiarTelefono(dto.telefono.trim());
+    }
+
+    if (dto.ubicacion !== undefined) {
+      usuarioExistente.cambiarUbicacion(dto.ubicacion);
     }
 
     // Se compara contra undefined a proposito: false es un valor valido y con

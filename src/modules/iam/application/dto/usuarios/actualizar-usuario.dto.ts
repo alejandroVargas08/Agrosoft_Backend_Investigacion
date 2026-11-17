@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsEmail, IsIn, IsBoolean } from 'class-validator';
+import { IsOptional, IsString, IsEmail, IsIn, IsBoolean, MaxLength } from 'class-validator';
 
 export class ActualizarUsuarioDto {
   @IsOptional()
@@ -16,6 +16,11 @@ export class ActualizarUsuarioDto {
   @IsOptional()
   @IsString()
   readonly telefono?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(150)
+  readonly ubicacion?: string;
 
   @IsOptional()
   @IsIn(['activo', 'inactivo', 'suspendido', 'pendiente', 'rechazado'])

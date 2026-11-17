@@ -37,6 +37,7 @@ export class ObtenerUsuarioUseCase {
       identificacion: usuario.obtenerIdentificacion(),
       correo: usuario.obtenerCorreo(),
       telefono: usuario.obtenerTelefono(),
+      ubicacion: usuario.obtenerUbicacion(),
       estado: usuario.obtenerEstado(),
       correoVerificado: usuario.correoEstaVerificado(),
       dosPasosActivo: usuario.tieneDosPasos(),

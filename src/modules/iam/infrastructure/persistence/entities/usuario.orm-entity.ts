@@ -59,6 +59,9 @@ export class UsuarioOrmEntity {
   @Column({ type: 'boolean', name: 'dos_pasos_activo', default: false })
   dosPasosActivo: boolean;
 
+  @Column({ type: 'varchar', length: 150, nullable: true })
+  ubicacion: string | null;
+
   @Column({ type: 'jsonb', name: 'solicitud_registro', nullable: true })
   solicitudRegistro: SolicitudRegistro | null;
 }

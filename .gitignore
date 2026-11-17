@@ -63,3 +63,5 @@ storage/
 uploads/
 cache/
 firebase-admin.json
+datasets/
+modelos/clasificador-rostro.json

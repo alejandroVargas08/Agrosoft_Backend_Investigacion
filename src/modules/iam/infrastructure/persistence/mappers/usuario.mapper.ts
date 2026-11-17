@@ -23,6 +23,7 @@ export class UsuarioMapper {
       eliminadoEn: orm.eliminadoEn,
       solicitudRegistro: orm.solicitudRegistro ?? null,
       dosPasosActivo: orm.dosPasosActivo ?? false,
+      ubicacion: orm.ubicacion ?? null,
     });
   }
 
@@ -47,6 +48,7 @@ export class UsuarioMapper {
     orm.eliminadoEn = dominio.obtenerEliminadoEn();
     orm.solicitudRegistro = dominio.obtenerSolicitudRegistro();
     orm.dosPasosActivo = dominio.tieneDosPasos();
+    orm.ubicacion = dominio.obtenerUbicacion();
     return orm;
   }
 }

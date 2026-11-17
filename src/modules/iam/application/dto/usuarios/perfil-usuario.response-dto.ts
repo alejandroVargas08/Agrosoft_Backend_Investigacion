@@ -6,6 +6,7 @@ export class PerfilUsuarioResponseDto {
   /** Se llama `correo`, como en todo lo que sale de UsuarioPublico. */
   correo: string;
   telefono: string;
+  ubicacion: string | null;
   estado: string;
   correoVerificado: boolean;
   /** Verificacion en dos pasos al iniciar sesion. */

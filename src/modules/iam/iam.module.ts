@@ -19,6 +19,10 @@ import { ObtenerUsuarioUseCase } from './application/use-cases/usuarios/obtener-
 import { AdministrarUsuarioUseCase } from './application/use-cases/usuarios/administrar-usuario.use-case';
 import { AccesoAprendicesService } from './application/services/acceso-aprendices.service';
 
+// Rostro
+import { ReconocimientoRostroService } from './infrastructure/services/reconocimiento-rostro.service';
+import { LoginRostroUseCase } from './application/use-cases/usuarios/login-rostro.use-case';
+
 // Rol
 import { RolOrmEntity } from './infrastructure/persistence/entities/rol.orm-entity';
 import { RolRepository } from './infrastructure/persistence/repositories/rol.repository';
@@ -138,6 +142,8 @@ import { PermisosGuard } from './infrastructure/http/guards/permisos.guard';
   ],
   providers: [
     // Usuario
+    LoginRostroUseCase,
+    ReconocimientoRostroService,
     CrearUsuarioUseCase,
     ActualizarUsuarioUseCase,
     LoginUsuarioUseCase,
