@@ -1,0 +1,204 @@
+import { Body, Controller, Delete, ForbiddenException, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { CrearUsuarioUseCase } from '../../../application/use-cases/usuarios/crear-usuario.use-case';
+import { ActualizarUsuarioUseCase } from '../../../application/use-cases/usuarios/actualizar-usuario.use-case';
+import { LoginUsuarioUseCase } from '../../../application/use-cases/usuarios/login-usuario.use-case';
+import { EliminarUsuarioUseCase } from '../../../application/use-cases/usuarios/eliminar-usuario.use-case';
+import { ObtenerUsuarioUseCase } from '../../../application/use-cases/usuarios/obtener-usuario.use-case';
+import { AdministrarUsuarioUseCase } from '../../../application/use-cases/usuarios/administrar-usuario.use-case';
+import { CrearUsuarioDto } from '../../../application/dto/usuarios/crear-usuario.dto';
+import { ActualizarUsuarioDto } from '../../../application/dto/usuarios/actualizar-usuario.dto';
+import { VerificarLoginDosPasosDto } from '../../../application/dto/usuarios/verificar-login-dos-pasos.dto';
+import { VerificarLoginDosPasosUseCase } from '../../../application/use-cases/usuarios/verificar-login-dos-pasos.use-case';
+import { LoginUsuarioDto } from '../../../application/dto/usuarios/login-usuario.dto';
+import { AprobarRegistroDto, CambiarProgramaUsuarioDto, CambiarRolUsuarioDto, CrearUsuarioAdminDto, RechazarRegistroDto, RestablecerContrasenaAdminDto } from '../../../application/dto/usuarios/administrar-usuario.dto';
+import { LoginRostroDto } from '../../../application/dto/usuarios/login-rostro.dto';
+import { LoginRostroUseCase } from '../../../application/use-cases/usuarios/login-rostro.use-case';
+import { GuardarFotosRostroDto } from '../../../application/dto/usuarios/guardar-fotos-rostro.dto';
+import { ActualizarMiPerfilDto } from '../../../application/dto/usuarios/actualizar-mi-perfil.dto';
+import { ReconocimientoRostroService } from '../../services/reconocimiento-rostro.service';
+import { aUsuarioPublico } from '../../../application/dto/usuarios/usuario-respuesta.mapper';
+import type { UsuarioAutenticado } from '../../../domain/value-objects/alcance-datos.vo';
+import { Autenticado } from '../decorators/autenticado.decorator';
+import { UsuarioActual } from '../decorators/usuario-actual.decorator';
+import { PERMISO_GESTIONAR_USUARIOS, PERMISO_ASIGNAR_ACTIVIDADES } from '../permisos-iam';
+
+function validarPropioOAdministrador(usuario: UsuarioAutenticado, id: number): void {
+  if (usuario.id !== id && !usuario.permisos.includes(PERMISO_GESTIONAR_USUARIOS)) {
+    throw new ForbiddenException('Solo puedes consultar o editar tu propio perfil');
+  }
+}
+
+@Controller('usuarios')
+export class UsuarioController {
+  constructor(
+    private readonly crearUsuarioUseCase: CrearUsuarioUseCase,
+    private readonly actualizarUsuarioUseCase: ActualizarUsuarioUseCase,
+    private readonly loginUsuarioUseCase: LoginUsuarioUseCase,
+    private readonly verificarLoginDosPasosUseCase: VerificarLoginDosPasosUseCase,
+    private readonly eliminarUsuarioUseCase: EliminarUsuarioUseCase,
+    private readonly obtenerUsuarioUseCase: ObtenerUsuarioUseCase,
+    private readonly administrarUsuarioUseCase: AdministrarUsuarioUseCase,
+    private readonly loginRostroUseCase: LoginRostroUseCase,
+    private readonly reconocimiento: ReconocimientoRostroService,
+  ) {}
+
+  @Post()
+  crear(@Body() dto: CrearUsuarioDto) {
+    return this.crearUsuarioUseCase.ejecutar(dto);
+  }
+
+  // Segundo paso del login, para quien tiene la verificacion en dos pasos.
+  // Va antes de @Get(':id') y demas para que 'login' no se lea como un id.
+  @Post('login/dos-pasos')
+  verificarLoginDosPasos(@Body() dto: VerificarLoginDosPasosDto) {
+    return this.verificarLoginDosPasosUseCase.ejecutar(dto);
+  }
+
+  @Post('login')
+  login(@Body() dto: LoginUsuarioDto) {
+    return this.loginUsuarioUseCase.ejecutar(dto);
+  }
+
+  @Post('login-rostro')
+  loginRostro(@Body() dto: LoginRostroDto) {
+    return this.loginRostroUseCase.ejecutar(dto);
+  }
+
+  @Get('mi-perfil')
+  @Autenticado()
+  miPerfil(@UsuarioActual() usuario: UsuarioAutenticado) {
+    return this.obtenerUsuarioUseCase.ejecutar(usuario.id);
+  }
+
+  @Patch('mi-perfil')
+  @Autenticado()
+  async actualizarMiPerfil(@UsuarioActual() usuario: UsuarioAutenticado, @Body() dto: ActualizarMiPerfilDto) {
+    await this.actualizarUsuarioUseCase.ejecutar(usuario.id, dto);
+    return this.obtenerUsuarioUseCase.ejecutar(usuario.id);
+  }
+
+  @Get('mi-rostro')
+  @Autenticado()
+  miRostro(@UsuarioActual() usuario: UsuarioAutenticado) {
+    const fecha = this.reconocimiento.fechaRostro(usuario.correo);
+    return { fotos: fecha !== null, actualizadoEn: fecha ? fecha.toISOString() : null };
+  }
+
+  @Post('mi-rostro')
+  @Autenticado()
+  async guardarMiRostro(@UsuarioActual() usuario: UsuarioAutenticado, @Body() dto: GuardarFotosRostroDto) {
+    const fotos = await this.reconocimiento.prepararFotos(dto.fotos);
+    this.reconocimiento.guardarUsuario(usuario.correo, fotos);
+    return { guardadas: fotos.length };
+  }
+
+  @Delete('mi-rostro')
+  @Autenticado()
+  eliminarMiRostro(@UsuarioActual() usuario: UsuarioAutenticado) {
+    return { eliminado: this.reconocimiento.eliminarUsuario(usuario.correo) };
+  }
+
+  @Get('rostros/estado')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  estadoRostros() {
+    return this.reconocimiento.estado();
+  }
+
+  @Post('rostros/referencias')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  async agregarReferencias(@Body() dto: GuardarFotosRostroDto) {
+    const fotos = await this.reconocimiento.prepararFotos(dto.fotos);
+    this.reconocimiento.agregarReferencias(fotos);
+    return { guardadas: fotos.length, ...this.reconocimiento.estado() };
+  }
+
+  @Get()
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  listar() {
+    return this.administrarUsuarioUseCase.listar();
+  }
+
+  // Las rutas con texto fijo van ANTES de :id, si no Nest las captura con el id
+  @Get('aprendices')
+  @Autenticado(PERMISO_ASIGNAR_ACTIVIDADES)
+  listarAprendices(@UsuarioActual() usuario: UsuarioAutenticado, @Query('programaFormacionId') programaFormacionId?: string) {
+    const programa = programaFormacionId ? Number(programaFormacionId) : undefined;
+    return this.administrarUsuarioUseCase.listarAprendices(usuario, Number.isInteger(programa) ? programa : undefined);
+  }
+
+  /** Solicitudes de acceso: los que esperan aprobación. */
+  @Get('solicitudes')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  listarSolicitudes() {
+    return this.administrarUsuarioUseCase.listarSolicitudes();
+  }
+
+  @Get(':id')
+  @Autenticado()
+  obtener(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
+    validarPropioOAdministrador(usuario, id);
+    return this.obtenerUsuarioUseCase.ejecutar(id);
+  }
+
+  @Patch(':id')
+  @Autenticado()
+  async actualizar(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ActualizarUsuarioDto,
+    @UsuarioActual() usuario: UsuarioAutenticado,
+  ) {
+    validarPropioOAdministrador(usuario, id);
+    if (dto.estado && !usuario.permisos.includes(PERMISO_GESTIONAR_USUARIOS)) {
+      throw new ForbiddenException('Solo un administrador puede cambiar el estado de un usuario');
+    }
+    return aUsuarioPublico(await this.actualizarUsuarioUseCase.ejecutar(id, dto));
+  }
+
+  @Patch(':id/rol')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  cambiarRol(@Param('id', ParseIntPipe) id: number, @Body() dto: CambiarRolUsuarioDto) {
+    return this.administrarUsuarioUseCase.cambiarRol(id, dto.rolId);
+  }
+
+  @Patch(':id/programa')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  cambiarPrograma(@Param('id', ParseIntPipe) id: number, @Body() dto: CambiarProgramaUsuarioDto) {
+    return this.administrarUsuarioUseCase.cambiarPrograma(id, dto.programaFormacionId ?? null);
+  }
+
+  @Patch(':id/aprobar')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  aprobarRegistro(@Param('id', ParseIntPipe) id: number, @Body() dto: AprobarRegistroDto) {
+    return this.administrarUsuarioUseCase.aprobarRegistro(id, dto?.fichasACargo);
+  }
+
+  @Patch(':id/rechazar')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  rechazarRegistro(@Param('id', ParseIntPipe) id: number, @Body() dto: RechazarRegistroDto) {
+    return this.administrarUsuarioUseCase.rechazarRegistro(id, dto.motivo);
+  }
+
+  @Patch(':id/contrasena')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  restablecerContrasena(@Param('id', ParseIntPipe) id: number, @Body() dto: RestablecerContrasenaAdminDto) {
+    return this.administrarUsuarioUseCase.restablecerContrasena(id, dto.nuevaContrasena);
+  }
+
+  // Alta hecha por el administrador: distinta del registro publico de @Post(),
+  // porque aqui se elige el rol y el usuario queda activo sin pasar por la
+  // cola de solicitudes. Devuelve la contrasena generada una sola vez.
+  @Post('admin')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  crearComoAdmin(@Body() dto: CrearUsuarioAdminDto) {
+    return this.administrarUsuarioUseCase.crearComoAdmin(dto);
+  }
+
+  @Delete(':id')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  eliminar(@Param('id', ParseIntPipe) id: number, @UsuarioActual() usuario: UsuarioAutenticado) {
+    if (usuario.id === id) {
+      throw new ForbiddenException('No puedes eliminar tu propio usuario');
+    }
+    return this.eliminarUsuarioUseCase.ejecutar(id);
+  }
+}

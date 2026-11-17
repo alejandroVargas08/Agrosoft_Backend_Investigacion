@@ -38,4 +38,7 @@ export class SensorAlerta {
   get eliminadoEn() { return this.props.eliminadoEn; }
 
   toProps(): SensorAlertaProps { return { ...this.props }; }
+
+  // Sin esto, Nest serializa la entidad como {"props":{...}}
+  toJSON() { return this.toProps(); }
 }

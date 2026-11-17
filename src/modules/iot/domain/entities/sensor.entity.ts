@@ -77,4 +77,18 @@ export class Sensor {
   get eliminadoEn() { return this.props.eliminadoEn; }
 
   toProps(): SensorProps { return { ...this.props }; }
+
+  // Sin esto, Nest serializa la entidad como {"props":{...}}.
+  // Aplana rango y conexion, que son value objects.
+  toJSON() {
+    const { conexion, rango, eliminadoEn, ...resto } = this.props;
+    return {
+      ...resto,
+      protocolo: conexion.protocolo,
+      endpointUrl: conexion.endpointUrl,
+      mqttTopic: conexion.mqttTopic,
+      valorMinimoSensor: rango.minimo,
+      valorMaximoSensor: rango.maximo,
+    };
+  }
 }

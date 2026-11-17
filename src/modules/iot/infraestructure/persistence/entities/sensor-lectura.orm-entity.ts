@@ -27,5 +27,5 @@ export class SensorLecturaOrmEntity {
   unidad: string;
 
   @Column({ type: 'varchar', nullable: true })
-observaciones: string | null;
+  observaciones: string | null;
 }

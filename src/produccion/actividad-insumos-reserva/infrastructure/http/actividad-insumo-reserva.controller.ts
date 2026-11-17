@@ -1,0 +1,44 @@
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from "@nestjs/common";
+import { reservarActividadInsumoReservaUseCase } from "../../application/use-cases/reservar-actividad-insumo-reserva.use-case";
+import { listarActividadInsumoReservaUseCase } from "../../application/use-cases/listar-actividad-insumo-reserva.use-case";
+import { ajustarActividadInsumoReservaDto } from "../../application/dto/ajustar-actividad-insumo-reserva.dto";
+import { liberarActividadInsumoReservaUseCase } from "../../application/use-cases/liberar-actividad-insumo-reserva.use-case";
+import { reservaActividadInsumoDto } from "../../application/dto/reservar-actividad-insumo-reserva.dto";
+import { ajustarCantidadActividadInsumoReservaUseCase } from "../../application/use-cases/ajustar-cantidad-actividad-insumo-reserva.use-case";
+import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso-actividad.decorator';
+import { PermitirEjecutor } from '../../../actividades/infrastructure/http/permitir-ejecutor.decorator';
+
+@Controller('actividad/:actividadId/insumoReserva')
+@AccesoActividad()
+// El aprendiz aparta insumos de la tarea que esta ejecutando, igual que ya
+// hacen evidencias, insumos usados y herramientas. El guard ademas exige que
+// tenga una asignacion activa en esa actividad.
+@PermitirEjecutor()
+    export class actividadInsumoReservaController {
+        constructor(
+            private readonly reservaInsumoUC: reservarActividadInsumoReservaUseCase,
+            private readonly listarReservaUC: listarActividadInsumoReservaUseCase,
+            private readonly ajustarCantidadUC: ajustarCantidadActividadInsumoReservaUseCase,
+            private readonly liberarReservaUC: liberarActividadInsumoReservaUseCase,
+        ) {}
+
+        @Post()
+        reservar(@Param('actividadId', ParseIntPipe) actividadId: number, @Body() dto: reservaActividadInsumoDto) {
+            return this.reservaInsumoUC.ejecutar(actividadId, dto);
+        }
+    
+        @Get()
+        listar(@Param('actividadId', ParseIntPipe) actividadId: number) {
+            return this.listarReservaUC.ejecutar(actividadId);
+        }
+    
+        @Patch(':id')
+        ajustarCantidad(@Param('id', ParseIntPipe) id: number, @Body() dto: ajustarActividadInsumoReservaDto) {
+            return this.ajustarCantidadUC.ejecutar(id, dto.cantidadReserva);
+        }
+    
+        @Delete(':id')
+        liberar(@Param('id', ParseIntPipe) id: number) {
+            return this.liberarReservaUC.ejecutar(id);
+        }
+    }

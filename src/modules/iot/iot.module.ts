@@ -35,6 +35,7 @@ import { EliminarSensorLecturaUseCase } from './application/use-cases/sensor-lec
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { IamModule } from '../iam/iam.module';
 
 import { SensoresController } from './infraestructure/http/controllers/sensores.controller';
 import { TiposSensoresController } from './infraestructure/http/controllers/tipos-sensores.controller';
@@ -51,6 +52,7 @@ import { TIPO_SENSOR_REPOSITORY_TOKEN } from './domain/ports/tipo-sensor.reposit
 import { CrearSensorUseCase } from './application/use-cases/sensores/crear-sensor.use-case';
 import { ObtenerSensorUseCase } from './application/use-cases/sensores/obtener-sensor.use-case';
 import { ListarSensoresUseCase } from './application/use-cases/sensores/listar-sensores.use-case';
+import { ObtenerSensorPublicoUseCase } from './application/use-cases/sensores/obtener-sensor-publico.use-case';
 import { ActualizarSensorUseCase } from './application/use-cases/sensores/actualizar-sensor.use-case';
 import { EliminarSensorUseCase } from './application/use-cases/sensores/eliminar-sensor.use-case';
 
@@ -61,7 +63,10 @@ import { ActualizarTipoSensorUseCase } from './application/use-cases/tipos-senso
 import { EliminarTipoSensorUseCase } from './application/use-cases/tipos-sensores/eliminar-tipo-sensor.use-case';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SensorOrmEntity,
+  // IamModule trae JwtAuthGuard y PermisosGuard, que usan los @Autenticado
+  // de estos controllers. Sin el, Nest no arranca.
+  imports: [IamModule,
+    TypeOrmModule.forFeature([SensorOrmEntity,
       TipoSensorOrmEntity,
       SensorLecturaOrmEntity,
       SensorAlertaOrmEntity,
@@ -75,6 +80,7 @@ import { EliminarTipoSensorUseCase } from './application/use-cases/tipos-sensore
     CrearSensorUseCase,
     ObtenerSensorUseCase,
     ListarSensoresUseCase,
+    ObtenerSensorPublicoUseCase,
     ActualizarSensorUseCase,
     EliminarSensorUseCase,
     MqttSensorListener,
@@ -112,6 +118,7 @@ import { EliminarTipoSensorUseCase } from './application/use-cases/tipos-sensore
     TIPO_SENSOR_REPOSITORY_TOKEN,
     SENSOR_LECTURA_REPOSITORY_TOKEN,
     SENSOR_ALERTA_REPOSITORY_TOKEN,
-    IOT_GLOBAL_CONFIG_REPOSITORY_TOKEN,],
+    IOT_GLOBAL_CONFIG_REPOSITORY_TOKEN,
+    ListarSensorAlertasUseCase,],
 })
 export class IotModule {}

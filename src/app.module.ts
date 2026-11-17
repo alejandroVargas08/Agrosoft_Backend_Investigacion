@@ -1,8 +1,29 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { TerritorioModule } from './modules/territorio/territorio.module';
+import { InventarioModule } from './modules/inventario/inventario.module';
+import { TelegramModule } from './modules/integrations/telegram/telegram.module';
+import { ProductosAgroModule } from './produccion/productos-agro/infrastructure/productos-agro.module';
+import { ComercialModule } from './comercial/infrastructure/comercial.module';
+import { FinanzasModule } from './finanzas/infrastructure/finanzas.module';
+import { ProduccionModule } from './produccion/produccion.module';
+import { HistorialPreciosLoteModule } from './produccion/historial_precios_lote/infrastructure/historial_precios_lote.module';
+import { VentasModule } from './comercial/ventas/infrastructure/ventas.module';
+import { VentasDetallesModule } from './comercial/ventas-detalles/infrastructure/ventas-detalles.module';
+import { ClientesModule } from './comercial/clientes/infrastructure/clientes.module';
+import { FacturasModule } from './comercial/facturas/infrastructure/facturas.module';
+import { PagosModule } from './comercial/pagos/infrastruture/pagos.module';
+import { TransaccionesFinancierasModule } from './finanzas/transacciones-financieras/infrastructure/transacciones-financieras.module';
+import { IamModule } from './modules/iam/iam.module';
+import { NotificacionesModule } from './modules/notificaciones/notificaciones.module';
 import { IotModule } from './modules/iot/iot.module';
 import { WikiEpasModule } from './modules/wiki-epas/wiki-epas.module';
+import { iaModule } from './ia/ia.module';
+import { ReportesModule } from './reportes/infrastructure/reportes.module';
+import { DronesModule } from './drones/drones.module';
+import { AgrobotModule } from './agrobot/agrobot.module';
+import { DisenoTerrenoModule } from './diseno-terreno/diseno-terreno.module';
 
 @Module({
   imports: [
@@ -17,9 +38,34 @@ import { WikiEpasModule } from './modules/wiki-epas/wiki-epas.module';
       autoLoadEntities: true,
       schema: 'public',
       synchronize: true,
+      logging: true,
     }),
+    TerritorioModule,
+    InventarioModule,
+    // El bot se carga siempre, salvo que el .env tenga TELEGRAM_ENABLED=false
+    ...(process.env.TELEGRAM_ENABLED === 'false' ? [] : [TelegramModule]),
+    ProductosAgroModule,
+    ComercialModule,
+    FinanzasModule,
+    ProduccionModule,
+    HistorialPreciosLoteModule,
+    VentasModule,
+    VentasDetallesModule,
+    ClientesModule,
+    FacturasModule,
+    PagosModule,
+    TransaccionesFinancierasModule,
+    IamModule,
+    NotificacionesModule,
     IotModule,
     WikiEpasModule,
+    iaModule,
+    ReportesModule,
+    DronesModule,
+    DronesModule,
+    DisenoTerrenoModule,
+    AgrobotModule,
+    AgrobotModule
   ],
   controllers: [],
   providers: [],

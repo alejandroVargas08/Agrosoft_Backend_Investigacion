@@ -1,0 +1,34 @@
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+
+@Entity('lotes_produccion')
+    export class LoteProduccionOrmEntity{
+        @PrimaryGeneratedColumn() id: number;
+        @Column({ name: 'producto_agro_id' }) productoAgroId: number;
+        @Column({ name: 'cultivo_id' }) cultivoId: number;
+        @Column({ name: 'lote_id' }) loteId: number;
+        @Column({ name: 'sub_lote_id', nullable: true }) subLoteId: number;
+        @Column({ name: 'actividades_cosecha_id', nullable: true }) actividadesCosechaId: number;
+        @Column() calidad: string;
+        @Column('double precision', { name: 'cantidad_kg' }) cantidadKg: number;
+        @Column('double precision', { name: 'stock_disponible_kg' }) stockDisponibleKg: number;
+        @Column('double precision', { name: 'costo_unitario_kg' }) costoUnitarioKg: number;
+        @Column('double precision', { name: 'costo_total' }) costoTotal: number;
+        @Column('double precision', { name: 'precio_sugerido_kg' }) precioSugeridoKg: number;
+        // El tipo va explicito: con `string | null` TypeScript emite Object como
+        // metadata y TypeORM no sabe que columna crear en Postgres
+        @Column({ type: 'varchar', length: 60, nullable: true }) destino: string | null;
+        @Column({ type: 'varchar', length: 120, nullable: true }) responsable: string | null;
+        @Column({ type: 'text', nullable: true }) observaciones: string | null;
+        @Column({ name: 'fecha_cosecha', type: 'date', nullable: true }) fechaCosecha: string | null;
+        @Column('double precision', { nullable: true }) cantidad: number | null;
+        @Column({ type: 'varchar', length: 20, nullable: true }) unidad: string | null;
+
+        @CreateDateColumn({ name: 'created_at' })
+        createdAt: Date;
+
+        @UpdateDateColumn({ name: 'updated_at' })
+        updatedAt: Date;
+
+        @DeleteDateColumn({ name: 'deleted_at' })
+        deletedAt: Date;
+}

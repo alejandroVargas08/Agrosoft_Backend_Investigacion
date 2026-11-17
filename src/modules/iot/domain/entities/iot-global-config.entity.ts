@@ -62,6 +62,9 @@ export class IotGlobalConfig {
 
   toProps(): IotGlobalConfigProps { return { ...this.props }; }
 
+  // Sin esto, Nest serializa la entidad como {"props":{...}}
+  toJSON() { return this.toProps(); }
+
   // Versión segura para exponer por HTTP: sin la contraseña real
   toPublicProps() {
     return {

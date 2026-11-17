@@ -1,0 +1,119 @@
+import { ForbiddenException, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import type { UsuarioRepositoryPort } from '../../../domain/ports/usuario.repository.port';
+import { USUARIO_REPOSITORY } from '../../../domain/ports/usuario.repository.token';
+import type { TokenServicePort } from '../../../domain/ports/token.service.port';
+import { TOKEN_SERVICE } from '../../../domain/ports/token.service.port';
+import { Usuario } from '../../../domain/entities/usuario.entity';
+import { LoginUsuarioDto } from '../../dto/usuarios/login-usuario.dto';
+import { GenerarCodigoUseCase } from '../email-codes/generar-codigo.usecase';
+import { TipoCodigo } from '../../../domain/entities/email-code.entity';
+import * as bcrypt from 'bcrypt';
+
+// Lo que ve quien intenta entrar y su cuenta todavía no puede
+const MENSAJE_POR_ESTADO: Record<string, string> = {
+  pendiente: 'Tu cuenta está pendiente de aprobación. Te avisaremos por correo cuando un administrador la apruebe.',
+  rechazado: 'Tu solicitud de acceso fue rechazada. Comunícate con el administrador.',
+  inactivo: 'Tu cuenta está desactivada. Comunícate con el administrador.',
+  suspendido: 'Tu cuenta está suspendida. Comunícate con el administrador.',
+};
+
+@Injectable()
+export class LoginUsuarioUseCase {
+  private readonly logger = new Logger(LoginUsuarioUseCase.name);
+
+  constructor(
+    @Inject(USUARIO_REPOSITORY)
+    private readonly usuarioRepository: UsuarioRepositoryPort,
+    @Inject(TOKEN_SERVICE)
+    private readonly tokenService: TokenServicePort,
+    private readonly generarCodigo: GenerarCodigoUseCase,
+  ) {}
+
+  async ejecutar(dto: LoginUsuarioDto) {
+    const usuario = await this.usuarioRepository.buscarPorCorreo(dto.correo);
+    if (!usuario) {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+
+    const passwordValida = await bcrypt.compare(dto.password, usuario.obtenerContrasenaHash());
+    if (!passwordValida) {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+
+    return this.iniciarSesion(usuario);
+  }
+
+  async iniciarSesion(usuario: Usuario) {
+    // En los tres casos se devuelve el estado aparte del mensaje, para que el
+    // frontend lo muestre como aviso de cuenta y no como error de credenciales.
+    if (usuario.obtenerEstado() === 'pendiente') {
+      throw new ForbiddenException({
+        statusCode: 403,
+        error: 'Forbidden',
+        estado: 'pendiente',
+        message: MENSAJE_POR_ESTADO.pendiente,
+      });
+    }
+
+    if (usuario.obtenerEstado() === 'rechazado') {
+      const motivo = usuario.obtenerSolicitudRegistro()?.motivoRechazo;
+      throw new ForbiddenException({
+        statusCode: 403,
+        error: 'Forbidden',
+        estado: 'rechazado',
+        message: motivo ? `Tu solicitud fue rechazada: ${motivo}` : MENSAJE_POR_ESTADO.rechazado,
+      });
+    }
+
+    if (!usuario.estaActivo()) {
+      throw new ForbiddenException({
+        statusCode: 403,
+        error: 'Forbidden',
+        estado: usuario.obtenerEstado(),
+        message: MENSAJE_POR_ESTADO[usuario.obtenerEstado()] ?? 'Tu cuenta no está activa.',
+      });
+    }
+
+    // Con dos pasos activo no se entrega el token todavia: se manda un codigo
+    // al correo y el frontend lo pide. El login queda sin registrar hasta que
+    // ese codigo se verifique.
+    if (usuario.tieneDosPasos()) {
+      // El codigo queda guardado antes de enviarse, asi que si el correo
+      // falla el usuario igual puede completar el paso. Lo que no puede
+      // pasar es que un fallo del SMTP tumbe el login entero con un 500.
+      try {
+        await this.generarCodigo.ejecutar(usuario.obtenerCorreo(), TipoCodigo.DOS_PASOS);
+      } catch (error) {
+        this.logger.error(
+          `No se pudo enviar el codigo de dos pasos a ${usuario.obtenerCorreo()}`,
+          error instanceof Error ? error.stack : String(error),
+        );
+      }
+
+      return {
+        requiereDosPasos: true,
+        correo: usuario.obtenerCorreo(),
+        message: 'Te enviamos un código a tu correo para completar el inicio de sesión.',
+      };
+    }
+
+    usuario.registrarLogin();
+    await this.usuarioRepository.actualizar(usuario);
+
+    const accessToken = this.tokenService.generar({
+      sub: usuario.obtenerId(),
+      correo: usuario.obtenerCorreo(),
+      rolId: usuario.obtenerRolId(),
+    });
+
+    return {
+      access_token: accessToken,
+      usuario: {
+        id: usuario.obtenerId(),
+        nombre: usuario.obtenerNombreCompleto(),
+        correo: usuario.obtenerCorreo(),
+        rolId: usuario.obtenerRolId(),
+      },
+    };
+  }
+}

@@ -24,10 +24,10 @@ export class SensorOrmEntity {
   protocolo: string;
 
   @Column({ name: 'endpoint_url', type: 'varchar', nullable: true })
-endpointUrl: string | null;
+  endpointUrl: string | null;
 
   @Column({ name: 'mqtt_topic', type: 'varchar', nullable: true })
-mqttTopic: string | null;
+  mqttTopic: string | null;
 
   @Column({ name: 'valor_minimo_sensor', type: 'double precision' })
   valorMinimoSensor: number;
@@ -45,7 +45,7 @@ mqttTopic: string | null;
   estado: string | null;
 
   @Column({ name: 'ultimo_valor', type: 'varchar', nullable: true })
-ultimoValor: string | null;
+  ultimoValor: string | null;
 
   @Column({ name: 'ultima_medicion', type: 'timestamp', nullable: true })
   ultimaMedicion: Date | null;
@@ -54,17 +54,17 @@ ultimoValor: string | null;
   ultimaVistaEn: Date | null;
 
   @Column({ name: 'cultivo_id', type: 'int', nullable: true })
-cultivoId: number | null;
+  cultivoId: number | null;
 
   @Column({ name: 'creado_por_usuario_id' })
   creadoPorUsuarioId: number;
 
   @Column({ name: 'global_config_id', type: 'int', nullable: true })
-globalConfigId: number | null;
+  globalConfigId: number | null;
 
   @Column({ name: 'lote_id', type: 'int', nullable: true })
-loteId: number | null;
+  loteId: number | null;
 
   @Column({ name: 'sub_lote_id', type: 'int', nullable: true })
-subLoteId: number | null;
+  subLoteId: number | null;
 }

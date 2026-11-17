@@ -6,8 +6,10 @@ import { ActualizarEpaUseCase } from '../../../application/use-cases/epas/actual
 import { EliminarEpaUseCase } from '../../../application/use-cases/epas/eliminar-epa.use-case';
 import { CrearEpaDto } from '../../../application/dto/epas/crear-epa.dto';
 import { ActualizarEpaDto } from '../../../application/dto/epas/actualizar-epa.dto';
+import { Autenticado } from '../../../../iam/infrastructure/http/decorators/autenticado.decorator';
 
 @Controller('epas')
+@Autenticado()
 export class EpasController {
   constructor(
     private readonly crearEpaUseCase: CrearEpaUseCase,

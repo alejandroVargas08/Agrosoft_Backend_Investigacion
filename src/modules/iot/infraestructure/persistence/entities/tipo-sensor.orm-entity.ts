@@ -23,11 +23,11 @@ export class TipoSensorOrmEntity {
   @Column()
   decimales: number;
 
- @Column({ type: 'varchar', nullable: true })
-descripcion: string | null;
+  @Column({ type: 'varchar', nullable: true })
+  descripcion: string | null;
 
-@Column({ type: 'varchar', nullable: true })
-imagen: string | null;
+  @Column({ type: 'varchar', nullable: true })
+  imagen: string | null;
 
   @Column({ name: 'ttl_minutos' })
   ttlMinutos: number;
