@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TelegrafModule } from 'nestjs-telegraf';
+import { ArranqueBotTelegram } from './infrastructure/bot/arranque-bot';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { EstadoFormularioOrmEntity } from './infrastructure/persistence/estado-formulario.orm-entity';
@@ -52,6 +53,8 @@ import { DesvincularPorUsuarioUseCase } from './application/use-cases/desvincula
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => ({
                 token: configService.get<string>('TELEGRAM_BOT_TOKEN') ?? '',
+                // Lo arranca ArranqueBotTelegram, que no deja caer el backend si Telegram responde 409
+                launchOptions: false,
             }),
         }),
     ],
@@ -60,6 +63,7 @@ import { DesvincularPorUsuarioUseCase } from './application/use-cases/desvincula
         // Manda al chat los avisos del módulo avisos (sensores, stock, vencidas, incidencias)
         CanalTelegram,
         AgrosoftBot,
+        ArranqueBotTelegram,
 
         ObtenerOIniciarConversacionUseCase,
         AvanzarConversacionUseCase,
