@@ -26,7 +26,19 @@ export class LoginRostroUseCase {
     }
 
     const fotos = this.reconocimiento.decodificar(dto.imagenes);
-    const resultado = await this.reconocimiento.verificar(usuario.obtenerCorreo(), fotos);
+    // Una cuenta sin rostro registrado responde igual que un correo que no
+    // existe: si el mensaje fuera distinto, se podria averiguar que correos
+    // tienen cuenta en AgroSoft.
+    let resultado: Awaited<ReturnType<ReconocimientoRostroService['verificar']>>;
+    try {
+      resultado = await this.reconocimiento.verificar(usuario.obtenerCorreo(), fotos);
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        this.logger.log(`Login rostro usuario ${usuario.obtenerId()}: sin rostro registrado`);
+        throw new UnauthorizedException(NO_COINCIDE);
+      }
+      throw error;
+    }
     const requeridos = Math.ceil(resultado.total * PORCENTAJE_ACIERTOS);
 
     this.logger.log(
