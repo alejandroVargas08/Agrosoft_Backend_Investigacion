@@ -68,10 +68,8 @@ import { DisenoTerrenoModule } from './diseno-terreno/diseno-terreno.module';
     iaModule,
     ReportesModule,
     DronesModule,
-    DronesModule,
     DisenoTerrenoModule,
     AgrobotModule,
-    AgrobotModule
   ],
   controllers: [],
   providers: [],
