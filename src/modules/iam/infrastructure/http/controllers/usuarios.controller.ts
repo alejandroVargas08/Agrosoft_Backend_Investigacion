@@ -11,6 +11,11 @@ import { VerificarLoginDosPasosDto } from '../../../application/dto/usuarios/ver
 import { VerificarLoginDosPasosUseCase } from '../../../application/use-cases/usuarios/verificar-login-dos-pasos.use-case';
 import { LoginUsuarioDto } from '../../../application/dto/usuarios/login-usuario.dto';
 import { AprobarRegistroDto, CambiarProgramaUsuarioDto, CambiarRolUsuarioDto, CrearUsuarioAdminDto, RechazarRegistroDto, RestablecerContrasenaAdminDto } from '../../../application/dto/usuarios/administrar-usuario.dto';
+import { LoginRostroDto } from '../../../application/dto/usuarios/login-rostro.dto';
+import { LoginRostroUseCase } from '../../../application/use-cases/usuarios/login-rostro.use-case';
+import { GuardarFotosRostroDto } from '../../../application/dto/usuarios/guardar-fotos-rostro.dto';
+import { ActualizarMiPerfilDto } from '../../../application/dto/usuarios/actualizar-mi-perfil.dto';
+import { ReconocimientoRostroService } from '../../services/reconocimiento-rostro.service';
 import { aUsuarioPublico } from '../../../application/dto/usuarios/usuario-respuesta.mapper';
 import type { UsuarioAutenticado } from '../../../domain/value-objects/alcance-datos.vo';
 import { Autenticado } from '../decorators/autenticado.decorator';
@@ -33,6 +38,8 @@ export class UsuarioController {
     private readonly eliminarUsuarioUseCase: EliminarUsuarioUseCase,
     private readonly obtenerUsuarioUseCase: ObtenerUsuarioUseCase,
     private readonly administrarUsuarioUseCase: AdministrarUsuarioUseCase,
+    private readonly loginRostroUseCase: LoginRostroUseCase,
+    private readonly reconocimiento: ReconocimientoRostroService,
   ) {}
 
   @Post()
@@ -50,6 +57,59 @@ export class UsuarioController {
   @Post('login')
   login(@Body() dto: LoginUsuarioDto) {
     return this.loginUsuarioUseCase.ejecutar(dto);
+  }
+
+  @Post('login-rostro')
+  loginRostro(@Body() dto: LoginRostroDto) {
+    return this.loginRostroUseCase.ejecutar(dto);
+  }
+
+  @Get('mi-perfil')
+  @Autenticado()
+  miPerfil(@UsuarioActual() usuario: UsuarioAutenticado) {
+    return this.obtenerUsuarioUseCase.ejecutar(usuario.id);
+  }
+
+  @Patch('mi-perfil')
+  @Autenticado()
+  async actualizarMiPerfil(@UsuarioActual() usuario: UsuarioAutenticado, @Body() dto: ActualizarMiPerfilDto) {
+    await this.actualizarUsuarioUseCase.ejecutar(usuario.id, dto);
+    return this.obtenerUsuarioUseCase.ejecutar(usuario.id);
+  }
+
+  @Get('mi-rostro')
+  @Autenticado()
+  miRostro(@UsuarioActual() usuario: UsuarioAutenticado) {
+    const fecha = this.reconocimiento.fechaRostro(usuario.correo);
+    return { fotos: fecha !== null, actualizadoEn: fecha ? fecha.toISOString() : null };
+  }
+
+  @Post('mi-rostro')
+  @Autenticado()
+  async guardarMiRostro(@UsuarioActual() usuario: UsuarioAutenticado, @Body() dto: GuardarFotosRostroDto) {
+    const fotos = await this.reconocimiento.prepararFotos(dto.fotos);
+    this.reconocimiento.guardarUsuario(usuario.correo, fotos);
+    return { guardadas: fotos.length };
+  }
+
+  @Delete('mi-rostro')
+  @Autenticado()
+  eliminarMiRostro(@UsuarioActual() usuario: UsuarioAutenticado) {
+    return { eliminado: this.reconocimiento.eliminarUsuario(usuario.correo) };
+  }
+
+  @Get('rostros/estado')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  estadoRostros() {
+    return this.reconocimiento.estado();
+  }
+
+  @Post('rostros/referencias')
+  @Autenticado(PERMISO_GESTIONAR_USUARIOS)
+  async agregarReferencias(@Body() dto: GuardarFotosRostroDto) {
+    const fotos = await this.reconocimiento.prepararFotos(dto.fotos);
+    this.reconocimiento.agregarReferencias(fotos);
+    return { guardadas: fotos.length, ...this.reconocimiento.estado() };
   }
 
   @Get()

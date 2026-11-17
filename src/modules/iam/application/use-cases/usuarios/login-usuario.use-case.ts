@@ -3,6 +3,7 @@ import type { UsuarioRepositoryPort } from '../../../domain/ports/usuario.reposi
 import { USUARIO_REPOSITORY } from '../../../domain/ports/usuario.repository.token';
 import type { TokenServicePort } from '../../../domain/ports/token.service.port';
 import { TOKEN_SERVICE } from '../../../domain/ports/token.service.port';
+import { Usuario } from '../../../domain/entities/usuario.entity';
 import { LoginUsuarioDto } from '../../dto/usuarios/login-usuario.dto';
 import { GenerarCodigoUseCase } from '../email-codes/generar-codigo.usecase';
 import { TipoCodigo } from '../../../domain/entities/email-code.entity';
@@ -39,6 +40,10 @@ export class LoginUsuarioUseCase {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
+    return this.iniciarSesion(usuario);
+  }
+
+  async iniciarSesion(usuario: Usuario) {
     // En los tres casos se devuelve el estado aparte del mensaje, para que el
     // frontend lo muestre como aviso de cuenta y no como error de credenciales.
     if (usuario.obtenerEstado() === 'pendiente') {

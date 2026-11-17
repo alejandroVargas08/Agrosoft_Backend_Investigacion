@@ -1,4 +1,4 @@
-import { ArrayMaxSize, IsArray, IsEmail, IsIn, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, MaxLength, MinLength } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsEmail, IsIn, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, MaxLength, MinLength } from 'class-validator';
 
 export const TIPOS_USUARIO_REGISTRO = ['aprendiz', 'instructor', 'administrador'] as const;
 export type TipoUsuarioRegistro = (typeof TIPOS_USUARIO_REGISTRO)[number];
@@ -70,4 +70,12 @@ export class CrearUsuarioDto {
   @IsString()
   @MaxLength(500)
   motivoSolicitud?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(20)
+  @ArrayMaxSize(60)
+  @IsString({ each: true })
+  @MaxLength(300000, { each: true })
+  fotosRostro?: string[];
 }

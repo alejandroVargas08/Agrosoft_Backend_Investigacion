@@ -37,6 +37,7 @@ export class Usuario {
     // Cuando esta en true, el login no entrega el token de una: manda un
     // codigo al correo y lo exige en un segundo paso.
     private dosPasosActivo: boolean = false,
+    private ubicacion: string | null = null,
   ) {}
 
   static crear(props: {
@@ -113,6 +114,7 @@ export class Usuario {
     eliminadoEn: Date | null;
     solicitudRegistro?: SolicitudRegistro | null;
     dosPasosActivo?: boolean;
+    ubicacion?: string | null;
   }): Usuario {
     return new Usuario(
       props.id,
@@ -134,6 +136,7 @@ export class Usuario {
       props.eliminadoEn,
       props.solicitudRegistro ?? null,
       props.dosPasosActivo ?? false,
+      props.ubicacion ?? null,
     );
   }
 
@@ -157,6 +160,7 @@ export class Usuario {
   obtenerEliminadoEn(): Date | null { return this.eliminadoEn; }
   estaActivo(): boolean { return this.estado === 'activo' && this.eliminadoEn === null; }
   obtenerSolicitudRegistro(): SolicitudRegistro | null { return this.solicitudRegistro; }
+  obtenerUbicacion(): string | null { return this.ubicacion; }
   estaPendiente(): boolean { return this.estado === 'pendiente'; }
   correoEstaVerificado(): boolean { return this.correoVerificadoEn !== null; }
 
@@ -232,6 +236,12 @@ export class Usuario {
 
   cambiarTelefono(nuevoTelefono: string): void {
     this.telefono = nuevoTelefono;
+    this.actualizadoEn = new Date();
+  }
+
+  cambiarUbicacion(nuevaUbicacion: string | null): void {
+    const limpia = nuevaUbicacion?.trim() ?? '';
+    this.ubicacion = limpia.length > 0 ? limpia : null;
     this.actualizadoEn = new Date();
   }
 

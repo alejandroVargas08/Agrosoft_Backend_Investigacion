@@ -19,6 +19,7 @@ import { Notificacion } from "../../../../notificaciones/domain/entities/notific
 import type { NotificacionRepositoryPort } from "../../../../notificaciones/domain/ports/notificacion.repository.port";
 import { NOTIFICACION_REPOSITORY } from "../../../../notificaciones/domain/ports/notificacion.repository.token";
 import { CodigoInvitacionUseCase } from "../programa-formacion/codigo-invitacion.use-case";
+import { ReconocimientoRostroService } from "../../../infrastructure/services/reconocimiento-rostro.service";
 
 export const ROL_POR_DEFECTO = 'Aprendiz';
 
@@ -47,6 +48,7 @@ export class CrearUsuarioUseCase {
         @Inject(USUARIO_PROGRAMA_REPOSITORY)
         private readonly usuarioProgramas: UsuarioProgramaRepositoryPort,
         private readonly codigosInvitacion: CodigoInvitacionUseCase,
+        private readonly reconocimiento: ReconocimientoRostroService,
     ) {}
 
     async ejecutar(dto: CrearUsuarioDto): Promise<UsuarioRegistrado> {
@@ -93,6 +95,8 @@ export class CrearUsuarioUseCase {
             throw new InternalServerErrorException(`No existe el rol "${ROL_POR_TIPO[tipo]}" en la base de datos`);
         }
 
+        const fotos = dto.fotosRostro ? await this.reconocimiento.prepararFotos(dto.fotosRostro) : null;
+
         const salt = await bcrypt.genSalt(10);
         const contrasenaHash = await bcrypt.hash(dto.password, salt);
 
@@ -112,6 +116,10 @@ export class CrearUsuarioUseCase {
         });
 
         const guardado = await this.usuarioRepository.guardar(usuario);
+
+        if (fotos) {
+            this.reconocimiento.guardarUsuario(guardado.obtenerCorreo(), fotos);
+        }
 
         if (estado === 'activo' && tipo === 'instructor') {
             for (const ficha of fichasACargo) {
