@@ -1,3 +1,4 @@
+import { SemillaIamService } from './infrastructure/services/semilla-iam.service';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
@@ -141,6 +142,8 @@ import { PermisosGuard } from './infrastructure/http/guards/permisos.guard';
     CodigoInvitacionController,
   ],
   providers: [
+    // Crea los roles y permisos que falten al arrancar
+    SemillaIamService,
     // Usuario
     LoginRostroUseCase,
     ReconocimientoRostroService,
