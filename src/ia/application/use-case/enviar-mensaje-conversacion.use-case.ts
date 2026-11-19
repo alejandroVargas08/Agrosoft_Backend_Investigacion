@@ -4,8 +4,12 @@ import type { MensajeIARepositoryPort } from '../../domain/ports/mensaje-ia.repo
 import type { IaProviderPort, MensajeHistorial } from '../../domain/ports/ia-provider.port';
 import { CONVERSACION_IA_REPOSITORY } from '../../domain/ports/conversacion-ia.repository.token';
 import { MENSAJE_IA_REPOSITORY } from '../../domain/ports/mensaje-ia.repository.token';
+import { PoliticaPersistenciaMensajesService } from '../services/politica-persistencia-mensajes.service';
 
-const CONTEXTO_SISTEMA = 'Eres AgroBot, el asistente agrícola de AgroSoft. Responde de forma clara y práctica sobre cultivos, plagas, tratamientos y manejo agrícola.';
+const CONTEXTO_SISTEMA =
+  'Eres AgroBot, el asistente agrícola de AgroSoft, la plataforma del SENA para gestionar la unidad productiva. ' +
+  'Responde en español, de forma clara, breve y práctica sobre cultivos, plagas, tratamientos, manejo agrícola y los datos de la finca.';
+const MAX_MENSAJES_HISTORIAL = 12;
 
 @Injectable()
 export class EnviarMensajeConversacionUseCase {
@@ -13,6 +17,7 @@ export class EnviarMensajeConversacionUseCase {
     @Inject(CONVERSACION_IA_REPOSITORY) private readonly conversaciones: ConversacionIARepositoryPort,
     @Inject(MENSAJE_IA_REPOSITORY) private readonly mensajes: MensajeIARepositoryPort,
     @Inject('IaProviderPort') private readonly iaProvider: IaProviderPort,
+    private readonly politica: PoliticaPersistenciaMensajesService,
   ) {}
 
   async ejecutar(props: {
@@ -21,42 +26,51 @@ export class EnviarMensajeConversacionUseCase {
     cantidadImagenes?: number;
     contexto?: string;
     tuvoDatos?: boolean;
-  }): Promise<{ respuesta: string, guardado: boolean }> {
+  }): Promise<{ respuesta: string; guardado: boolean }> {
     const conversacion = await this.conversaciones.buscarPorId(props.conversacionId);
     if (!conversacion) throw new NotFoundException('Conversación no encontrada');
 
-    const tieneImagenes = (props.cantidadImagenes ?? 0) > 0;
-
-    await this.mensajes.crear({
-      conversacionId: props.conversacionId,
-      rol: 'user',
-      contenido: props.mensaje,
-      tieneImagenes,
-      cantidadImagenes: props.cantidadImagenes ?? 0,
-    });
+    const cantidadImagenes = props.cantidadImagenes ?? 0;
+    const tieneImagenes = cantidadImagenes > 0;
 
     const historialPrevio = await this.mensajes.listarPorConversacion(props.conversacionId);
     const historial: MensajeHistorial[] = [
       { role: 'system', content: props.contexto ? `${CONTEXTO_SISTEMA}\n\n${props.contexto}` : CONTEXTO_SISTEMA },
-      ...historialPrevio.map((m) => ({
+      ...historialPrevio.slice(-MAX_MENSAJES_HISTORIAL).map((m) => ({
         role: m.obtenerRol(),
         content: m.tieneImagenesAdjuntas()
           ? `${m.obtenerContenido()} [adjuntó ${m.obtenerCantidadImagenes()} imagen(es)]`
           : m.obtenerContenido(),
       })),
+      { role: 'user', content: props.mensaje },
     ];
 
     const respuesta = await this.iaProvider.chat(historial);
 
-    await this.mensajes.crear({
-      conversacionId: props.conversacionId,
-      rol: 'assistant',
-      contenido: respuesta,
+    const guardar = this.politica.debeGuardar({
+      mensaje: props.mensaje,
+      respuesta,
+      tuvoDatos: props.tuvoDatos ?? false,
+      tieneImagenes,
     });
 
-    conversacion.tocar();
-    await this.conversaciones.guardar(conversacion);
+    if (guardar) {
+      await this.mensajes.crear({
+        conversacionId: props.conversacionId,
+        rol: 'user',
+        contenido: props.mensaje,
+        tieneImagenes,
+        cantidadImagenes,
+      });
+      await this.mensajes.crear({
+        conversacionId: props.conversacionId,
+        rol: 'assistant',
+        contenido: respuesta,
+      });
+      conversacion.tocar();
+      await this.conversaciones.guardar(conversacion);
+    }
 
-    return { respuesta, guardado: true };
+    return { respuesta, guardado: guardar };
   }
 }
