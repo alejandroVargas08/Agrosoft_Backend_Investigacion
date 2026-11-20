@@ -9,6 +9,9 @@ import { PoliticaPersistenciaMensajesService } from '../services/politica-persis
 const CONTEXTO_SISTEMA =
   'Eres AgroBot, el asistente agrícola de AgroSoft, la plataforma del SENA para gestionar la unidad productiva. ' +
   'Responde en español, de forma clara, breve y práctica sobre cultivos, plagas, tratamientos, manejo agrícola y los datos de la finca.';
+const SIN_DATOS_DE_LA_FINCA =
+  'En esta consulta NO tienes datos de la finca. Nunca inventes cifras, montos, tareas, lotes, cultivos, sensores ni nombres. ' +
+  'Si preguntan por datos de la finca, di que no tienes esa información en este momento y responde solo con conocimiento agrícola general.';
 const PRIMER_MENSAJE = 'Es el primer mensaje de esta conversación: saluda al usuario por su nombre una sola vez al inicio.';
 const CONVERSACION_EN_CURSO =
   'La conversación ya está en curso y ya saludaste: NO vuelvas a saludar ni a decir "hola" ni el nombre del usuario al inicio. Ve directo a la respuesta.';
@@ -42,9 +45,11 @@ export class EnviarMensajeConversacionUseCase {
       historialPrevio.length > 0 ||
       conversacion.obtenerActualizadoEn().getTime() - conversacion.obtenerCreadoEn().getTime() > 1000;
 
-    const sistema = [CONTEXTO_SISTEMA, enCurso ? CONVERSACION_EN_CURSO : PRIMER_MENSAJE, props.contexto]
-      .filter(Boolean)
-      .join('\n\n');
+    const sistema = [
+      CONTEXTO_SISTEMA,
+      enCurso ? CONVERSACION_EN_CURSO : PRIMER_MENSAJE,
+      props.contexto ?? SIN_DATOS_DE_LA_FINCA,
+    ].join('\n\n');
 
     const historial: MensajeHistorial[] = [
       { role: 'system', content: sistema },
