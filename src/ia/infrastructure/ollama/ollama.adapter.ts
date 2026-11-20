@@ -2,11 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { IaProviderPort, MensajeHistorial } from '../../domain/ports/ia-provider.port';
+import { aTextoPlano } from '../../domain/texto-plano';
 
 const TIMEOUT_CHAT_MS = 120000;
 const TIMEOUT_IMAGENES_MS = 180000;
 const TIMEOUT_ESTRUCTURADO_MS = 300000;
 const CONTEXTO_ESTRUCTURADO = 8192;
+const CONTEXTO_CHAT = 8192;
 
 @Injectable()
 export class OllamaAdapter implements IaProviderPort {
@@ -32,10 +34,10 @@ export class OllamaAdapter implements IaProviderPort {
   async chat(historial: MensajeHistorial[]): Promise<string> {
     const { data } = await axios.post(
       this.url,
-      { model: this.modelo, messages: historial, stream: false, think: false },
+      { model: this.modelo, messages: historial, stream: false, think: false, options: { num_ctx: CONTEXTO_CHAT } },
       { timeout: TIMEOUT_CHAT_MS },
     );
-    return data?.message?.content ?? '';
+    return aTextoPlano(data?.message?.content ?? '');
   }
 
   async analizarImagenes(base64Images: string[], prompt: string): Promise<string> {
@@ -49,7 +51,7 @@ export class OllamaAdapter implements IaProviderPort {
       },
       { timeout: TIMEOUT_IMAGENES_MS },
     );
-    return data?.message?.content ?? '';
+    return aTextoPlano(data?.message?.content ?? '');
   }
 
   async generarEstructurado(
