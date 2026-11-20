@@ -22,8 +22,8 @@ export const PERMISOS_POR_FUENTE: Record<FuenteContexto, string[]> = {
   cultivos: ['cultivos.ver', 'lotes.ver'],
   sensores: ['sensores.ver'],
   incidencias: ['incidencias.ver'],
-  inventario: ['inventario.ver'],
-  drones: ['vuelos.ver'],
+  inventario: [],
+  drones: ['vuelos.ver', 'drones.ver'],
   finanzas: ['finanzas.ver'],
   usuarios: ['usuarios.gestionar'],
 };
@@ -40,7 +40,8 @@ export const NOMBRE_FUENTE: Record<FuenteContexto, string> = {
 };
 
 export function tieneAcceso(usuario: UsuarioAutenticado, fuente: FuenteContexto): boolean {
-  return PERMISOS_POR_FUENTE[fuente].some((permiso) => usuario.permisos.includes(permiso));
+  const permisos = PERMISOS_POR_FUENTE[fuente];
+  return permisos.length === 0 || permisos.some((permiso) => usuario.permisos.includes(permiso));
 }
 
 export function mensajeSinAcceso(fuente: FuenteContexto): string {
