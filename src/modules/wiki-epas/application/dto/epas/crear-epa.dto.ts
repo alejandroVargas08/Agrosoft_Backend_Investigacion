@@ -38,6 +38,10 @@ export class CrearEpaDto {
   @IsOptional() @IsArray() @IsString({ each: true })
   etiquetas?: string[];
 
+  // Ids de tipos_cultivos_wiki a los que afecta (Cafe, Mora...)
+  @IsOptional() @IsArray() @IsInt({ each: true })
+  cultivosSusceptiblesIds?: number[];
+
   @IsInt()
   creadoPorUsuarioId: number;
 }

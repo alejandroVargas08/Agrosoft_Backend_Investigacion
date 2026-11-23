@@ -9,6 +9,9 @@ import { PoliticaPersistenciaMensajesService } from '../services/politica-persis
 const CONTEXTO_SISTEMA =
   'Eres AgroBot, el asistente agrícola de AgroSoft, la plataforma del SENA para gestionar la unidad productiva. ' +
   'Responde en español, de forma clara, breve y práctica sobre cultivos, plagas, tratamientos, manejo agrícola y los datos de la finca.';
+const FORMATO =
+  'FORMATO OBLIGATORIO: escribe en texto plano. No uses Markdown: nada de asteriscos, negritas, cursivas, numerales (#), ' +
+  'tablas ni bloques de código. No uses emojis ni iconos. Para listas, empieza cada línea con un guion y un espacio.';
 const SIN_DATOS_DE_LA_FINCA =
   'En esta consulta NO tienes datos de la finca. Nunca inventes cifras, montos, tareas, lotes, cultivos, sensores ni nombres. ' +
   'Si preguntan por datos de la finca, di que no tienes esa información en este momento y responde solo con conocimiento agrícola general.';
@@ -47,6 +50,7 @@ export class EnviarMensajeConversacionUseCase {
 
     const sistema = [
       CONTEXTO_SISTEMA,
+      FORMATO,
       enCurso ? CONVERSACION_EN_CURSO : PRIMER_MENSAJE,
       props.contexto ?? SIN_DATOS_DE_LA_FINCA,
     ].join('\n\n');

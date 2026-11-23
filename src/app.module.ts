@@ -17,6 +17,7 @@ import { PagosModule } from './comercial/pagos/infrastruture/pagos.module';
 import { TransaccionesFinancierasModule } from './finanzas/transacciones-financieras/infrastructure/transacciones-financieras.module';
 import { IamModule } from './modules/iam/iam.module';
 import { NotificacionesModule } from './modules/notificaciones/notificaciones.module';
+import { AvisosModule } from './modules/avisos/avisos.module';
 import { IotModule } from './modules/iot/iot.module';
 import { WikiEpasModule } from './modules/wiki-epas/wiki-epas.module';
 import { iaModule } from './ia/ia.module';
@@ -39,6 +40,10 @@ import { DisenoTerrenoModule } from './diseno-terreno/diseno-terreno.module';
       schema: 'public',
       synchronize: true,
       logging: true,
+      // Las columnas "creado en" son timestamp sin zona y las llena la base con
+      // now(). Con la sesion en UTC (Docker) se guardaban en hora UTC y Node las
+      // leia como hora de Colombia: todo quedaba 5 horas en el futuro.
+      extra: { options: '-c timezone=America/Bogota' },
     }),
     TerritorioModule,
     InventarioModule,
@@ -57,15 +62,14 @@ import { DisenoTerrenoModule } from './diseno-terreno/diseno-terreno.module';
     TransaccionesFinancierasModule,
     IamModule,
     NotificacionesModule,
+    AvisosModule,
     IotModule,
     WikiEpasModule,
     iaModule,
     ReportesModule,
     DronesModule,
-    DronesModule,
     DisenoTerrenoModule,
     AgrobotModule,
-    AgrobotModule
   ],
   controllers: [],
   providers: [],

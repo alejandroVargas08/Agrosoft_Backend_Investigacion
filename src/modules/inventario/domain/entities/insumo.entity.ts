@@ -28,7 +28,8 @@ export enum EstadoInsumo {
     precioUnitarioPresentacion: number;
     precioUnitarioUso: number;
     almacenId: number;
-    proveedorId: number;
+    // null: el insumo no tiene proveedor registrado ("Sin proveedor" en el diseño)
+    proveedorId: number | null;
     categoriaId: number;
     tipoInsumo: TipoInsumo;
     estado: EstadoInsumo;
@@ -59,7 +60,7 @@ export enum EstadoInsumo {
     private _precioUnitarioPresentacion: number;
     private _precioUnitarioUso: number;
     private _almacenId: number;
-    private _proveedorId: number;
+    private _proveedorId: number | null;
     private _categoriaId: number;
     private _tipoInsumo: TipoInsumo;
     private _estado: EstadoInsumo;
@@ -89,7 +90,7 @@ export enum EstadoInsumo {
         this._precioUnitarioPresentacion = props.precioUnitarioPresentacion;
         this._precioUnitarioUso = props.precioUnitarioUso;
         this._almacenId = props.almacenId;
-        this._proveedorId = props.proveedorId;
+        this._proveedorId = props.proveedorId ?? null;
         this._categoriaId = props.categoriaId;
         this._tipoInsumo = props.tipoInsumo;
         this._estado = props.estado;

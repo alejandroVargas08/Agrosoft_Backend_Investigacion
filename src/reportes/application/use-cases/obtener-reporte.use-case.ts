@@ -1,11 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Reportes_Repository } from '../../domain/ports/reportes.repository.port';
-import type { ReportesRepositoryPort } from '../../domain/ports/reportes.repository.port';
+import type { ClimaDelDia, ReportesRepositoryPort } from '../../domain/ports/reportes.repository.port';
 import {
     FilaDistribucion,
     FilaFinanzas,
     FilaProduccion,
     PeriodoReporte,
+    ReporteClima,
     ReporteGeneral,
 } from '../dtos/reporte.dto';
 
@@ -47,11 +48,36 @@ export class ObtenerReporteUseCase {
         return inicio;
     }
 
+    private periodoValido(pedido?: string): PeriodoReporte {
+        return pedido === 'trimestral' || pedido === 'anual' ? pedido : 'mensual';
+    }
+
+    /** Pestaña Clima: promedios de las estaciones por tramo y la luz de hoy. */
+    async clima(periodoPedido?: string): Promise<ReporteClima> {
+        const periodo = this.periodoValido(periodoPedido);
+        const [filas, luz] = await Promise.all([
+            this.repositorio.climaPorPeriodo(CONFIG[periodo].unidad, this.calcularDesde(periodo)),
+            this.repositorio.luzDeHoy(),
+        ]);
+        return {
+            periodo,
+            clima: filas.map((f) => ({
+                periodo: this.etiqueta(f.inicio, periodo),
+                temperatura: f.temperatura,
+                humedad: f.humedad,
+                uv: f.uv,
+            })),
+            luz,
+        };
+    }
+
+    /** Condiciones de las estaciones de un lote en un día (AAAA-MM-DD), por ejemplo el día de un vuelo de dron. */
+    climaDelDia(loteId: number, fecha: string): Promise<ClimaDelDia> {
+        return this.repositorio.climaDelDia(loteId, fecha);
+    }
+
     async ejecutar(periodoPedido?: string): Promise<ReporteGeneral> {
-        const periodo: PeriodoReporte =
-            periodoPedido === 'trimestral' || periodoPedido === 'anual'
-                ? periodoPedido
-                : 'mensual';
+        const periodo: PeriodoReporte = this.periodoValido(periodoPedido);
 
         const { unidad } = CONFIG[periodo];
         const desde = this.calcularDesde(periodo);

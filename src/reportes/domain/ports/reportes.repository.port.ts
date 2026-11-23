@@ -12,9 +12,35 @@ export interface FinanzasPorPeriodo {
     egresos: number;
 }
 
+/** Promedio de cada medida en un tramo de tiempo. null si no hubo lecturas. */
+export interface ClimaPorPeriodo {
+    inicio: Date;
+    temperatura: number | null;
+    humedad: number | null;
+    uv: number | null;
+}
+
+/** Promedio de las estaciones de un lote durante un día (las condiciones del día de un vuelo de dron). */
+export interface ClimaDelDia {
+    temperatura: number | null;
+    humedad: number | null;
+    uv: number | null;
+    lecturas: number;
+}
+
+export interface LuzDelDia {
+    /** Promedio de las lecturas de luz del día que no son cero (las de noche no cuentan) */
+    promedioLux: number | null;
+    /** Horas del día en que la luz promedió más de 10.000 lx */
+    horasLuz: number;
+}
+
 export interface ReportesRepositoryPort {
     produccionPorPeriodo(unidad: string, desde: Date): Promise<ProduccionPorPeriodo[]>;
     finanzasPorPeriodo(unidad: string, desde: Date): Promise<FinanzasPorPeriodo[]>;
     produccionTotalKg(desde: Date): Promise<number>;
     contarUnidadesActivas(): Promise<number>;
+    climaPorPeriodo(unidad: string, desde: Date): Promise<ClimaPorPeriodo[]>;
+    luzDeHoy(): Promise<LuzDelDia>;
+    climaDelDia(loteId: number, fecha: string): Promise<ClimaDelDia>;
 }

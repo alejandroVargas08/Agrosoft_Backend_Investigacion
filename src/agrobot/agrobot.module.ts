@@ -20,10 +20,12 @@ import { ProveedorContextoInventario } from './infrastructure/contexto/proveedor
 import { ProveedorContextoDrones } from './infrastructure/contexto/proveedor-contexto-drones';
 import { ProveedorContextoFinanzas } from './infrastructure/contexto/proveedor-contexto-finanzas';
 import { ProveedorContextoUsuarios } from './infrastructure/contexto/proveedor-contexto-usuarios';
+import { ProveedorContextoPlagas } from './infrastructure/contexto/proveedor-contexto-plagas';
+import { WikiEpasModule } from '../modules/wiki-epas/wiki-epas.module';
 import { AgrobotController } from './infrastructure/http/agrobot.controller';
 
 @Module({
-  imports: [IamModule, iaModule, IotModule, TerritorioModule, DronesModule, ReportesModule],
+  imports: [IamModule, iaModule, IotModule, TerritorioModule, DronesModule, ReportesModule, WikiEpasModule],
   controllers: [AgrobotController],
   providers: [
     EnrutadorConsultasService,
@@ -39,6 +41,7 @@ import { AgrobotController } from './infrastructure/http/agrobot.controller';
     ProveedorContextoDrones,
     ProveedorContextoFinanzas,
     ProveedorContextoUsuarios,
+    ProveedorContextoPlagas,
     {
       provide: PROVEEDORES_CONTEXTO_TOKEN,
       useFactory: (...proveedores: ProveedorContextoPort[]) => proveedores,
@@ -51,6 +54,7 @@ import { AgrobotController } from './infrastructure/http/agrobot.controller';
         ProveedorContextoDrones,
         ProveedorContextoFinanzas,
         ProveedorContextoUsuarios,
+        ProveedorContextoPlagas,
       ],
     },
   ],

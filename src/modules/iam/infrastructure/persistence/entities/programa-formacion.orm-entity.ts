@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { fechaSinHora } from '../../../../../shared/persistence/fecha-sin-hora.transformer';
 
 @Entity('programas_formacion')
 export class ProgramaFormacionOrmEntity {
@@ -14,10 +15,10 @@ export class ProgramaFormacionOrmEntity {
   @Column({ type: 'varchar', length: 20 })
   ficha: string;
 
-  @Column({ type: 'date', name: 'fecha_inicio' })
+  @Column({ type: 'date', name: 'fecha_inicio', transformer: fechaSinHora })
   fechaInicio: Date;
 
-  @Column({ type: 'date', name: 'fecha_fin' })
+  @Column({ type: 'date', name: 'fecha_fin', transformer: fechaSinHora })
   fechaFin: Date;
 
   @Column({ type: 'varchar', length: 30 })

@@ -25,6 +25,11 @@ export class AccesoCultivosService {
         return this.cultivoRepo.idsPorLotes(loteIds);
     }
 
+    /** Cultivos activos que el usuario puede ver (los usa el bot de Telegram para sus botones). */
+    async listarActivosVisibles(alcance: AlcanceDatos): Promise<Cultivo[]> {
+        return this.cultivoRepo.listarActivos(await this.idsAccesibles(alcance));
+    }
+
     async puedeVerCultivo(cultivoId: number | null, alcance: AlcanceDatos): Promise<boolean> {
         if (cultivoId === null) return true;
         const cultivo = await this.cultivoRepo.buscarPorId(cultivoId);

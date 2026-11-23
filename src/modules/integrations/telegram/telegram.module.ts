@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TelegrafModule } from 'nestjs-telegraf';
+import { ArranqueBotTelegram } from './infrastructure/bot/arranque-bot';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { EstadoFormularioOrmEntity } from './infrastructure/persistence/estado-formulario.orm-entity';
@@ -17,12 +18,14 @@ import { CodigoVinculacionTypeOrmRepository } from './infrastructure/persistence
 import { TelegramController } from './infrastructure/http/telegram.controller';
 
 import { AgrosoftBot } from './infrastructure/bot/agrosoft.bot';
+import { CanalTelegram } from './infrastructure/avisos/canal-telegram';
 import { IncidenciasModule } from '../../../produccion/incidencias/infrastructure/incidencias.module';
 import { TratamientosModule } from '../../../produccion/tratamientos/infrastructure/tratamientos.module';
 import { ReportesModule } from '../../../reportes/infrastructure/reportes.module';
 import { IotModule } from '../../iot/iot.module';
 import { InventarioModule } from '../../inventario/inventario.module';
 import { IamModule } from '../../iam/iam.module';
+import { CultivosModule } from '../../../produccion/cultivos/infrastructure/cultivos.module';
 
 import { ObtenerOIniciarConversacionUseCase } from './application/use-cases/obtener-o-iniciar-conversacion.use-case';
 import { AvanzarConversacionUseCase } from './application/use-cases/avanzar-conversacion.use-case';
@@ -44,17 +47,23 @@ import { DesvincularPorUsuarioUseCase } from './application/use-cases/desvincula
         IotModule,
         InventarioModule,
         IamModule,
+        CultivosModule,
         TelegrafModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => ({
                 token: configService.get<string>('TELEGRAM_BOT_TOKEN') ?? '',
+                // Lo arranca ArranqueBotTelegram, que no deja caer el backend si Telegram responde 409
+                launchOptions: false,
             }),
         }),
     ],
     controllers: [TelegramController],
     providers: [
+        // Manda al chat los avisos del módulo avisos (sensores, stock, vencidas, incidencias)
+        CanalTelegram,
         AgrosoftBot,
+        ArranqueBotTelegram,
 
         ObtenerOIniciarConversacionUseCase,
         AvanzarConversacionUseCase,

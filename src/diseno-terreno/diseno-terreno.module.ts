@@ -33,6 +33,7 @@ import { ProcesarEvaluacionTerrenoUseCase } from './application/use-cases/proces
 import { ListarEvaluacionesTerrenoUseCase, ObtenerEvaluacionTerrenoUseCase } from './application/use-cases/consultar-evaluaciones.use-case';
 import { DisenarCultivoUseCase, ListarCultivosAptitudUseCase } from './application/use-cases/disenar-cultivo.use-case';
 
+import { ImagenSatelitalConRespaldoAdapter } from './infrastructure/externos/imagen-satelital-con-respaldo.adapter';
 @Module({
   imports: [
     iaModule,
@@ -75,7 +76,7 @@ import { DisenarCultivoUseCase, ListarCultivosAptitudUseCase } from './applicati
       provide: PROVEEDOR_IMAGEN_SATELITAL_TOKEN,
       inject: [GoogleStaticMapsAdapter, EsriImagenSatelitalAdapter],
       useFactory: (google: GoogleStaticMapsAdapter, esri: EsriImagenSatelitalAdapter) =>
-        process.env.GOOGLE_MAPS_API_KEY ? google : esri,
+        process.env.GOOGLE_MAPS_API_KEY ? new ImagenSatelitalConRespaldoAdapter(google, esri) : esri,
     },
     { provide: INTERPRETE_COBERTURA_TOKEN, useClass: InterpreteCoberturaOllamaAdapter },
     OsmObjetosAdapter,

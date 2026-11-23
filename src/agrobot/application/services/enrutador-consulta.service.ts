@@ -8,6 +8,7 @@ const PALABRAS: Record<FuenteContexto, RegExp> = {
   incidencias: /incidencia|plaga|enfermedad|problema|da[ñn]o|roya|hongo|insecto|gusano|mancha|tratamiento/i,
   inventario: /insumo|inventario|stock|existencia|fertilizante|herramienta|bodega|almac[eé]n|se acaba|m[ií]nimo|abono|semilla/i,
   drones: /dron|vuelo|ndvi|ndre|gndvi|ndwi|an[aá]lisis|estr[eé]s|cobertura|multiespectral|salud del (lote|cultivo)/i,
+  plagas: /plaga|enfermedad|arvense|maleza|\bepa\b|broca|roya|hongo|insecto|gusano|hormiga|mancha|s[ií]ntoma|tratar|tratamiento|control(ar)? (de|la|el)|fumig/i,
   finanzas: /dinero|plata|finanz|ingreso|egreso|gasto|ganancia|rentabilidad|\bventas?\b|factura|pago|cliente|cobr|costo|presupuesto|precio|balance/i,
   usuarios: /usuario|solicitud|registr|cuenta|instructor|personas|gente|equipo/i,
 };

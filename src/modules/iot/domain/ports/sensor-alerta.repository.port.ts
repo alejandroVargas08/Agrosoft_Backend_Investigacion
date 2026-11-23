@@ -6,4 +6,5 @@ export interface SensorAlertaRepositoryPort {
   buscarPorId(id: number): Promise<SensorAlerta | null>;
   listarTodos(): Promise<SensorAlerta[]>;
   listarPorSensorId(sensorId: number): Promise<SensorAlerta[]>;
+  listarActivasPorSensor(sensorId: number): Promise<SensorAlerta[]>;
 }

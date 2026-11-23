@@ -34,4 +34,15 @@ export class SensorAlertaOrmEntity {
 
   @Column({ name: 'sub_lote_id', type: 'int', nullable: true })
   subLoteId: number | null;
+
+  // Cuando se cierra: la lectura volvio al rango ('normalizada') o alguien la
+  // descarto a mano ('descartada'). Mientras sea null, la alerta esta activa.
+  @Column({ name: 'resuelta_en', type: 'timestamp', nullable: true })
+  resueltaEn: Date | null;
+
+  @Column({ type: 'varchar', length: 12, nullable: true })
+  resolucion: string | null;
+
+  @Column({ name: 'valor_normalizado', type: 'double precision', nullable: true })
+  valorNormalizado: number | null;
 }

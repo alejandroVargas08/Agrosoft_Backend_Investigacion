@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { fechaSinHora } from '../../../../shared/persistence/fecha-sin-hora.transformer';
 
 @Entity('actividad_asignaciones')
 @Index(['actividadId', 'aprendizId'], { unique: true, where: '"eliminado_en" IS NULL' })
@@ -18,7 +19,7 @@ export class ActividadAsignacionOrmEntity {
     @Column({ type: 'varchar', length: 20, default: 'ASIGNADA' })
     estado: string;
 
-    @Column({ name: 'fecha_limite', type: 'date', nullable: true })
+    @Column({ name: 'fecha_limite', type: 'date', nullable: true, transformer: fechaSinHora })
     fechaLimite: Date | null;
 
     @Column({ name: 'horas_trabajadas', type: 'float', nullable: true })

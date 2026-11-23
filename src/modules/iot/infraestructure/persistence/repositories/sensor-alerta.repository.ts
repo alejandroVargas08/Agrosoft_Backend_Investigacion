@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { SensorAlerta } from '../../../domain/entities/sensor-alerta.entity';
 import type { SensorAlertaRepositoryPort } from '../../../domain/ports/sensor-alerta.repository.port';
 import { SensorAlertaOrmEntity } from '../entities/sensor-alerta.orm-entity';
@@ -30,6 +30,11 @@ export class SensorAlertaRepository implements SensorAlertaRepositoryPort {
 
   async listarTodos(): Promise<SensorAlerta[]> {
     const filas = await this.ormRepository.find();
+    return filas.map(SensorAlertaMapper.toDomain);
+  }
+
+  async listarActivasPorSensor(sensorId: number): Promise<SensorAlerta[]> {
+    const filas = await this.ormRepository.find({ where: { sensorId, resueltaEn: IsNull() } });
     return filas.map(SensorAlertaMapper.toDomain);
   }
 

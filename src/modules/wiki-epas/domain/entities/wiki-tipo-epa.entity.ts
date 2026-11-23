@@ -36,4 +36,7 @@ export class WikiTipoEpa {
   get eliminadoEn() { return this.props.eliminadoEn; }
 
   toProps(): WikiTipoEpaProps { return { ...this.props }; }
+
+  // Nest serializa la respuesta con JSON.stringify: sin esto sale { props: {...} }
+  toJSON(): WikiTipoEpaProps { return { ...this.props }; }
 }

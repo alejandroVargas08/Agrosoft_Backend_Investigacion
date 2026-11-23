@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import { IaProviderPort, MensajeHistorial } from '../../domain/ports/ia-provider.port';
 import { aTextoPlano } from '../../domain/texto-plano';
 
@@ -15,6 +15,7 @@ export class OllamaAdapter implements IaProviderPort {
   private readonly url: string;
   private readonly modelo: string;
   private readonly modeloVision: string;
+  private readonly mantenerCargado: string;
 
   constructor(private readonly configService: ConfigService) {
     const url = this.configService.get<string>('OLLAMA_URL');
@@ -29,27 +30,52 @@ export class OllamaAdapter implements IaProviderPort {
     this.url = url;
     this.modelo = modelo;
     this.modeloVision = this.configService.get<string>('OLLAMA_VISION_MODEL') || modelo;
+    // Ollama descarga el modelo a los 5 min sin uso y la siguiente pregunta tarda minutos.
+    this.mantenerCargado = this.configService.get<string>('OLLAMA_KEEP_ALIVE') || '1h';
+  }
+
+  /** Llama a Ollama y, si falla, dice por qué en vez de un 500 genérico. */
+  private async pedir(cuerpo: Record<string, unknown>, timeout: number): Promise<any> {
+    try {
+      const { data } = await axios.post(this.url, { ...cuerpo, keep_alive: this.mantenerCargado }, { timeout });
+      return data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+          throw new ServiceUnavailableException(
+            'AgroBot no está disponible: Ollama no está corriendo en el servidor. Ábrelo e intenta de nuevo.',
+          );
+        }
+        if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+          throw new ServiceUnavailableException('AgroBot tardó demasiado en responder. Intenta de nuevo.');
+        }
+        if (error.response?.status === 404) {
+          throw new ServiceUnavailableException(
+            `AgroBot no está disponible: el modelo "${cuerpo.model}" no está instalado en Ollama.`,
+          );
+        }
+      }
+      throw error;
+    }
   }
 
   async chat(historial: MensajeHistorial[]): Promise<string> {
-    const { data } = await axios.post(
-      this.url,
+    const data = await this.pedir(
       { model: this.modelo, messages: historial, stream: false, think: false, options: { num_ctx: CONTEXTO_CHAT } },
-      { timeout: TIMEOUT_CHAT_MS },
+      TIMEOUT_CHAT_MS,
     );
     return aTextoPlano(data?.message?.content ?? '');
   }
 
   async analizarImagenes(base64Images: string[], prompt: string): Promise<string> {
-    const { data } = await axios.post(
-      this.url,
+    const data = await this.pedir(
       {
         model: this.modeloVision,
         messages: [{ role: 'user', content: prompt, images: base64Images }],
         stream: false,
         think: false,
       },
-      { timeout: TIMEOUT_IMAGENES_MS },
+      TIMEOUT_IMAGENES_MS,
     );
     return aTextoPlano(data?.message?.content ?? '');
   }
@@ -64,8 +90,7 @@ export class OllamaAdapter implements IaProviderPort {
       ? { role: 'user', content: prompt, images: imagenesBase64 }
       : { role: 'user', content: prompt };
 
-    const { data } = await axios.post(
-      this.url,
+    const data = await this.pedir(
       {
         model: conImagenes ? this.modeloVision : this.modelo,
         messages: [mensaje],
@@ -74,7 +99,7 @@ export class OllamaAdapter implements IaProviderPort {
         format: esquema,
         options: { temperature: 0, num_ctx: CONTEXTO_ESTRUCTURADO, presence_penalty: 0 },
       },
-      { timeout: TIMEOUT_ESTRUCTURADO_MS },
+      TIMEOUT_ESTRUCTURADO_MS,
     );
 
     const contenido: string = data?.message?.content ?? '';

@@ -1,5 +1,6 @@
 import { Epa, TipoEpa } from '../../../domain/entities/epa.entity';
 import { EpaOrmEntity } from '../entities/epa.orm-entity';
+import { TipoCultivoWikiOrmEntity } from '../entities/tipo-cultivo-wiki.orm-entity';
 
 export class EpaMapper {
   static toDomain(orm: EpaOrmEntity): Epa {
@@ -16,6 +17,7 @@ export class EpaMapper {
       fotosSintomas: orm.fotosSintomas,
       fotosGenerales: orm.fotosGenerales,
       etiquetas: orm.etiquetas,
+      cultivosSusceptibles: (orm.cultivosSusceptibles ?? []).map((c) => ({ id: c.id, nombre: c.nombre })),
       creadoPorUsuarioId: orm.creadoPorUsuarioId,
       creadoEn: orm.creadoEn,
       actualizadoEn: orm.actualizadoEn,
@@ -37,6 +39,7 @@ export class EpaMapper {
     orm.fotosSintomas = epa.fotosSintomas;
     orm.fotosGenerales = epa.fotosGenerales;
     orm.etiquetas = epa.etiquetas;
+    orm.cultivosSusceptibles = epa.cultivosSusceptibles.map((c) => Object.assign(new TipoCultivoWikiOrmEntity(), { id: c.id }));
     orm.creadoPorUsuarioId = epa.creadoPorUsuarioId;
     return orm;
   }

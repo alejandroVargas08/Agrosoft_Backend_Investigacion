@@ -8,9 +8,10 @@ export type FuenteContexto =
   | 'inventario'
   | 'drones'
   | 'finanzas'
-  | 'usuarios';
+  | 'usuarios'
+  | 'plagas';
 
-export const FUENTES: FuenteContexto[] = ['tareas', 'cultivos', 'sensores', 'incidencias', 'inventario', 'drones', 'finanzas', 'usuarios'];
+export const FUENTES: FuenteContexto[] = ['tareas', 'cultivos', 'sensores', 'incidencias', 'inventario', 'drones', 'finanzas', 'usuarios', 'plagas'];
 
 export interface ProveedorContextoPort {
   readonly fuente: FuenteContexto;
@@ -24,8 +25,11 @@ export const PERMISOS_POR_FUENTE: Record<FuenteContexto, string[]> = {
   incidencias: ['incidencias.ver'],
   inventario: [],
   drones: ['vuelos.ver', 'drones.ver'],
-  finanzas: ['finanzas.ver'],
+  // 'finanzas.ver' no existe entre los 25 permisos del seeder; mientras se crea,
+  // finanzas queda para administradores (usuarios.gestionar) e instructores (actividades.asignar).
+  finanzas: ['finanzas.ver', 'usuarios.gestionar', 'actividades.asignar'],
   usuarios: ['usuarios.gestionar'],
+  plagas: ['incidencias.ver'],
 };
 
 export const NOMBRE_FUENTE: Record<FuenteContexto, string> = {
@@ -37,6 +41,7 @@ export const NOMBRE_FUENTE: Record<FuenteContexto, string> = {
   drones: 'vuelos de dron',
   finanzas: 'finanzas',
   usuarios: 'usuarios y solicitudes de registro',
+  plagas: 'la Wiki EPA (plagas, enfermedades y arvenses)',
 };
 
 export function tieneAcceso(usuario: UsuarioAutenticado, fuente: FuenteContexto): boolean {

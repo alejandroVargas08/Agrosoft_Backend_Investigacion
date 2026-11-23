@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { fechaSinHora } from '../../../../shared/persistence/fecha-sin-hora.transformer';
 
 @Entity('incidencias')
 export class IncidenciaOrmEntity {
@@ -8,7 +9,7 @@ export class IncidenciaOrmEntity {
     @Column() severidad: string;
     @Column() estado: string;
     @Column({ name: 'cultivo_id', nullable: true }) cultivoId: number;
-    @Column({ type: 'date' }) fecha: Date;
+    @Column({ type: 'date', transformer: fechaSinHora }) fecha: Date;
     @Column({ type: 'text', nullable: true }) descripcion: string;
     // Quien la registro. Nullable por las filas que ya existian.
     @Column({ name: 'creado_por_usuario_id', type: 'int', nullable: true }) creadoPorUsuarioId: number | null;

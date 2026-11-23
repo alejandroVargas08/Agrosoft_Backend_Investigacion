@@ -63,6 +63,6 @@ import { IamModule } from '../iam/iam.module';
     EliminarTipoCultivoWikiUseCase,
     { provide: TIPO_CULTIVO_WIKI_REPOSITORY_TOKEN, useClass: TipoCultivoWikiRepository },
   ],
-  exports: [EPA_REPOSITORY_TOKEN, WIKI_TIPO_EPA_REPOSITORY_TOKEN, TIPO_CULTIVO_WIKI_REPOSITORY_TOKEN],
+  exports: [EPA_REPOSITORY_TOKEN, WIKI_TIPO_EPA_REPOSITORY_TOKEN, TIPO_CULTIVO_WIKI_REPOSITORY_TOKEN, ListarEpasUseCase],
 })
 export class WikiEpasModule {}

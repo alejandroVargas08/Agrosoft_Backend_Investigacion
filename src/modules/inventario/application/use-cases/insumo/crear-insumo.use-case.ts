@@ -22,14 +22,14 @@ export class CrearInsumoUseCase {
     async ejecutar(input: CrearInsumoInput): Promise<InsumoOutput> {
         const [existeAlmacen, existeProveedor, existeCategoria] = await Promise.all([
         this.almacenRepo.existePorId(input.almacenId),
-        this.proveedorRepo.existePorId(input.proveedorId),
+        input.proveedorId != null ? this.proveedorRepo.existePorId(input.proveedorId) : Promise.resolve(true),
         this.categoriaRepo.existePorId(input.categoriaId),
         ]);
         if (!existeAlmacen) throw new NotFoundException(`No existe el almacén con id ${input.almacenId}`);
         if (!existeProveedor) throw new NotFoundException(`No existe el proveedor con id ${input.proveedorId}`);
         if (!existeCategoria) throw new NotFoundException(`No existe la categoría con id ${input.categoriaId}`);
 
-        const insumo = Insumo.crear({ ...input, estado: EstadoInsumo.ACTIVO });
+        const insumo = Insumo.crear({ ...input, proveedorId: input.proveedorId ?? null, estado: EstadoInsumo.ACTIVO });
         const guardado = await this.insumoRepo.guardar(insumo);
         return toInsumoOutput(guardado);
     }

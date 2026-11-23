@@ -24,6 +24,19 @@ export interface FilaFinanzas {
     egresos: number;
 }
 
+export interface FilaClima {
+    periodo: string;
+    temperatura: number | null;
+    humedad: number | null;
+    uv: number | null;
+}
+
+export interface ReporteClima {
+    periodo: PeriodoReporte;
+    clima: FilaClima[];
+    luz: { promedioLux: number | null; horasLuz: number };
+}
+
 export interface ReporteGeneral {
     periodo: PeriodoReporte;
     resumen: ResumenReporte;

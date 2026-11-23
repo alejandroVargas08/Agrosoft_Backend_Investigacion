@@ -16,7 +16,7 @@ export interface CrearInsumoInput {
     precioUnitarioPresentacion: number;
     precioUnitarioUso: number;
     almacenId: number;
-    proveedorId: number;
+    proveedorId?: number | null;
     categoriaId: number;
     tipoInsumo: TipoInsumo;
     costoAdquisicion?: number;
@@ -39,7 +39,7 @@ export interface CrearInsumoInput {
     estado: EstadoInsumo;
     tipoInsumo: TipoInsumo;
     almacenId: number;
-    proveedorId: number;
+    proveedorId: number | null;
     categoriaId: number;
     valorInventario: number;
     // Solo tienen valor en las herramientas. Estaban en la base y en el

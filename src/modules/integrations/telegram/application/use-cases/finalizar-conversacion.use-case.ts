@@ -11,7 +11,8 @@ export class FinalizarConversacionUseCase {
 
     async ejecutar(telegramUserId: string, completadaConExito: boolean): Promise<void> {
         const estadoFormulario = await this.repo.buscarPorTelegramUserId(telegramUserId);
-        if (!estadoFormulario) {
+        // Una conversación ya terminada o cancelada no cuenta como "en curso"
+        if (!estadoFormulario || !estadoFormulario.estaActiva()) {
         throw new NotFoundException('No hay una conversación activa para este usuario de Telegram');
         }
 

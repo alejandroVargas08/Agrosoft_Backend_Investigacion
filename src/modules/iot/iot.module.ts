@@ -19,6 +19,7 @@ import { ObtenerSensorAlertaUseCase } from './application/use-cases/sensor-alert
 import { ListarSensorAlertasUseCase } from './application/use-cases/sensor-alertas/listar-sensor-alertas.use-case';
 import { ListarAlertasPorSensorUseCase } from './application/use-cases/sensor-alertas/listar-alertas-por-sensor.use-case';
 import { EliminarSensorAlertaUseCase } from './application/use-cases/sensor-alertas/eliminar-sensor-alerta.use-case';
+import { DescartarSensorAlertaUseCase } from './application/use-cases/sensor-alertas/descartar-sensor-alerta.use-case';
 
 import { SensorLecturasController } from './infraestructure/http/controllers/sensor-lecturas.controller';
 import { SensorLecturaOrmEntity } from './infraestructure/persistence/entities/sensor-lectura.orm-entity';
@@ -102,6 +103,7 @@ import { EliminarTipoSensorUseCase } from './application/use-cases/tipos-sensore
     ListarSensorAlertasUseCase,
     ListarAlertasPorSensorUseCase,
     EliminarSensorAlertaUseCase,
+    DescartarSensorAlertaUseCase,
     { provide: SENSOR_ALERTA_REPOSITORY_TOKEN, useClass: SensorAlertaRepository },
 
     CrearIotGlobalConfigUseCase,

@@ -67,6 +67,7 @@ export class actividadEvidenciaController {
     @Param('actividadId', ParseIntPipe) actividadId: number,
     @UploadedFile() foto: FotoSubida | undefined,
     @Body('descripcion') descripcion: string | undefined,
+    @Body('asignacionId') asignacionId: string | undefined,
     @Req() req: Request,
   ) {
     if (!foto) {
@@ -79,6 +80,8 @@ export class actividadEvidenciaController {
     const evidencia = await this.registrarEvidenciaUC.ejecutar(actividadId, {
       descripcion: descripcion?.trim() || undefined,
       imagenes: [`${RUTA_PUBLICA}evidencias/${nombre}`],
+      // El aprendiz sube la foto dentro de su entrega: sin esto el instructor no la ve en Por revisar
+      asignacionId: Number.isInteger(Number(asignacionId)) && Number(asignacionId) > 0 ? Number(asignacionId) : undefined,
     });
     return conUrls(evidencia, req);
   }
