@@ -15,6 +15,7 @@ export class OllamaAdapter implements IaProviderPort {
   private readonly url: string;
   private readonly modelo: string;
   private readonly modeloVision: string;
+  private readonly mantenerCargado: string;
 
   constructor(private readonly configService: ConfigService) {
     const url = this.configService.get<string>('OLLAMA_URL');
@@ -29,12 +30,14 @@ export class OllamaAdapter implements IaProviderPort {
     this.url = url;
     this.modelo = modelo;
     this.modeloVision = this.configService.get<string>('OLLAMA_VISION_MODEL') || modelo;
+    // Ollama descarga el modelo a los 5 min sin uso y la siguiente pregunta tarda minutos.
+    this.mantenerCargado = this.configService.get<string>('OLLAMA_KEEP_ALIVE') || '1h';
   }
 
   /** Llama a Ollama y, si falla, dice por qué en vez de un 500 genérico. */
   private async pedir(cuerpo: Record<string, unknown>, timeout: number): Promise<any> {
     try {
-      const { data } = await axios.post(this.url, cuerpo, { timeout });
+      const { data } = await axios.post(this.url, { ...cuerpo, keep_alive: this.mantenerCargado }, { timeout });
       return data;
     } catch (error) {
       if (isAxiosError(error)) {
