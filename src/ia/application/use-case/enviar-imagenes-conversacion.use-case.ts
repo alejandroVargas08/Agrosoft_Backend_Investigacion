@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { ConversacionIARepositoryPort } from '../../domain/ports/conversacion-ia.repository.port';
 import type { MensajeIARepositoryPort } from '../../domain/ports/mensaje-ia.repository.port';
-import type { IaProviderPort, MensajeHistorial } from '../../domain/ports/ia-provider.port';
+import type { IaProviderPort } from '../../domain/ports/ia-provider.port';
 import { CONVERSACION_IA_REPOSITORY } from '../../domain/ports/conversacion-ia.repository.token';
 import { MENSAJE_IA_REPOSITORY } from '../../domain/ports/mensaje-ia.repository.token';
 import { PoliticaPersistenciaMensajesService } from '../services/politica-persistencia-mensajes.service';
@@ -12,6 +12,10 @@ const CONTEXTO_SISTEMA =
 const FORMATO =
   'FORMATO OBLIGATORIO: escribe en texto plano. No uses Markdown: nada de asteriscos, negritas, cursivas, numerales (#), ' +
   'tablas ni bloques de código. No uses emojis ni iconos. Para listas, empieza cada línea con un guion y un espacio.';
+const INSTRUCCION_IMAGENES =
+  'El usuario te envía una o varias imágenes (cultivos, hojas, frutos, plagas, enfermedades o suelo). ' +
+  'Describe lo que observas y, si aplica, indica posibles causas y recomendaciones de manejo. ' +
+  'Si la imagen no permite concluir algo, dilo sin inventar.';
 const SIN_DATOS_DE_LA_FINCA =
   'En esta consulta NO tienes datos de la finca. Nunca inventes cifras, montos, tareas, lotes, cultivos, sensores ni nombres. ' +
   'Si preguntan por datos de la finca, di que no tienes esa información en este momento y responde solo con conocimiento agrícola general.';
@@ -19,10 +23,11 @@ const PRIMER_MENSAJE = 'Es el primer mensaje de esta conversación: saluda al us
 const CONVERSACION_EN_CURSO =
   'La conversación ya está en curso y ya saludaste: NO vuelvas a saludar ni a decir "hola" ni el nombre del usuario al inicio. Ve directo a la respuesta.';
 const SALUDO_INICIAL = /^\s*[¡!]?\s*(hola|buen[oa]s\s+(d[ií]as|tardes|noches)|saludos)\b[^.!?\n]*[.!?]?\s*/i;
+const PREFIJO_DATA_URI = /^data:image\/[a-zA-Z0-9.+-]+;base64,/;
 const MAX_MENSAJES_HISTORIAL = 12;
 
 @Injectable()
-export class EnviarMensajeConversacionUseCase {
+export class EnviarImagenesConversacionUseCase {
   constructor(
     @Inject(CONVERSACION_IA_REPOSITORY) private readonly conversaciones: ConversacionIARepositoryPort,
     @Inject(MENSAJE_IA_REPOSITORY) private readonly mensajes: MensajeIARepositoryPort,
@@ -32,47 +37,51 @@ export class EnviarMensajeConversacionUseCase {
 
   async ejecutar(props: {
     conversacionId: number;
+    imagenes: string[];
     mensaje: string;
-    cantidadImagenes?: number;
     contexto?: string;
     tuvoDatos?: boolean;
   }): Promise<{ respuesta: string; guardado: boolean }> {
     const conversacion = await this.conversaciones.buscarPorId(props.conversacionId);
     if (!conversacion) throw new NotFoundException('Conversación no encontrada');
 
-    const cantidadImagenes = props.cantidadImagenes ?? 0;
-    const tieneImagenes = cantidadImagenes > 0;
+    const imagenes = props.imagenes.map((imagen) => imagen.replace(PREFIJO_DATA_URI, ''));
+    const cantidadImagenes = imagenes.length;
 
     const historialPrevio = await this.mensajes.listarPorConversacion(props.conversacionId);
     const enCurso =
       historialPrevio.length > 0 ||
       conversacion.obtenerActualizadoEn().getTime() - conversacion.obtenerCreadoEn().getTime() > 1000;
 
-    const sistema = [
+    const historialTexto = historialPrevio
+      .slice(-MAX_MENSAJES_HISTORIAL)
+      .map((m) => {
+        const contenido = m.tieneImagenesAdjuntas()
+          ? `${m.obtenerContenido()} [adjuntó ${m.obtenerCantidadImagenes()} imagen(es)]`
+          : m.obtenerContenido();
+        return `${m.obtenerRol() === 'user' ? 'Usuario' : 'AgroBot'}: ${contenido}`;
+      })
+      .join('\n');
+
+    const prompt = [
       CONTEXTO_SISTEMA,
       FORMATO,
+      INSTRUCCION_IMAGENES,
       enCurso ? CONVERSACION_EN_CURSO : PRIMER_MENSAJE,
       props.contexto ?? SIN_DATOS_DE_LA_FINCA,
-    ].join('\n\n');
+      historialTexto ? `Conversación previa:\n${historialTexto}` : '',
+      `Consulta del usuario: ${props.mensaje}`,
+    ]
+      .filter((parte) => parte.length > 0)
+      .join('\n\n');
 
-    const historial: MensajeHistorial[] = [
-      { role: 'system', content: sistema },
-      ...historialPrevio.slice(-MAX_MENSAJES_HISTORIAL).map((m) => ({
-        role: m.obtenerRol(),
-        content: m.tieneImagenesAdjuntas()
-          ? `${m.obtenerContenido()} [adjuntó ${m.obtenerCantidadImagenes()} imagen(es)]`
-          : m.obtenerContenido(),
-      })),
-      { role: 'user', content: props.mensaje },
-    ];
-
-    const respuesta = this.limpiarSaludo(await this.iaProvider.chat(historial), enCurso);
+    const respuesta = this.limpiarSaludo(await this.iaProvider.analizarImagenes(imagenes, prompt), enCurso);
 
     const guardar = this.politica.debeGuardar({
       mensaje: props.mensaje,
       respuesta,
       tuvoDatos: props.tuvoDatos ?? false,
-      tieneImagenes,
+      tieneImagenes: true,
     });
 
     if (guardar) {
@@ -80,7 +89,7 @@ export class EnviarMensajeConversacionUseCase {
         conversacionId: props.conversacionId,
         rol: 'user',
         contenido: props.mensaje,
-        tieneImagenes,
+        tieneImagenes: true,
         cantidadImagenes,
       });
       await this.mensajes.crear({
