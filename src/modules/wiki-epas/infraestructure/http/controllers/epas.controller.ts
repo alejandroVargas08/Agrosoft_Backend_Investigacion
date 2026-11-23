@@ -7,6 +7,9 @@ import { EliminarEpaUseCase } from '../../../application/use-cases/epas/eliminar
 import { CrearEpaDto } from '../../../application/dto/epas/crear-epa.dto';
 import { ActualizarEpaDto } from '../../../application/dto/epas/actualizar-epa.dto';
 import { Autenticado } from '../../../../iam/infrastructure/http/decorators/autenticado.decorator';
+import { UsuarioActual } from '../../../../iam/infrastructure/http/decorators/usuario-actual.decorator';
+import type { UsuarioAutenticado } from '../../../../iam/domain/value-objects/alcance-datos.vo';
+import { ImportarAgroVisionUseCase } from '../../../application/use-cases/epas/importar-agrovision.use-case';
 
 @Controller('epas')
 @Autenticado()
@@ -17,11 +20,19 @@ export class EpasController {
     private readonly listarEpasUseCase: ListarEpasUseCase,
     private readonly actualizarEpaUseCase: ActualizarEpaUseCase,
     private readonly eliminarEpaUseCase: EliminarEpaUseCase,
+    private readonly importarAgroVision: ImportarAgroVisionUseCase,
   ) {}
 
   @Post()
   crear(@Body() dto: CrearEpaDto) {
     return this.crearEpaUseCase.execute(dto);
+  }
+
+  /** Trae (o refresca) las fichas de plagas y enfermedades del catálogo de AgroVisión. */
+  @Post('importar-agrovision')
+  @Autenticado('usuarios.gestionar')
+  importar(@UsuarioActual() usuario: UsuarioAutenticado) {
+    return this.importarAgroVision.execute(usuario.id);
   }
 
   @Get()
