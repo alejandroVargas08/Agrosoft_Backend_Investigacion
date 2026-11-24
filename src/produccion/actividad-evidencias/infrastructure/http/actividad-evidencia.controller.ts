@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Patch, Post, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Request } from 'express';
 import { randomUUID } from 'crypto';
@@ -12,6 +12,9 @@ import { agregarImagenEvidenciaDto } from '../../aplicattion/dto/crear-actividad
 import { eliminarEvidenciaActividadUseCase } from '../../aplicattion/use-cases/eliminar-actividad.evidencia.use-case';
 import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso-actividad.decorator';
 import { PermitirEjecutor } from '../../../actividades/infrastructure/http/permitir-ejecutor.decorator';
+import { ACTIVIDAD_ASIGNACIONES_REPOSITORY } from '../../../actividades/domain/ports/actividad-asignaciones.repository.port';
+import type { ActividadAsignacionesRepositoryPort } from '../../../actividades/domain/ports/actividad-asignaciones.repository.port';
+import type { UsuarioAutenticado } from '../../../../modules/iam/domain/value-objects/alcance-datos.vo';
 
 const CARPETA_EVIDENCIAS = path.join(process.cwd(), 'uploads', 'evidencias');
 const RUTA_PUBLICA = '/uploads/';
@@ -32,6 +35,10 @@ interface ConImagenes {
   imagenes: string[];
 }
 
+interface ConEntrega extends ConImagenes {
+  asignacionId: number | null;
+}
+
 @Controller('actividades/:actividadId/evidencias')
 @AccesoActividad()
 @PermitirEjecutor()
@@ -41,7 +48,26 @@ export class actividadEvidenciaController {
     private readonly listarEvidenciaUC: listarActividadEvidenciaUseCase,
     private readonly agregarImagenUC: AgregarImagenActividadEvidenciaUseCase,
     private readonly eliminarEvidenciaUC: eliminarEvidenciaActividadUseCase,
+    @Inject(ACTIVIDAD_ASIGNACIONES_REPOSITORY)
+    private readonly asignaciones: ActividadAsignacionesRepositoryPort,
   ) {}
+
+  /**
+   * La entrega a la que va lo que se sube. Si quien sube es un aprendiz con
+   * esta actividad asignada, es siempre la suya, la mande o no el cliente
+   * (la app de escritorio no la manda); así el instructor la ve en Por
+   * revisar y nadie puede colgar fotos en la entrega de otro. El instructor
+   * no tiene entrega: lo suyo queda en la actividad.
+   */
+  private async entregaDe(actividadId: number, req: Request, pedida?: unknown): Promise<number | undefined> {
+    const usuario = (req as Request & { usuarioAutenticado?: UsuarioAutenticado }).usuarioAutenticado;
+    if (usuario) {
+      const propia = await this.asignaciones.buscarPorActividadYAprendiz(actividadId, usuario.id);
+      if (propia?.id) return propia.id;
+    }
+    const numero = Number(pedida);
+    return Number.isInteger(numero) && numero > 0 ? numero : undefined;
+  }
 
   @Post()
   async registrar(
@@ -52,6 +78,7 @@ export class actividadEvidenciaController {
     const evidencia = await this.registrarEvidenciaUC.ejecutar(actividadId, {
       ...dto,
       imagenes: (dto.imagenes ?? []).map(relativa),
+      asignacionId: await this.entregaDe(actividadId, req, dto.asignacionId),
     });
     return conUrls(evidencia, req);
   }
@@ -81,7 +108,7 @@ export class actividadEvidenciaController {
       descripcion: descripcion?.trim() || undefined,
       imagenes: [`${RUTA_PUBLICA}evidencias/${nombre}`],
       // El aprendiz sube la foto dentro de su entrega: sin esto el instructor no la ve en Por revisar
-      asignacionId: Number.isInteger(Number(asignacionId)) && Number(asignacionId) > 0 ? Number(asignacionId) : undefined,
+      asignacionId: await this.entregaDe(actividadId, req, asignacionId),
     });
     return conUrls(evidencia, req);
   }
@@ -93,11 +120,19 @@ export class actividadEvidenciaController {
     @Query('asignacionId') asignacionId?: string,
   ) {
     const entrega = asignacionId !== undefined ? Number(asignacionId) : undefined;
-    const evidencias = await this.listarEvidenciaUC.ejecutar(
-      actividadId,
-      Number.isInteger(entrega) ? entrega : undefined,
-    );
-    return evidencias.map((evidencia) => conUrls(evidencia, req));
+    const todas = (await this.listarEvidenciaUC.ejecutar(actividadId)) as unknown as ConEntrega[];
+    if (entrega === undefined || !Number.isInteger(entrega)) {
+      return todas.map((evidencia) => conUrls(evidencia, req));
+    }
+
+    // Las fotos subidas sin entrega (antes de este arreglo, o desde la app de
+    // escritorio) solo se pueden atribuir con seguridad si la actividad tiene
+    // un único aprendiz asignado: en ese caso son de él.
+    const asignadas = await this.asignaciones.listarPorActividad(actividadId);
+    const unicaEntrega = asignadas.length === 1 && asignadas[0].id === entrega;
+    return todas
+      .filter((e) => e.asignacionId === entrega || (unicaEntrega && e.asignacionId == null))
+      .map((evidencia) => conUrls(evidencia, req));
   }
 
   @Patch(':id/imagenes')
