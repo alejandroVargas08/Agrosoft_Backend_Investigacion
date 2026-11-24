@@ -1,3 +1,4 @@
+import { RecuperarAnalisisInterrumpidosService } from './infraestructure/persistence/recuperar-analisis-interrumpidos.service';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { iaModule } from '../ia/ia.module';
@@ -71,6 +72,7 @@ import { ListarResultadosAnalisisUseCase } from './application/use-cases/analisi
   ],
   controllers: [DronesController, VuelosController, AnalisisVueloController],
   providers: [
+    RecuperarAnalisisInterrumpidosService,
     CrearDronUseCase,
     ObtenerDronUseCase,
     ListarDronesUseCase,

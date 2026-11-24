@@ -1,3 +1,4 @@
+import { RecuperarEvaluacionesInterrumpidasService } from './infrastructure/persistence/recuperar-evaluaciones-interrumpidas.service';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { iaModule } from '../ia/ia.module';
@@ -44,6 +45,7 @@ import { ImagenSatelitalConRespaldoAdapter } from './infrastructure/externos/ima
   ],
   controllers: [DisenoTerrenoController],
   providers: [
+    RecuperarEvaluacionesInterrumpidasService,
     AnalizadorTopografiaService,
     AnalizadorCoberturaService,
     DetectorObjetosDronService,
