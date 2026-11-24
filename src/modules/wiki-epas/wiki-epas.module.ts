@@ -35,6 +35,10 @@ import { ListarEpasUseCase } from './application/use-cases/epas/listar-epas.use-
 import { ActualizarEpaUseCase } from './application/use-cases/epas/actualizar-epa.use-case';
 import { EliminarEpaUseCase } from './application/use-cases/epas/eliminar-epa.use-case';
 import { IamModule } from '../iam/iam.module';
+import { ImportarAgroVisionUseCase } from './application/use-cases/epas/importar-agrovision.use-case';
+import { CATALOGO_AGROVISION_TOKEN } from './domain/ports/catalogo-agrovision.port';
+import { AgroVisionAdapter } from './infraestructure/agrovision/agrovision.adapter';
+import { ImportacionInicialAgroVisionService } from './infraestructure/agrovision/importacion-inicial-agrovision.service';
 
 @Module({
   imports: [
@@ -48,6 +52,9 @@ import { IamModule } from '../iam/iam.module';
     ActualizarEpaUseCase,
     EliminarEpaUseCase,
     { provide: EPA_REPOSITORY_TOKEN, useClass: EpaRepository },
+    ImportarAgroVisionUseCase,
+    ImportacionInicialAgroVisionService,
+    { provide: CATALOGO_AGROVISION_TOKEN, useClass: AgroVisionAdapter },
 
     CrearWikiTipoEpaUseCase,
     ObtenerWikiTipoEpaUseCase,
