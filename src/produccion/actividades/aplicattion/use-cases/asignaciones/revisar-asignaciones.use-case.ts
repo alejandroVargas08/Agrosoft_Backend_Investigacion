@@ -6,6 +6,7 @@ import type { ActividadAsignacionesRepositoryPort } from "../../../domain/ports/
 import { actividades_repository } from "../../../domain/ports/actividades.repository.port";
 import type { actividadesRepositoryPort } from "../../../domain/ports/actividades.repository.port";
 import { AccesoActividadesService } from "../../services/acceso-actividades.service";
+import { AccesoAprendicesService } from "../../../../../modules/iam/application/services/acceso-aprendices.service";
 import { NotificadorAsignacionesService } from "../../services/notificador-asignaciones.service";
 import { AsignacionRespuesta, PresentadorAsignacionesService } from "../../services/presentador-asignaciones.service";
 
@@ -17,12 +18,17 @@ export class RevisarAsignacionesUseCase {
         @Inject(ACTIVIDAD_ASIGNACIONES_REPOSITORY) private readonly asignaciones: ActividadAsignacionesRepositoryPort,
         @Inject(actividades_repository) private readonly actividades: actividadesRepositoryPort,
         private readonly accesoActividades: AccesoActividadesService,
+        private readonly accesoAprendices: AccesoAprendicesService,
         private readonly presentador: PresentadorAsignacionesService,
         private readonly notificador: NotificadorAsignacionesService,
     ) {}
 
     async porRevisar(alcance: AlcanceDatos): Promise<AsignacionRespuesta[]> {
-        const entregadas = await this.asignaciones.listarPorEstado('ENTREGADA');
+        const misAprendices = new Set(await this.accesoAprendices.idsVisibles(alcance));
+        if (misAprendices.size === 0) return [];
+
+        const entregadas = (await this.asignaciones.listarPorEstado('ENTREGADA'))
+            .filter((asignacion) => misAprendices.has(asignacion.aprendizId));
         const visibles: ActividadAsignacion[] = [];
         const visibilidad = new Map<number, boolean>();
 
@@ -64,7 +70,11 @@ export class RevisarAsignacionesUseCase {
 
     private async obtenerVisible(asignacionId: number, alcance: AlcanceDatos): Promise<ActividadAsignacion> {
         const asignacion = await this.asignaciones.buscarPorId(asignacionId);
-        if (!asignacion || !(await this.esVisible(asignacion.actividadId, alcance))) {
+        if (
+            !asignacion ||
+            !(await this.accesoAprendices.puedeVer(alcance, asignacion.aprendizId)) ||
+            !(await this.esVisible(asignacion.actividadId, alcance))
+        ) {
             throw new NotFoundException(`Asignación ${asignacionId} no encontrada`);
         }
         return asignacion;
