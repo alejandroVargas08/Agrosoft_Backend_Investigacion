@@ -10,9 +10,6 @@ import { PermitirEjecutor } from '../../../actividades/infrastructure/http/permi
 
 @Controller('actividad/:actividadId/insumoReserva')
 @AccesoActividad()
-// El aprendiz aparta insumos de la tarea que esta ejecutando, igual que ya
-// hacen evidencias, insumos usados y herramientas. El guard ademas exige que
-// tenga una asignacion activa en esa actividad.
 @PermitirEjecutor()
     export class actividadInsumoReservaController {
         constructor(
@@ -33,12 +30,16 @@ import { PermitirEjecutor } from '../../../actividades/infrastructure/http/permi
         }
     
         @Patch(':id')
-        ajustarCantidad(@Param('id', ParseIntPipe) id: number, @Body() dto: ajustarActividadInsumoReservaDto) {
-            return this.ajustarCantidadUC.ejecutar(id, dto.cantidadReserva);
+        ajustarCantidad(
+            @Param('actividadId', ParseIntPipe) actividadId: number,
+            @Param('id', ParseIntPipe) id: number,
+            @Body() dto: ajustarActividadInsumoReservaDto,
+        ) {
+            return this.ajustarCantidadUC.ejecutar(id, dto.cantidadReserva, actividadId);
         }
     
         @Delete(':id')
-        liberar(@Param('id', ParseIntPipe) id: number) {
-            return this.liberarReservaUC.ejecutar(id);
+        liberar(@Param('actividadId', ParseIntPipe) actividadId: number, @Param('id', ParseIntPipe) id: number) {
+            return this.liberarReservaUC.ejecutar(id, actividadId);
         }
     }

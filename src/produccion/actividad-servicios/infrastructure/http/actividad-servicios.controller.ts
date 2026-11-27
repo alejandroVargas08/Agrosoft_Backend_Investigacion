@@ -28,12 +28,16 @@ import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso
     }
 
     @Patch(':id')
-    actualizarHoras(@Param('id', ParseIntPipe) id: number, @Body() dto: actualizarActividadServicioDto) {
-        return this.actualizarServicioUC.ejecutar(id, dto.horas);
+    actualizarHoras(
+        @Param('actividadId', ParseIntPipe) actividadId: number,
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: actualizarActividadServicioDto,
+    ) {
+        return this.actualizarServicioUC.ejecutar(id, dto.horas, actividadId);
     }
 
     @Delete(':id')
-    eliminar(@Param('id', ParseIntPipe) id: number) {
-        return this.eliminarServicioUC.ejecutar(id);
+    eliminar(@Param('actividadId', ParseIntPipe) actividadId: number, @Param('id', ParseIntPipe) id: number) {
+        return this.eliminarServicioUC.ejecutar(id, actividadId);
     }
 }

@@ -28,7 +28,8 @@ import { PermitirEjecutor } from "../../../actividades/infrastructure/http/permi
         }
 
         @Delete(':id')
-        eliminar(@Param('id', ParseIntPipe) id: number) {
-            return this.eliminarInsumoUC.ejecutar(id);
+        eliminar(@Param('actividadId', ParseIntPipe) actividadId: number, @Param('id', ParseIntPipe) id: number) {
+            return this.eliminarInsumoUC.ejecutar(id, actividadId);
         }
     }
+    

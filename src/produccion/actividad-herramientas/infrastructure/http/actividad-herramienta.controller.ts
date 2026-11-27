@@ -30,14 +30,15 @@ import { AccesoActividad } from '../../../actividades/infrastructure/http/acceso
 
         @Patch(':id/reestimar')
         reestimar(
+            @Param('actividadId', ParseIntPipe) actividadId: number,
             @Param('id', ParseIntPipe) id: number,
             @Body() dto: reEstimarHorasActividadHerramientaDto
         ) {
-            return this.reEstimarHerramientaUC.ejecutar(id, dto.horasEstimadas);
+            return this.reEstimarHerramientaUC.ejecutar(id, dto.horasEstimadas, actividadId);
         }
 
         @Delete(':id')
-        quitar(@Param('id', ParseIntPipe) id: number) {
-            return this.quitarHerramientaUC.ejecutar(id);
+        quitar(@Param('actividadId', ParseIntPipe) actividadId: number, @Param('id', ParseIntPipe) id: number) {
+            return this.quitarHerramientaUC.ejecutar(id, actividadId);
         }
     }

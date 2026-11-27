@@ -9,9 +9,9 @@ import { type actividadInsumoReservaRepositoryPort } from "../../domain/ports/ac
             private readonly repo: actividadInsumoReservaRepositoryPort
         ) {}
 
-        async ejecutar(id: number): Promise<void> {
+        async ejecutar(id: number, actividadId?: number): Promise<void> {
             const item = await this.repo.buscarPorId(id);
-            if (!item) throw new NotFoundException(`Reserva ${id} no encontrada`);
+            if (!item || (actividadId !== undefined && item.actividadId !== actividadId)) throw new NotFoundException(`Reserva ${id} no encontrada`);
             await this.repo.eliminar(id);
         }
     }

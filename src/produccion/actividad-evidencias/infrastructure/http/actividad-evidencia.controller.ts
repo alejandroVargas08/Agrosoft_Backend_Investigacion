@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Patch, Post, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Inject, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Request } from 'express';
 import { randomUUID } from 'crypto';
@@ -15,6 +15,8 @@ import { PermitirEjecutor } from '../../../actividades/infrastructure/http/permi
 import { ACTIVIDAD_ASIGNACIONES_REPOSITORY } from '../../../actividades/domain/ports/actividad-asignaciones.repository.port';
 import type { ActividadAsignacionesRepositoryPort } from '../../../actividades/domain/ports/actividad-asignaciones.repository.port';
 import type { UsuarioAutenticado } from '../../../../modules/iam/domain/value-objects/alcance-datos.vo';
+import { AccesoAprendicesService } from '../../../../modules/iam/application/services/acceso-aprendices.service';
+import { PERMISOS_PRODUCCION } from '../../../permisos-produccion';
 
 const CARPETA_EVIDENCIAS = path.join(process.cwd(), 'uploads', 'evidencias');
 const RUTA_PUBLICA = '/uploads/';
@@ -36,7 +38,20 @@ interface ConImagenes {
 }
 
 interface ConEntrega extends ConImagenes {
+  id: number;
   asignacionId: number | null;
+}
+
+function esInstructor(usuario: UsuarioAutenticado): boolean {
+  return (
+    usuario.verTodo ||
+    usuario.permisos.includes(PERMISOS_PRODUCCION.ASIGNAR_ACTIVIDADES) ||
+    usuario.permisos.includes(PERMISOS_PRODUCCION.REVISAR_ACTIVIDADES)
+  );
+}
+
+function usuarioDe(req: Request): UsuarioAutenticado | undefined {
+  return (req as Request & { usuarioAutenticado?: UsuarioAutenticado }).usuarioAutenticado;
 }
 
 @Controller('actividades/:actividadId/evidencias')
@@ -50,23 +65,50 @@ export class actividadEvidenciaController {
     private readonly eliminarEvidenciaUC: eliminarEvidenciaActividadUseCase,
     @Inject(ACTIVIDAD_ASIGNACIONES_REPOSITORY)
     private readonly asignaciones: ActividadAsignacionesRepositoryPort,
+    private readonly accesoAprendices: AccesoAprendicesService,
   ) {}
 
-  /**
-   * La entrega a la que va lo que se sube. Si quien sube es un aprendiz con
-   * esta actividad asignada, es siempre la suya, la mande o no el cliente
-   * (la app de escritorio no la manda); así el instructor la ve en Por
-   * revisar y nadie puede colgar fotos en la entrega de otro. El instructor
-   * no tiene entrega: lo suyo queda en la actividad.
-   */
+  private async entregasPermitidas(actividadId: number, usuario: UsuarioAutenticado | undefined): Promise<Set<number>> {
+    if (!usuario) return new Set();
+    const asignadas = await this.asignaciones.listarPorActividad(actividadId);
+    const misAprendices = esInstructor(usuario)
+      ? new Set(await this.accesoAprendices.idsVisibles(usuario))
+      : new Set<number>();
+    return new Set(
+      asignadas
+        .filter((a) => a.aprendizId === usuario.id || misAprendices.has(a.aprendizId))
+        .map((a) => a.id!),
+    );
+  }
+
+  private async evidenciaEditable(actividadId: number, id: number, req: Request): Promise<void> {
+    const usuario = usuarioDe(req);
+    const todas = (await this.listarEvidenciaUC.ejecutar(actividadId)) as unknown as ConEntrega[];
+    const evidencia = todas.find((e) => e.id === id);
+    if (!evidencia || !usuario) throw new NotFoundException(`Evidencia ${id} no encontrada`);
+
+    if (esInstructor(usuario) || usuario.permisos.includes(PERMISOS_PRODUCCION.GESTIONAR_ACTIVIDADES)) {
+      if (evidencia.asignacionId == null) return;
+      if ((await this.entregasPermitidas(actividadId, usuario)).has(evidencia.asignacionId)) return;
+    } else {
+      const propia = await this.asignaciones.buscarPorActividadYAprendiz(actividadId, usuario.id);
+      if (propia?.id && evidencia.asignacionId === propia.id) return;
+    }
+    throw new NotFoundException(`Evidencia ${id} no encontrada`);
+  }
+
   private async entregaDe(actividadId: number, req: Request, pedida?: unknown): Promise<number | undefined> {
-    const usuario = (req as Request & { usuarioAutenticado?: UsuarioAutenticado }).usuarioAutenticado;
+    const usuario = usuarioDe(req);
     if (usuario) {
       const propia = await this.asignaciones.buscarPorActividadYAprendiz(actividadId, usuario.id);
       if (propia?.id) return propia.id;
     }
     const numero = Number(pedida);
-    return Number.isInteger(numero) && numero > 0 ? numero : undefined;
+    if (!Number.isInteger(numero) || numero <= 0) return undefined;
+    if (!(await this.entregasPermitidas(actividadId, usuario)).has(numero)) {
+      throw new BadRequestException(`La entrega ${numero} no es de esta actividad o no está a tu cargo`);
+    }
+    return numero;
   }
 
   @Post()
@@ -107,7 +149,6 @@ export class actividadEvidenciaController {
     const evidencia = await this.registrarEvidenciaUC.ejecutar(actividadId, {
       descripcion: descripcion?.trim() || undefined,
       imagenes: [`${RUTA_PUBLICA}evidencias/${nombre}`],
-      // El aprendiz sube la foto dentro de su entrega: sin esto el instructor no la ve en Por revisar
       asignacionId: await this.entregaDe(actividadId, req, asignacionId),
     });
     return conUrls(evidencia, req);
@@ -120,14 +161,15 @@ export class actividadEvidenciaController {
     @Query('asignacionId') asignacionId?: string,
   ) {
     const entrega = asignacionId !== undefined ? Number(asignacionId) : undefined;
+    const permitidas = await this.entregasPermitidas(actividadId, usuarioDe(req));
     const todas = (await this.listarEvidenciaUC.ejecutar(actividadId)) as unknown as ConEntrega[];
     if (entrega === undefined || !Number.isInteger(entrega)) {
-      return todas.map((evidencia) => conUrls(evidencia, req));
+      return todas
+        .filter((e) => e.asignacionId == null || permitidas.has(e.asignacionId))
+        .map((evidencia) => conUrls(evidencia, req));
     }
+    if (!permitidas.has(entrega)) return [];
 
-    // Las fotos subidas sin entrega (antes de este arreglo, o desde la app de
-    // escritorio) solo se pueden atribuir con seguridad si la actividad tiene
-    // un único aprendiz asignado: en ese caso son de él.
     const asignadas = await this.asignaciones.listarPorActividad(actividadId);
     const unicaEntrega = asignadas.length === 1 && asignadas[0].id === entrega;
     return todas
@@ -137,16 +179,23 @@ export class actividadEvidenciaController {
 
   @Patch(':id/imagenes')
   async agregarImagen(
+    @Param('actividadId', ParseIntPipe) actividadId: number,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: agregarImagenEvidenciaDto,
     @Req() req: Request,
   ) {
+    await this.evidenciaEditable(actividadId, id, req);
     const evidencia = await this.agregarImagenUC.ejecutar(id, relativa(dto.url));
     return conUrls(evidencia, req);
   }
 
   @Delete(':id')
-  eliminar(@Param('id', ParseIntPipe) id: number) {
+  async eliminar(
+    @Param('actividadId', ParseIntPipe) actividadId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request,
+  ) {
+    await this.evidenciaEditable(actividadId, id, req);
     return this.eliminarEvidenciaUC.ejecutar(id);
   }
 }

@@ -9,9 +9,9 @@ import { type actividadServicioRepositoryPort } from "../../domain/ports/activid
             private readonly repo: actividadServicioRepositoryPort
         ) {}
 
-        async ejecutar(id: number, horas: number) {
+        async ejecutar(id: number, horas: number, actividadId?: number) {
             const item = await this.repo.buscarPorId(id);
-            if (!item) throw new NotFoundException(`Servicio de actividad ${id} no encontrado`);
+            if (!item || (actividadId !== undefined && item.actividadId !== actividadId)) throw new NotFoundException(`Servicio de actividad ${id} no encontrado`);
             item.actualizarHoras(horas);
             return this.repo.actualizar(item);
         }

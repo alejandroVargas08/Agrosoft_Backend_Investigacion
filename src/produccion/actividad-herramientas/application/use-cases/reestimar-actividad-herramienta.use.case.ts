@@ -9,9 +9,9 @@ import { type actividad_HerramientasRepositoryPort } from "../../domain/ports/ac
             private readonly repo: actividad_HerramientasRepositoryPort
         ) {}
 
-        async ejecutar(id: number, horasEstimadas: number ) {
+        async ejecutar(id: number, horasEstimadas: number, actividadId?: number) {
             const item = await this.repo.buscarPorId(id);
-            if (!item) throw new NotFoundException(`Asignación de herramienta ${id} no encontrada`);
+            if (!item || (actividadId !== undefined && item.actividadId !== actividadId)) throw new NotFoundException(`Asignación de herramienta ${id} no encontrada`);
             item.reEstimarHoras(horasEstimadas);
             return this.repo.actualizar(item);
         }

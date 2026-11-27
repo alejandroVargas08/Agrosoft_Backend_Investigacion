@@ -9,9 +9,9 @@ import { type actividadResponsableRepositoryPort } from "../../domain/ports/acti
             private readonly repo: actividadResponsableRepositoryPort
         ) {}
 
-        async ejecutar(id: number) : Promise<void> {
+        async ejecutar(id: number, actividadId?: number): Promise<void> {
             const item = await this.repo.buscarPorId(id);
-            if(!item) throw new NotFoundException(`Responsable ${id} no encontrado`);
+            if (!item || (actividadId !== undefined && item.actividadId !== actividadId)) throw new NotFoundException(`Responsable ${id} no encontrado`);
             await this.repo.eliminar(id);
         }
     }

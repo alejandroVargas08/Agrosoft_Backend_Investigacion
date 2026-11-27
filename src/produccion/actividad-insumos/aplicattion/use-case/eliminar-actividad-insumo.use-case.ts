@@ -9,9 +9,10 @@ import { type actividadInsumoRepositoryPort } from "../../domain/port/actividad-
             private readonly repo: actividadInsumoRepositoryPort,
         ) {}
 
-        async ejecutar(id: number): Promise<void> {
+        async ejecutar(id: number, actividadId?: number): Promise<void> {
             const item = await this.repo.buscarPorId(id);
-            if (!item) throw new NotFoundException(`Registro de insumo ${id} no encontrado`);
+            if (!item || (actividadId !== undefined && item.actividadId !== actividadId)) throw new NotFoundException(`Registro de insumo ${id} no encontrado`);
             await this.repo.eliminar(id);
         }
     }
+    
